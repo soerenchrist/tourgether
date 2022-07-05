@@ -33,7 +33,7 @@ const Tours: NextPage = () => {
         {data.map((tour) => (
           <TableRow key={tour.id}>
             <TableCell>{tour.name}</TableCell>
-            <TableCell className="hidden md:table-cell">
+            <TableCell className="hidden md:table-cell truncate max-w-md">
               {tour.description}
             </TableCell>
             <TableCell>{tour.distance}m</TableCell>

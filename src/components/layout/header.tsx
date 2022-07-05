@@ -17,8 +17,8 @@ const Header = ({ session }: { session: Session | null }) => {
       {session?.user ? <Menu /> : <div></div>}
 
       {session?.user?.email || (
-        <Link href="/api/auth/signin">
-          <div className="bg-blue-500 p-1 px-4 rounded-2xl">Sign in</div>
+        <Link href="/api/auth/signin/auth0">
+          <div className="bg-blue-500 p-1 px-4 cursor-pointer rounded-2xl">Sign in</div>
         </Link>
       )}
     </header>
