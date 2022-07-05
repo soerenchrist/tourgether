@@ -1,5 +1,6 @@
 // src/server/router/context.ts
 import * as trpc from "@trpc/server";
+import AWS from "aws-sdk";
 import * as trpcNext from "@trpc/server/adapters/next";
 import { unstable_getServerSession as getServerSession } from "next-auth";
 
@@ -15,11 +16,17 @@ export const createContext = async (
   const session =
     req && res && (await getServerSession(req, res, nextAuthOptions));
 
+  const s3 = new AWS.S3({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_ACCESS_KEY_SECRET
+  });
+
   return {
     req,
     res,
     session,
     prisma,
+    s3
   };
 };
 
