@@ -1,8 +1,8 @@
 import { NextPage } from "next";
-import Card from "../common/card";
-import Table, { TableCell, TableHeaderCell, TableRow } from "../common/table";
-import LayoutBase from "../components/layout/layoutBase";
-import { trpc } from "../utils/trpc";
+import Table, { TableCell, TableHeaderCell, TableRow } from "@/components/common/table";
+import LayoutBase from "@/components/layout/layoutBase";
+import { trpc } from "@/utils/trpc";
+import Link from "next/link";
 
 const Tours: NextPage = () => {
   const { data, isLoading } = trpc.useQuery(["tours.get-tours"]);
@@ -30,7 +30,7 @@ const Tours: NextPage = () => {
               <TableCell>{tour.distance}m</TableCell>
               <TableCell className="hidden md:table-cell">{tour.elevationUp}m</TableCell>
               <TableCell>
-                    <a href="#" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Show</a>
+                    <Link href={`/tours/${tour.id}`} className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Show</Link>
               </TableCell>
             </TableRow>
           ))}
