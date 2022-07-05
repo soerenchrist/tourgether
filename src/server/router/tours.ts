@@ -24,7 +24,7 @@ export const toursRouter = createRouter()
   })
   .query("get-tour-by-id", {
     input: z.object({
-      id: z.string()
+      id: z.string(),
     }),
     async resolve({ input, ctx }) {
       const userId = ctx.session?.user?.id;
@@ -33,8 +33,31 @@ export const toursRouter = createRouter()
       return await ctx.prisma.tour.findFirst({
         where: {
           creatorId: userId,
-          id: input.id
-        }
-      })
+          id: input.id,
+        },
+      });
+    },
+  })
+  .mutation("create-tour", {
+    input: z.object({
+      name: z.string().min(1),
+      description: z.string(),
+      distance: z.number().min(0),
+      elevationUp: z.number().min(0),
+      elevationDown: z.number().min(0),
+      date: z.date(),
+      startTime: z.date().nullish(),
+      endTime: z.date().nullish(),
+    }),
+    async resolve({ input, ctx }) {      
+      const userId = ctx.session?.user?.id;
+      if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
+      const tour = {
+        creatorId: userId,
+        ...input
+      };
+      return await ctx.prisma.tour.create({
+        data: tour
+      });
     }
   });
