@@ -3,7 +3,14 @@ import { List, ListItem } from "@/components/common/list";
 import Spinner from "@/components/common/spinner";
 import LayoutBase from "@/components/layout/layoutBase";
 import { trpc } from "@/utils/trpc";
+import dynamic from "next/dynamic";
+import Head from "next/head";
 import { useRouter } from "next/router";
+
+const Map = dynamic(
+  () => import("../../components/maps/tourMap"),
+  { ssr: false }
+)
 
 const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
   const { data, isLoading } = trpc.useQuery(["tours.get-tour-by-id", { id }]);
@@ -16,41 +23,51 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
   );
 
   return (
-    <LayoutBase>
-      <Card title={data.name}>
-        {isLoading ? 
-          loadingIndicator
-         : (
-          <List className="mt-4">
-            <ListItem title={`${data.distance}m`} subtitle="Distance" />
-            <ListItem title={`${data.elevationUp}m`} subtitle="Elevation Up" />
-            <ListItem
-              title={`${data.elevationDown}m`}
-              subtitle="Elevation Down"
-            />
-            <ListItem
-              title={`${data.date.toLocaleDateString()}`}
-              subtitle="Date"
-            />
-            {data.startTime && (
-              <ListItem
-                title={`${data.startTime.toLocaleTimeString()}`}
-                subtitle="Start time"
-              />
-            )}
+    <>
+      <Head>
+        <title>Tour - {data.name}</title>
+      </Head>
+      <LayoutBase>
+        <div className="grid grid-cols-2 gap-6">
+          <Card title={data.name}>
+            {isLoading ?
+              loadingIndicator
+              : (
+                <List className="mt-4">
+                  <ListItem title={`${data.distance}m`} subtitle="Distance" />
+                  <ListItem title={`${data.elevationUp}m`} subtitle="Elevation Up" />
+                  <ListItem
+                    title={`${data.elevationDown}m`}
+                    subtitle="Elevation Down"
+                  />
+                  <ListItem
+                    title={`${data.date.toLocaleDateString()}`}
+                    subtitle="Date"
+                  />
+                  {data.startTime && (
+                    <ListItem
+                      title={`${data.startTime.toLocaleTimeString()}`}
+                      subtitle="Start time"
+                    />
+                  )}
 
-            {data.endTime && (
-              <ListItem
-                title={`${data.endTime.toLocaleTimeString()}`}
-                subtitle="End time"
-              />
-            )}
+                  {data.endTime && (
+                    <ListItem
+                      title={`${data.endTime.toLocaleTimeString()}`}
+                      subtitle="End time"
+                    />
+                  )}
 
-            <ListItem subtitle={data.description} />
-          </List>
-        )}
-      </Card>
-    </LayoutBase>
+                  <ListItem subtitle={data.description} />
+                </List>
+              )}
+          </Card>
+          <Card className="p-0 lg:p-0">
+            <Map />
+          </Card>
+        </div>
+      </LayoutBase>
+    </>
   );
 };
 

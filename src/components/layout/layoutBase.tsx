@@ -1,10 +1,10 @@
 import { useSession } from "next-auth/react";
-import { ReactElement } from "react";
+import { ReactNode } from "react";
 import Footer from "./footer";
 import Header from "./header";
 
 type Props = {
-  children: ReactElement;
+  children: ReactNode;
 };
 
 const LayoutBase = (props: Props) => {
