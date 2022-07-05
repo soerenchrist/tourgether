@@ -17,8 +17,8 @@ export const createContext = async (
     req && res && (await getServerSession(req, res, nextAuthOptions));
 
   const s3 = new AWS.S3({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_ACCESS_KEY_SECRET
+    accessKeyId: process.env.AWS_BUCKET_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_BUCKET_ACCESS_KEY_SECRET
   });
 
   return {
