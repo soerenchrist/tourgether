@@ -1,4 +1,5 @@
 import { TRPCError } from "@trpc/server";
+import { z } from "zod";
 import { createRouter } from "./context";
 
 export const toursRouter = createRouter()
@@ -20,4 +21,20 @@ export const toursRouter = createRouter()
         },
       });
     },
+  })
+  .query("get-tour-by-id", {
+    input: z.object({
+      id: z.string()
+    }),
+    async resolve({ input, ctx }) {
+      const userId = ctx.session?.user?.id;
+      if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
+
+      return await ctx.prisma.tour.findFirst({
+        where: {
+          creatorId: userId,
+          id: input.id
+        }
+      })
+    }
   });

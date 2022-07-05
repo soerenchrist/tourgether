@@ -12,7 +12,9 @@ const LayoutBase = (props: Props) => {
   return (
     <div className="flex flex-col h-screen justify-between bg-gray-200 text-gray-900 dark:text-white dark:bg-gray-700">
       <Header session={session} />
-      {props.children}
+      <div className="p-8 h-full flex flex-col justify-start">
+        {props.children}
+      </div>
       <Footer />
     </div>
   );
