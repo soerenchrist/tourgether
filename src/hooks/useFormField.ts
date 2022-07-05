@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 type FormFieldValidator<T> = {
-  method: (val: T) => boolean;
+  method: (val: T | undefined) => boolean;
   message?: string;
 };
 
@@ -13,7 +13,7 @@ export const useFormField = <T>(
   defaultValue: T,
   options?: FormFieldOptions<T>
 ) => {
-  const [value, setValue] = useState(defaultValue);
+  const [value, setValue] = useState<T | undefined>(defaultValue);
   const [error, setError] = useState<string | undefined>(undefined);
   const [touched, setTouched] = useState(false);
 

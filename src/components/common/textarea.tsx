@@ -6,17 +6,12 @@ type Props = {
   placeholder?: string;
   value?: string;
   onChange?: (val: string) => void;
-  onFocus?: FocusEventHandler<HTMLInputElement>;
-  onBlur?: FocusEventHandler<HTMLInputElement>;
+  onFocus?: FocusEventHandler<HTMLTextAreaElement>;
+  onBlur?: FocusEventHandler<HTMLTextAreaElement>;
   error?: string;
-  type: "text" | "date" | "datetime" | "time";
-} & typeof defaultProps;
+ }
 
-const defaultProps = {
-  type: "text"
-}
-
-const Input = ({
+const TextArea = ({
   id,
   label,
   placeholder,
@@ -25,7 +20,6 @@ const Input = ({
   onChange,
   onFocus,
   onBlur,
-  type,
 }: Props) => {
   const inputClasses = error
     ? "bg-red-50 border border-red-500 text-red-900 placeholder-red-700 focus:ring-red-500 dark:bg-gray-700 focus:border-red-500 dark:text-red-500 dark:placeholder-red-500 dark:border-red-500"
@@ -41,8 +35,7 @@ const Input = ({
           {label}
         </label>
       )}
-      <input
-        type={type}
+      <textarea
         id={id}
         value={value}
         onFocus={onFocus}
@@ -56,5 +49,4 @@ const Input = ({
   );
 };
 
-Input.defaultProps = defaultProps;
-export default Input;
+export default TextArea;
