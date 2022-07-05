@@ -13,7 +13,7 @@ const Menu = () => {
 
 const Header = ({ session }: { session: Session | null }) => {
   return (
-    <header className="bg-gray-700 text-white text-lg items-center pr-6 h-16 flex justify-between px-4">
+    <header className="bg-gray-700 dark:bg-gray-900 text-white text-lg items-center pr-6 h-16 flex justify-between px-4">
       {session?.user ? <Menu /> : <div></div>}
 
       {session?.user?.email || (

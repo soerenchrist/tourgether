@@ -10,7 +10,7 @@ type Props = {
 const LayoutBase = (props: Props) => {
   const { data: session } = useSession();
   return (
-    <div className="flex flex-col h-screen justify-between">
+    <div className="flex flex-col h-screen justify-between bg-gray-200 dark:bg-gray-700">
       <Header session={session} />
       {props.children}
       <Footer />
