@@ -6,12 +6,19 @@ import Table, {
 } from "@/components/common/table";
 import LayoutBase from "@/components/layout/layoutBase";
 import { trpc } from "@/utils/trpc";
+import Button from "@/components/common/button";
+import { useRouter } from "next/router";
 import Link from "next/link";
 
 const Tours: NextPage = () => {
   const { data, isLoading } = trpc.useQuery(["tours.get-tours"]);
 
+  const router = useRouter();
   if (isLoading || !data) return <div>Loading...</div>;
+
+  const handleAddClick = () => {
+    router.push("/tours/create")
+  }
 
   const tableHeader = (
     <tr>
@@ -27,9 +34,21 @@ const Tours: NextPage = () => {
     </tr>
   );
 
+  const tableFooter = (
+    <TableRow>
+      <TableCell></TableCell>
+      <TableCell></TableCell>
+      <TableCell></TableCell>
+      <TableCell></TableCell>
+      <TableCell className="px-0 py-0">
+          <Button onClick={handleAddClick}>Add</Button>
+      </TableCell>
+    </TableRow>
+  )
+
   return (
     <LayoutBase>
-      <Table headerContent={tableHeader}>
+      <Table headerContent={tableHeader} footerContent={tableFooter}>
         {data.map((tour) => (
           <TableRow key={tour.id}>
             <TableCell>{tour.name}</TableCell>
