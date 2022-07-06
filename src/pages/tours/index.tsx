@@ -17,8 +17,8 @@ const Tours: NextPage = () => {
   if (isLoading || !data) return <div>Loading...</div>;
 
   const handleAddClick = () => {
-    router.push("/tours/create")
-  }
+    router.push("/tours/create");
+  };
 
   const tableHeader = (
     <tr>
@@ -34,21 +34,9 @@ const Tours: NextPage = () => {
     </tr>
   );
 
-  const tableFooter = (
-    <TableRow>
-      <TableCell></TableCell>
-      <TableCell></TableCell>
-      <TableCell className="hidden md:table-cell"></TableCell>
-      <TableCell className="hidden md:table-cell"></TableCell>
-      <TableCell className="px-0 py-0">
-          <Button onClick={handleAddClick}>Add</Button>
-      </TableCell>
-    </TableRow>
-  )
-
   return (
     <LayoutBase>
-      <Table headerContent={tableHeader} footerContent={tableFooter}>
+      <Table headerContent={tableHeader} className="rounded-b-none shadow-none">
         {data.map((tour) => (
           <TableRow key={tour.id}>
             <TableCell>{tour.name}</TableCell>
@@ -59,7 +47,7 @@ const Tours: NextPage = () => {
             <TableCell className="hidden md:table-cell">
               {tour.elevationUp}m
             </TableCell>
-            <TableCell>
+            <TableCell className="flex justify-end">
               <Link href={`/tours/${tour.id}`}>
                 <span className="font-medium text-blue-500 cursor-pointer dark:text-blue-500 hover:underline">
                   Show
@@ -69,6 +57,10 @@ const Tours: NextPage = () => {
           </TableRow>
         ))}
       </Table>
+
+      <div className="flex justify-end py-1 items-center bg-gray-50 dark:bg-gray-900 dark:text-gray-400 rounded-b-xl">
+        <Button onClick={handleAddClick}>Add a new Tour</Button>
+      </div>
     </LayoutBase>
   );
 };

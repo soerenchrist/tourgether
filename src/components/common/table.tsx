@@ -4,6 +4,7 @@ type Props = {
   headerContent: ReactNode;
   children: ReactNode;
   footerContent?: ReactNode;
+  className?: string
 };
 
 export const TableRow = ({ children }: { children: ReactNode }) => {
@@ -28,7 +29,7 @@ export const TableHeaderCell = ({ children, className }: { children?: ReactNode,
 
 const Table = (props: Props) => {
   return (
-    <div className="relative overflow-x-auto shadow-md rounded-lg">
+    <div className={`relative overflow-x-auto shadow-md rounded-lg ${props.className || ""}`}>
       <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-900 dark:text-gray-400">
           {props.headerContent}
