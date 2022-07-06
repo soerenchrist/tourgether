@@ -5,6 +5,7 @@ import Input from "@/components/common/input";
 import NumericInput from "@/components/common/numericInput";
 import TextArea from "@/components/common/textarea";
 import LayoutBase from "@/components/layout/layoutBase";
+import TracksEditList from "@/components/tracks/tracksEditList";
 import { useFormField } from "@/hooks/useFormField";
 import { trpc } from "@/utils/trpc";
 import axios from "axios";
@@ -146,17 +147,11 @@ const CreateTour = () => {
 
   return (
     <LayoutBase>
+      <div className="grid grid-cols-2 gap-4">
+        
       <Card title="Create a new tour">
         <form onSubmit={handleSubmit}>
           <div className="pt-4 flex flex-col gap-2">
-            <FileInput
-              files={files}
-              label="Upload your GPX tracks or drag and drop"
-              onChange={handleFilesChanged}
-              accept=".gpx"
-              multiple
-            />
-
             <Input
               id="name"
               label="Name"
@@ -218,6 +213,10 @@ const CreateTour = () => {
           </div>
         </form>
       </Card>
+      <Card title="Add Tracks">
+        <TracksEditList />
+      </Card>
+      </div>
     </LayoutBase>
   );
 };
