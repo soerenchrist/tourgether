@@ -7,6 +7,7 @@ import TextArea from "@/components/common/textarea";
 import LayoutBase from "@/components/layout/layoutBase";
 import { useFormField } from "@/hooks/useFormField";
 import { trpc } from "@/utils/trpc";
+import axios from "axios";
 import { useRouter } from "next/router";
 import { ChangeEventHandler, FormEventHandler, useRef, useState } from "react";
 
@@ -19,8 +20,6 @@ const CreateTour = () => {
         navigate.push("/tours");
       }
     });
-
-  const { mutate: upload, isLoading: isUploading } = trpc.useMutation("tracks.upload-track");
 
   const registerName = useFormField("", {
     validator: {
@@ -66,12 +65,15 @@ const CreateTour = () => {
       const file = files[i];
       if (!file) continue;
 
-      const base64 = await getContents(file);
-      if (!base64) return;
-      upload({
-        filecontent: base64,
-        filename: file.name
-      });
+      const content = await getContents(file);
+      if (!content) return;
+
+      const config = {
+        headers: {
+          "Content-Type": "application/gpx+xml"
+        }
+      }
+      axios.post("/api/files/upload", content, config);
     };
 
     return;
