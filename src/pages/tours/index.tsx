@@ -38,8 +38,8 @@ const Tours: NextPage = () => {
     <TableRow>
       <TableCell></TableCell>
       <TableCell></TableCell>
-      <TableCell></TableCell>
-      <TableCell></TableCell>
+      <TableCell className="hidden md:table-cell"></TableCell>
+      <TableCell className="hidden md:table-cell"></TableCell>
       <TableCell className="px-0 py-0">
           <Button onClick={handleAddClick}>Add</Button>
       </TableCell>
@@ -52,7 +52,7 @@ const Tours: NextPage = () => {
         {data.map((tour) => (
           <TableRow key={tour.id}>
             <TableCell>{tour.name}</TableCell>
-            <TableCell className="hidden md:table-cell truncate max-w-md">
+            <TableCell className="hidden md:table-cell truncate max-w-xs">
               {tour.description}
             </TableCell>
             <TableCell>{tour.distance}m</TableCell>
