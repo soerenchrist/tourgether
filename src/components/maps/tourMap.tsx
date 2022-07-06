@@ -29,7 +29,7 @@ const calculateBounds = (path: {lat: number, lng: number}[]) => {
   );
 }
 
-const TrackLine: React.FC<{track: {id: string}}> = ({ track }) => {
+const TrackLine: React.FC<{track: {id: string}, flyTo: boolean}> = ({ track, flyTo }) => {
     const { data, isLoading } = trpc.useQuery(["tours.get-track-content", { id: track.id }]);
     const [points, setPoints] = useState<LatLngExpression[]>([]);
     const map = useMap();
@@ -40,10 +40,12 @@ const TrackLine: React.FC<{track: {id: string}}> = ({ track }) => {
             const waypoints = gpx.trk.flatMap(t => t.trkseg.flatMap(s => s.trkpt));
             const latLngs: {lat: number, lng: number}[] = waypoints.map(w => ({lat: parseFloat(w.$.lat), lng: parseFloat(w.$.lon)}));
             setPoints(latLngs);
-            const bounds = calculateBounds(latLngs);
-            map.flyToBounds(bounds, { padding: [10, 10], duration: 1 })
+            if (flyTo) {
+                const bounds = calculateBounds(latLngs);
+                map.flyToBounds(bounds, { padding: [10, 10], duration: 1 })
+            }
         }
-    }, [data, map])
+    }, [data, map, flyTo])
 
     if (isLoading) return <></>;
     return (
@@ -60,8 +62,8 @@ const TourMap = (props: Props) => {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
 
-            {props.tracks?.map(track => (
-                <TrackLine key={track.id} track={track} />
+            {props.tracks?.map((track, index) => (
+                <TrackLine key={track.id} track={track} flyTo={index === 0} />
             ))}
         </MapContainer>
     )
