@@ -14,6 +14,8 @@ const Map = dynamic(
 
 const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
   const { data, isLoading } = trpc.useQuery(["tours.get-tour-by-id", { id }]);
+  const { data: tracks } = trpc.useQuery(["tours.get-tracks-for-tour", { id }]);
+
   if (!data) return <div>Tour not found...</div>;
 
   const loadingIndicator = (
@@ -63,7 +65,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
               )}
           </Card>
           <Card className="p-0 lg:p-0">
-            <Map />
+            <Map tracks={tracks} />
           </Card>
         </div>
       </LayoutBase>

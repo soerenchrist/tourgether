@@ -39,6 +39,44 @@ export const toursRouter = createRouter()
       });
     },
   })
+  .query("get-tracks-for-tour", {
+    input: z.object({
+      id: z.string(),
+    }),
+    async resolve({ input, ctx }) {
+      const userId = ctx.session?.user?.id;
+      if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
+
+      return await ctx.prisma.track.findMany({
+        where: {
+          tourId: input.id,
+        },
+      });
+    },
+  })
+  .query("get-track-content", {
+    input: z.object({
+      id: z.string(),
+    }),
+    async resolve({ input, ctx }) {
+      const track = await ctx.prisma.track.findFirst({
+        where: {
+          id: input.id,
+        },
+      });
+
+      if (!track) throw new TRPCError({ code: "UNAUTHORIZED" });
+
+      const result = await ctx.s3.getObject({
+        Bucket: process.env.AWS_BUCKET_NAME || "",
+        Key: track.file_url,
+      }).promise();
+      if (!result.Body) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+      const contents =  result.Body.toString("utf-8");
+      return contents;
+    },
+  })
   .mutation("create-tour", {
     input: z.object({
       tour: z.object({
@@ -51,23 +89,24 @@ export const toursRouter = createRouter()
         startTime: z.date().nullish(),
         endTime: z.date().nullish(),
       }),
-      tracks: z.object({
-        file_url: z.string(),
-        name: z.string()
-      }).array()
+      tracks: z
+        .object({
+          file_url: z.string(),
+          name: z.string(),
+        })
+        .array(),
     }),
-    async resolve({ input, ctx }) {      
+    async resolve({ input, ctx }) {
       const userId = ctx.session?.user?.id;
       if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
 
-
       const tour = {
         creatorId: userId,
-        ...input.tour 
+        ...input.tour,
       };
-      
+
       const insertedTour = await ctx.prisma.tour.create({
-        data: tour
+        data: tour,
       });
 
       for (let i = 0; i < input.tracks.length; i++) {
@@ -75,13 +114,13 @@ export const toursRouter = createRouter()
         if (!inputTrack) continue;
         const track = {
           ...inputTrack,
-          tourId: insertedTour.id
-        }
+          tourId: insertedTour.id,
+        };
         await ctx.prisma.track.create({
-          data: track
-        })
+          data: track,
+        });
       }
 
       return insertedTour;
-    }
+    },
   });
