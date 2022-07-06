@@ -14,7 +14,7 @@ import { ChangeEventHandler, FormEventHandler, useState } from "react";
 
 const CreateTour = () => {
   const navigate = useRouter();
-  const [files, setFiles] = useState<File[]>([]);
+  const [tracks, setTracks] = useState<{name: string, color: string, file: File}[]>([]);
   const [isLoading, setLoading] = useState(false);
   const { mutate } = trpc.useMutation("tours.create-tour", {
     onSuccess: () => {
@@ -64,12 +64,12 @@ const CreateTour = () => {
   const registerDescription = useFormField("");
 
   const uploadTracks = async () => {
-    const tracks: { file_url: string; name: string }[] = [];
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      if (!file) continue;
+    const trackData: { file_url: string; name: string, color: string }[] = [];
+    for (let i = 0; i < tracks.length; i++) {
+      const track = tracks[i];
+      if (!track) continue;
 
-      const content = await getContents(file);
+      const content = await getContents(track.file);
       if (!content) continue;
 
       const config = {
@@ -79,10 +79,10 @@ const CreateTour = () => {
       };
       const result = await axios.post("/api/files/upload", content, config);
       if (result.status === 200) {
-        tracks.push({ file_url: result.data.filename, name: file.name });
+        trackData.push({ file_url: result.data.filename, name: track.name, color: track.color });
       }
     }
-    return tracks;
+    return trackData;
   };
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
@@ -133,17 +133,9 @@ const CreateTour = () => {
     });
   };
 
-  const handleFilesChanged: ChangeEventHandler<HTMLInputElement> = (event) => {
-    if (event.target.files) {
-      const newFiles = [];
-      for (let i = 0; i < event.target.files.length; i++) {
-        const file = event.target.files[i];
-        if (!file) continue;
-        newFiles.push(file);
-      }
-      setFiles(newFiles);
-    }
-  };
+  const handleTracksChanged = (tracks: { name: string, color: string, file: File }[]) => {
+    setTracks(tracks);
+  }
 
   return (
     <LayoutBase>
@@ -214,7 +206,7 @@ const CreateTour = () => {
         </form>
       </Card>
       <Card title="Add Tracks">
-        <TracksEditList />
+        <TracksEditList onChange={handleTracksChanged} />
       </Card>
       </div>
     </LayoutBase>

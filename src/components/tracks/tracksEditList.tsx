@@ -1,5 +1,4 @@
 import { ChangeEventHandler, useEffect, useState } from "react";
-import Button from "../common/button";
 import FileInput from "../common/fileInput";
 import Input from "../common/input";
 import Table, { TableCell, TableHeaderCell, TableRow } from "../common/table";
@@ -8,7 +7,6 @@ type Track = {
   number: number;
   name: string;
   color: string;
-  edit: boolean;
   file: File;
 };
 
@@ -39,7 +37,7 @@ const TrackItem = ({ track, onChange }: { track: Track, onChange: (track: Track)
           id={`${track.number}`}
         />
       </TableCell>
-      <TableCell>
+      <TableCell className="flex justify-end">
         <div
           className="w-8 h-8 rounded-2xl"
           style={{ backgroundColor: track.color }}
@@ -51,7 +49,7 @@ const TrackItem = ({ track, onChange }: { track: Track, onChange: (track: Track)
 
 
 
-const TracksEditList = () => {
+const TracksEditList: React.FC<{ onChange: (tracks: Track[]) => void }> = ({ onChange }) => {
   const [tracks, setTracks] = useState<Track[]>([]);
   const handleTracksChanged: ChangeEventHandler<HTMLInputElement> = (event) => {
     const { files } = event.target;
@@ -68,10 +66,10 @@ const TracksEditList = () => {
           color: getColor(index),
           name: file.name,
           file: file,
-          edit: false,
         });
       }
       setTracks(newTracks);
+      onChange(newTracks);
     }
   };
 
@@ -82,13 +80,13 @@ const TracksEditList = () => {
     const next = tracks.slice(index + 1);
 
     setTracks([...prev, track, ...next]);
-    console.log(tracks);
+    onChange(tracks);
   }
 
   const tableHeader = (
     <tr>
       <TableHeaderCell>Name</TableHeaderCell>
-      <TableHeaderCell>Color</TableHeaderCell>
+      <TableHeaderCell className="justify-end flex">Color</TableHeaderCell>
     </tr>
   );
   return (
@@ -109,7 +107,6 @@ const TracksEditList = () => {
           ))}
         </Table>
       )}
-      <Button onClick={() => console.log(tracks)}>Save</Button>
     </div>
   );
 };

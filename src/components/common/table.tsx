@@ -16,13 +16,13 @@ export const TableRow = ({ children }: { children: ReactNode }) => {
 
 export const TableCell = ({ children, className }: { children?: ReactNode, className?: string }) => {
   return (
-    <td className={`px-6 py-4 ${className}`}>{children}</td>
+    <td className={`px-6 py-4 ${className || ""}`}>{children}</td>
   );
 };
 
 export const TableHeaderCell = ({ children, className }: { children?: ReactNode, className?: string }) => {
   return (
-    <th className={`px-6 py-3 ${className}`}>{children}</th>
+    <th className={`px-6 py-3 ${className || ""}`}>{children}</th>
   );
 };
 

@@ -31,6 +31,7 @@ model Track {
     id String @id @default(cuid())
     name String
     file_url String
+    color String
     tour Tour @relation(fields: [tourId], references: [id])
     tourId String
 }

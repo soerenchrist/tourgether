@@ -93,6 +93,7 @@ export const toursRouter = createRouter()
         .object({
           file_url: z.string(),
           name: z.string(),
+          color: z.string(),
         })
         .array(),
     }),
