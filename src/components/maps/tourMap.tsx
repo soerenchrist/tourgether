@@ -2,32 +2,14 @@ import { MapContainer, Polyline, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { trpc } from "@/utils/trpc";
 import { useMemo, useState } from "react";
-import gpxParser from "gpx-parser-builder";
-import { latLngBounds, LatLngExpression } from "leaflet";
+import { LatLngExpression } from "leaflet";
+import { calculateBounds, getWaypoints } from "@/utils/gpxHelpers";
 
 type Props = {
   tracks?: {
     id: string;
     color: string;
   }[];
-};
-
-const calculateBounds = (path: { lat: number; lng: number }[]) => {
-  let minLat = 90,
-    minLng = 180,
-    maxLat = -90,
-    maxLng = -180;
-  path.forEach((coord) => {
-    minLat = Math.min(minLat, coord.lat);
-    minLng = Math.min(minLng, coord.lng);
-    maxLat = Math.max(maxLat, coord.lat);
-    maxLng = Math.max(maxLng, coord.lng);
-  });
-
-  return latLngBounds(
-    { lat: minLat, lng: minLng },
-    { lat: maxLat, lng: maxLng }
-  );
 };
 
 const TrackLine: React.FC<{
@@ -43,14 +25,7 @@ const TrackLine: React.FC<{
 
   useMemo(() => {
     if (data) {
-      const gpx = gpxParser.parse(data);
-      const waypoints = gpx.trk.flatMap((t) =>
-        t.trkseg.flatMap((s) => s.trkpt)
-      );
-      const latLngs: { lat: number; lng: number }[] = waypoints.map((w) => ({
-        lat: parseFloat(w.$.lat),
-        lng: parseFloat(w.$.lon),
-      }));
+      const latLngs = getWaypoints(data);
       setPoints(latLngs);
       if (flyTo) {
         const bounds = calculateBounds(latLngs);

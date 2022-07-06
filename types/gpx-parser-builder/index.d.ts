@@ -27,8 +27,6 @@ declare module 'gpx-parser-builder' {
   export type ParseFunc = (content: string) => Gpx;
   
   export const parse: ParseFunc;
-
-  export default {
-    parse
-  }
+  const defaultExport = {parse};
+  export default defaultExport;
 }

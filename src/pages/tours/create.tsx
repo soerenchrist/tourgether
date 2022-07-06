@@ -1,16 +1,16 @@
 import Button from "@/components/common/button";
 import Card from "@/components/common/card";
-import FileInput from "@/components/common/fileInput";
 import Input from "@/components/common/input";
 import NumericInput from "@/components/common/numericInput";
 import TextArea from "@/components/common/textarea";
 import LayoutBase from "@/components/layout/layoutBase";
 import TracksEditList from "@/components/tracks/tracksEditList";
 import { useFormField } from "@/hooks/useFormField";
+import { getFileContents } from "@/utils/fileHelpers";
 import { trpc } from "@/utils/trpc";
 import axios from "axios";
 import { useRouter } from "next/router";
-import { ChangeEventHandler, FormEventHandler, useState } from "react";
+import { FormEventHandler, useMemo, useState } from "react";
 
 const CreateTour = () => {
   const navigate = useRouter();
@@ -69,7 +69,7 @@ const CreateTour = () => {
       const track = tracks[i];
       if (!track) continue;
 
-      const content = await getContents(track.file);
+      const content = await getFileContents(track.file);
       if (!content) continue;
 
       const config = {
@@ -118,22 +118,7 @@ const CreateTour = () => {
     });
   };
 
-  const getContents = (file: File): Promise<string> => {
-    return new Promise((res, rej) => {
-      var reader = new FileReader();
-      reader.readAsText(file);
-      reader.onload = function () {
-        if (typeof reader.result === "string") res(reader.result);
-        else rej();
-      };
-      reader.onerror = function (error) {
-        console.log("Error: ", error);
-        rej();
-      };
-    });
-  };
-
-  const handleTracksChanged = (tracks: { name: string, color: string, file: File }[]) => {
+  const handleTracksChanged = async (tracks: { name: string, color: string, file: File }[]) => {
     setTracks(tracks);
   }
 
