@@ -1,3 +1,4 @@
+import { Track } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createRouter } from "./context";
@@ -40,24 +41,47 @@ export const toursRouter = createRouter()
   })
   .mutation("create-tour", {
     input: z.object({
-      name: z.string().min(1),
-      description: z.string(),
-      distance: z.number().min(0),
-      elevationUp: z.number().min(0),
-      elevationDown: z.number().min(0),
-      date: z.date(),
-      startTime: z.date().nullish(),
-      endTime: z.date().nullish(),
+      tour: z.object({
+        name: z.string().min(1),
+        description: z.string(),
+        distance: z.number().min(0),
+        elevationUp: z.number().min(0),
+        elevationDown: z.number().min(0),
+        date: z.date(),
+        startTime: z.date().nullish(),
+        endTime: z.date().nullish(),
+      }),
+      tracks: z.object({
+        file_url: z.string(),
+        name: z.string()
+      }).array()
     }),
     async resolve({ input, ctx }) {      
       const userId = ctx.session?.user?.id;
       if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
+
+
       const tour = {
         creatorId: userId,
-        ...input
+        ...input.tour 
       };
-      return await ctx.prisma.tour.create({
+      
+      const insertedTour = await ctx.prisma.tour.create({
         data: tour
       });
+
+      for (let i = 0; i < input.tracks.length; i++) {
+        const inputTrack = input.tracks[i];
+        if (!inputTrack) continue;
+        const track = {
+          ...inputTrack,
+          tourId: insertedTour.id
+        }
+        await ctx.prisma.track.create({
+          data: track
+        })
+      }
+
+      return insertedTour;
     }
   });

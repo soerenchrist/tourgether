@@ -9,17 +9,21 @@ import { useFormField } from "@/hooks/useFormField";
 import { trpc } from "@/utils/trpc";
 import axios from "axios";
 import { useRouter } from "next/router";
-import { ChangeEventHandler, FormEventHandler, useRef, useState } from "react";
+import { ChangeEventHandler, FormEventHandler, useState } from "react";
 
 const CreateTour = () => {
   const navigate = useRouter();
   const [files, setFiles] = useState<File[]>([]);
-  const { mutate, isLoading } = trpc.useMutation("tours.create-tour",
-    {
-      onSuccess: () => {
-        navigate.push("/tours");
-      }
-    });
+  const [isLoading, setLoading] = useState(false);
+  const { mutate } = trpc.useMutation("tours.create-tour", {
+    onSuccess: () => {
+      setLoading(false);
+      navigate.push("/tours");
+    },
+    onError: () => {
+      setLoading(false);
+    },
+  });
 
   const registerName = useFormField("", {
     validator: {
@@ -58,44 +62,59 @@ const CreateTour = () => {
   const registerEndTime = useFormField<string | undefined>(undefined);
   const registerDescription = useFormField("");
 
-  const handleSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
-    event.preventDefault();
-
+  const uploadTracks = async () => {
+    const tracks: { file_url: string; name: string }[] = [];
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       if (!file) continue;
 
       const content = await getContents(file);
-      if (!content) return;
+      if (!content) continue;
 
       const config = {
         headers: {
-          "Content-Type": "application/gpx+xml"
-        }
+          "Content-Type": "application/gpx+xml",
+        },
+      };
+      const result = await axios.post("/api/files/upload", content, config);
+      if (result.status === 200) {
+        tracks.push({ file_url: result.data.filename, name: file.name });
       }
-      axios.post("/api/files/upload", content, config);
-    };
+    }
+    return tracks;
+  };
 
-    return;
-   /* if (
+  const handleSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
+    event.preventDefault();
+
+    if (
       registerName.error ||
       registerElevationDown.error ||
       registerElevationUp.error ||
       registerDistance.error ||
       registerDate.error
-    )
+    ) {
       return;
+    }
+
+    setLoading(true);
+    const tracks = await uploadTracks();
 
     mutate({
-      name: registerName.value!,
-      description: registerDescription.value!,
-      date: new Date(registerDate.value!),
-      distance: registerDistance.value!,
-      elevationUp: registerElevationUp.value!,
-      elevationDown: registerElevationDown.value!,
-      startTime: registerStartTime.value ? new Date(registerStartTime.value) : null,
-      endTime: registerEndTime.value ? new Date(registerEndTime.value) : null
-    });*/
+      tour: {
+        name: registerName.value!,
+        description: registerDescription.value!,
+        date: new Date(registerDate.value!),
+        distance: registerDistance.value!,
+        elevationUp: registerElevationUp.value!,
+        elevationDown: registerElevationDown.value!,
+        startTime: registerStartTime.value
+          ? new Date(registerStartTime.value)
+          : null,
+        endTime: registerEndTime.value ? new Date(registerEndTime.value) : null,
+      },
+      tracks: tracks,
+    });
   };
 
   const getContents = (file: File): Promise<string> => {
@@ -103,21 +122,19 @@ const CreateTour = () => {
       var reader = new FileReader();
       reader.readAsText(file);
       reader.onload = function () {
-        if (typeof reader.result === "string")
-          res(reader.result);
-        else
-          rej();
+        if (typeof reader.result === "string") res(reader.result);
+        else rej();
       };
       reader.onerror = function (error) {
-        console.log('Error: ', error);
+        console.log("Error: ", error);
         rej();
       };
     });
-  }
+  };
 
   const handleFilesChanged: ChangeEventHandler<HTMLInputElement> = (event) => {
     if (event.target.files) {
-      const newFiles = []
+      const newFiles = [];
       for (let i = 0; i < event.target.files.length; i++) {
         const file = event.target.files[i];
         if (!file) continue;
@@ -132,7 +149,13 @@ const CreateTour = () => {
       <Card title="Create a new tour">
         <form onSubmit={handleSubmit}>
           <div className="pt-4 flex flex-col gap-2">
-            <FileInput files={files} label="Upload your GPX tracks or drag and drop" onChange={handleFilesChanged} accept=".gpx" multiple />
+            <FileInput
+              files={files}
+              label="Upload your GPX tracks or drag and drop"
+              onChange={handleFilesChanged}
+              accept=".gpx"
+              multiple
+            />
 
             <Input
               id="name"
@@ -188,8 +211,9 @@ const CreateTour = () => {
               placeholder="Hiking trip to the zugspitze over the Höllentalklamm"
             />
             <div className="flex justify-end">
-
-              <Button disabled={isLoading} type="submit">Create your Tour</Button>
+              <Button disabled={isLoading} type="submit">
+                Create your Tour
+              </Button>
             </div>
           </div>
         </form>
