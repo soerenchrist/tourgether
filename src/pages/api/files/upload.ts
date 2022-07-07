@@ -13,7 +13,7 @@ const handler: NextApiHandler = async (req, res) => {
   const session =
     req && res && (await getServerSession(req, res, nextAuthOptions));
 
-  const userId = session?.user?.id;
+  const userId = session?.user?.email;
   if (!userId) return res.status(403).json({ error: "Unauthorized" });
 
   const body = req.body;
