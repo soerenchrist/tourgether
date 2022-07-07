@@ -10,12 +10,13 @@ import { getFileContents } from "@/utils/fileHelpers";
 import { trpc } from "@/utils/trpc";
 import axios from "axios";
 import { useRouter } from "next/router";
-import { FormEventHandler, useMemo, useState } from "react";
+import { FormEventHandler, useState } from "react";
 
 const CreateTour = () => {
   const navigate = useRouter();
   const [tracks, setTracks] = useState<{name: string, color: string, file: File}[]>([]);
   const [isLoading, setLoading] = useState(false);
+
   const { mutate } = trpc.useMutation("tours.create-tour", {
     onSuccess: () => {
       setLoading(false);

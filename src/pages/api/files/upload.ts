@@ -4,8 +4,6 @@ import { unstable_getServerSession as getServerSession } from "next-auth";
 import { authOptions as nextAuthOptions } from "@/pages/api/auth/[...nextauth]";
 import * as uuid from "uuid";
 
-console.log(process.env.AWS_BUCKET_ACCESS_KEY_ID);
-console.log(process.env.AWS_BUCKET_ACCESS_KEY_SECRET);
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_BUCKET_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_BUCKET_ACCESS_KEY_SECRET,

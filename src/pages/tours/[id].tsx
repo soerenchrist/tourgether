@@ -14,7 +14,7 @@ const Map = dynamic(() => import("../../components/maps/tourMap"), {
 const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
   const { data, isLoading } = trpc.useQuery(["tours.get-tour-by-id", { id }]);
   const { data: tracks, isLoading: tracksLoading } = trpc.useQuery([
-    "tours.get-tracks-for-tour",
+    "tracks.get-tracks-for-tour",
     { id },
   ]);
 
@@ -69,7 +69,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
               </List>
             )}
           </Card>
-          {((tracks && tracks.length > 0) || isLoading) && (
+          {((tracks && tracks.length > 0) || tracksLoading) && (
             <Card className="p-0 lg:p-0">
               <Map tracks={tracks} />
             </Card>

@@ -17,7 +17,7 @@ const TrackLine: React.FC<{
   flyTo: boolean;
 }> = ({ track, flyTo }) => {
   const { data, isLoading } = trpc.useQuery([
-    "tours.get-track-content",
+    "tracks.get-track-content",
     { id: track.id },
   ]);
   const [points, setPoints] = useState<LatLngExpression[]>([]);

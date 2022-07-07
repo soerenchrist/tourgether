@@ -34,9 +34,19 @@ const Tours: NextPage = () => {
     </tr>
   );
 
+  const noDataContent = (
+    <TableRow>
+      <TableCell>You dont have any tours yet</TableCell>
+      <TableCell className="hidden md:table-cell"></TableCell>
+      <TableCell></TableCell>
+      <TableCell className="hidden md:table-cell"></TableCell>
+      <TableCell></TableCell>
+    </TableRow>)
+
   return (
     <LayoutBase>
       <Table headerContent={tableHeader} className="rounded-b-none shadow-none">
+        {data.length === 0 && noDataContent}
         {data.map((tour) => (
           <TableRow key={tour.id}>
             <TableCell>{tour.name}</TableCell>
