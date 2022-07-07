@@ -4,16 +4,14 @@ import { trpc } from "@/utils/trpc";
 import { useMemo, useState } from "react";
 import { LatLngExpression } from "leaflet";
 import { calculateBounds, getWaypoints } from "@/utils/gpxHelpers";
+import { Track } from "@prisma/client";
 
 type Props = {
-  tracks?: {
-    id: string;
-    color: string;
-  }[];
+  tracks?: Track[];
 };
 
 const TrackLine: React.FC<{
-  track: { id: string; color: string };
+  track: Track;
   flyTo: boolean;
 }> = ({ track, flyTo }) => {
   const { data, isLoading } = trpc.useQuery([
