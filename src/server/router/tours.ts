@@ -39,6 +39,27 @@ export const toursRouter = createRouter()
       });
     },
   })
+  .query("get-totals", {
+    async resolve({ ctx }) {
+      const userId = ctx.session?.user?.id;
+      if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
+
+      const aggregate = await ctx.prisma.tour.aggregate({
+        _sum: {
+          distance: true,
+          elevationDown: true,
+          elevationUp: true
+        },
+        _count: {
+          _all: true
+        }
+      })
+      return {
+        count: aggregate._count._all,
+        ...aggregate._sum
+      };
+    }
+  })
   .mutation("create-tour", {
     input: z.object({
       tour: z.object({

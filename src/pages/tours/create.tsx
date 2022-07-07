@@ -1,16 +1,14 @@
 import Button from "@/components/common/button";
 import Card from "@/components/common/card";
 import Input from "@/components/common/input";
-import NumericInput from "@/components/common/numericInput";
 import TextArea from "@/components/common/textarea";
 import LayoutBase from "@/components/layout/layoutBase";
 import TracksEditList from "@/components/tracks/tracksEditList";
-import { useFormField } from "@/hooks/useFormField";
 import { getFileContents } from "@/utils/fileHelpers";
 import { trpc } from "@/utils/trpc";
 import axios from "axios";
 import { useRouter } from "next/router";
-import { FormEventHandler, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 type FormData = {

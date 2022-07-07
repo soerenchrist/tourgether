@@ -1,9 +1,11 @@
+import TotalsDisplay from "@/components/dashboard/totalsDisplay";
 import type { NextPage } from "next";
+import { useSession } from "next-auth/react";
 import Head from "next/head";
 import LayoutBase from "../components/layout/layoutBase";
 
 const Home: NextPage = () => {
-
+  const session = useSession();
   return (
     <>
       <Head>
@@ -15,6 +17,10 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <LayoutBase>
+        {session.status == "authenticated" && (
+          <TotalsDisplay />
+        )}
+        {session.status == "unauthenticated" && 
         <main className="flex flex-col items-center justify-center h-full p-10 px-0 mx-auto md:py-20 md:p-10 md:px-0">
           <h1 className="font-extrabold text-center text-7xl">
             Tour<span className="text-blue-500">gether</span>
@@ -23,7 +29,7 @@ const Home: NextPage = () => {
           <h3 className="items-center m-5 text-3xl">
             Plan and manage your hiking tours together
           </h3>
-        </main>
+        </main>}
       </LayoutBase>
     </>
   );
