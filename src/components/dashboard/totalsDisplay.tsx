@@ -2,7 +2,7 @@ import { trpc } from "@/utils/trpc"
 import Card from "../common/card"
 
 const TotalsDisplay = () => {
-    const { data, isLoading } = trpc.useQuery(["tours.get-totals"]);
+    const { data } = trpc.useQuery(["tours.get-totals"]);
 
     const format = (value: number | null | undefined) => {
         if (!value) return "0 m";
