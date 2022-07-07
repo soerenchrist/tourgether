@@ -1,4 +1,3 @@
-import { Track } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createRouter } from "./context";
@@ -13,9 +12,9 @@ export const toursRouter = createRouter()
   })
   .query("get-tours", {
     async resolve({ ctx }) {
-      const userId = ctx.session?.user?.id;
+      const userId = ctx.session?.user?.email;
       if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
-
+      console.log(userId);
       return await ctx.prisma.tour.findMany({
         where: {
           creatorId: userId,
@@ -28,7 +27,7 @@ export const toursRouter = createRouter()
       id: z.string(),
     }),
     async resolve({ input, ctx }) {
-      const userId = ctx.session?.user?.id;
+      const userId = ctx.session?.user?.email;
       if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
 
       return await ctx.prisma.tour.findFirst({
@@ -41,7 +40,7 @@ export const toursRouter = createRouter()
   })
   .query("get-totals", {
     async resolve({ ctx }) {
-      const userId = ctx.session?.user?.id;
+      const userId = ctx.session?.user?.email;
       if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
 
       const aggregate = await ctx.prisma.tour.aggregate({
@@ -52,6 +51,9 @@ export const toursRouter = createRouter()
         },
         _count: {
           _all: true
+        },
+        where: {
+          creatorId: userId
         }
       })
       return {
@@ -81,7 +83,7 @@ export const toursRouter = createRouter()
         .array(),
     }),
     async resolve({ input, ctx }) {
-      const userId = ctx.session?.user?.id;
+      const userId = ctx.session?.user?.email;
       if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
 
       const tour = {

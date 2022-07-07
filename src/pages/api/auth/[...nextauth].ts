@@ -9,23 +9,6 @@ import { prisma } from "../../../server/db/client";
 export const authOptions: NextAuthOptions = {
   // Configure one or more authentication providers
   adapter: PrismaAdapter(prisma),
-  callbacks: {
-    session: async ({ session, token }) => {
-      if (session?.user) {
-        session.user.id = token.uid;
-      }
-      return session;
-    },
-    jwt: async ({ user, token }) => {
-      if (user) {
-        token.uid = user.id;
-      }
-      return token;
-    },
-  },
-  session: {
-    strategy: 'jwt',
-  },
   providers: [
     GithubProvider({
       clientId: process.env.GITHUB_ID,

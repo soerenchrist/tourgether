@@ -2,6 +2,7 @@ import Card from "@/components/common/card";
 import { List, ListItem } from "@/components/common/list";
 import Spinner from "@/components/common/spinner";
 import LayoutBase from "@/components/layout/layoutBase";
+import CreateInvitationButton from "@/components/tours/createInvitationButton";
 import { trpc } from "@/utils/trpc";
 import dynamic from "next/dynamic";
 import Head from "next/head";
@@ -13,7 +14,7 @@ const Map = dynamic(() => import("../../components/maps/tourMap"), {
 
 const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
   const { data, isLoading } = trpc.useQuery(["tours.get-tour-by-id", { id }]);
-  const { data: tracks, isLoading: tracksLoading } = trpc.useQuery([
+  const { data: tracks } = trpc.useQuery([
     "tracks.get-tracks-for-tour",
     { id },
   ]);
@@ -66,10 +67,11 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
                 )}
 
                 <ListItem subtitle={data.description} />
+                <CreateInvitationButton tour={data} />
               </List>
             )}
           </Card>
-          {((tracks && tracks.length > 0) || tracksLoading) && (
+          {((tracks && tracks.length > 0) || isLoading) && (
             <Card className="p-0 lg:p-0">
               <Map tracks={tracks} />
             </Card>

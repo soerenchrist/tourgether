@@ -25,6 +25,16 @@ model Tour {
     tracks Track[]
     creatorId String
     creator User @relation(fields: [creatorId], references: [id])
+    viewers TourViewer[]
+    invitationLinks InvitationLink[]
+}
+
+model TourViewer {
+    id String @id @default(cuid())
+    tourId String
+    tour Tour @relation(fields: [tourId], references: [id])
+    viewerId String
+    viewer User @relation(fields: [viewerId], references: [email])
 }
 
 model Track {
@@ -34,6 +44,14 @@ model Track {
     color String
     tour Tour @relation(fields: [tourId], references: [id])
     tourId String
+}
+
+model InvitationLink {
+    invite_token String @id @default(cuid())
+    tourId String
+    tour Tour @relation(fields: [tourId], references: [id])
+    issuedBy String
+    validUnit DateTime
 }
 
 // Necessary for Next auth
@@ -72,6 +90,7 @@ model User {
     accounts      Account[]
     sessions      Session[]
     createdTours Tour[]
+    tourViews TourViewer[]
 }
 
 model VerificationToken {

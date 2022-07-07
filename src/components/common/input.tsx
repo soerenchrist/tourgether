@@ -5,6 +5,8 @@ type Props = {
   label?: string;
   placeholder?: string;
   value?: string;
+  className?: string;
+  disabled?: boolean;
   onChange?: ChangeEventHandler<HTMLInputElement>;
   onFocus?: FocusEventHandler<HTMLInputElement>;
   onBlur?: FocusEventHandler<HTMLInputElement>;
@@ -35,7 +37,7 @@ const Input: React.FC<Props> =
           {...props}
           className={`${inputClasses}  text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:focus:ring-blue-500 dark:focus:border-blue-500`}
         />
-        <p className="mt-2 text-sm text-red-600 dark:text-red-500">{props.error}</p>
+        {props.error && <p className="mt-2 text-sm text-red-600 dark:text-red-500">{props.error}</p>}
       </div>
     );
     
