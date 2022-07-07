@@ -17,19 +17,18 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <LayoutBase>
-        {session.status == "authenticated" && (
-          <TotalsDisplay />
-        )}
-        {session.status == "unauthenticated" && 
-        <main className="flex flex-col items-center justify-center h-full p-10 px-0 mx-auto md:py-20 md:p-10 md:px-0">
-          <h1 className="font-extrabold text-center text-7xl">
-            Tour<span className="text-blue-500">gether</span>
-          </h1>
+        {session.status === "authenticated" && <TotalsDisplay />}
+        {session.status !== "authenticated" && (
+          <main className="flex flex-col items-center justify-center h-full p-10 px-0 mx-auto md:py-20 md:p-10 md:px-0">
+            <h1 className="font-extrabold text-center text-7xl">
+              Tour<span className="text-blue-500">gether</span>
+            </h1>
 
-          <h3 className="items-center m-5 text-3xl">
-            Plan and manage your hiking tours together
-          </h3>
-        </main>}
+            <h3 className="items-center m-5 text-3xl">
+              Plan and manage your hiking tours together
+            </h3>
+          </main>
+        )}
       </LayoutBase>
     </>
   );
