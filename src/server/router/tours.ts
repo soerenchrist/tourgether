@@ -14,12 +14,24 @@ export const toursRouter = createRouter()
     async resolve({ ctx }) {
       const userId = ctx.session?.user?.email;
       if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
-      console.log(userId);
-      return await ctx.prisma.tour.findMany({
+
+      const myTours =  await ctx.prisma.tour.findMany({
         where: {
           creatorId: userId,
         },
       });
+
+      const invitedToursQuery = await ctx.prisma.tourViewer.findMany({
+        where: {
+          viewerId: userId
+        },
+        include: {
+          tour: true
+        }
+      });
+      const invitedTours = invitedToursQuery.map(x => x.tour);
+      const allTours = myTours.concat(invitedTours);
+      return allTours.sort((a, b) => a.date > b.date ? 1 : -1);
     },
   })
   .query("get-tour-by-id", {
@@ -30,12 +42,27 @@ export const toursRouter = createRouter()
       const userId = ctx.session?.user?.email;
       if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
 
-      return await ctx.prisma.tour.findFirst({
+      const myTour = await ctx.prisma.tour.findFirst({
         where: {
           creatorId: userId,
           id: input.id,
         },
       });
+      if (myTour) return { viewer: false, ...myTour };
+
+      const viewerTour = await ctx.prisma.tourViewer.findFirst({
+        where: {
+          viewerId: userId,
+          tourId: input.id
+        },
+        include: {
+          tour: true
+        }
+      });
+
+      if (!viewerTour) throw new TRPCError({ code: "NOT_FOUND" });
+
+      return { viewer: true, ...viewerTour.tour };
     },
   })
   .query("get-totals", {

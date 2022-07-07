@@ -67,7 +67,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
                 )}
 
                 <ListItem subtitle={data.description} />
-                <CreateInvitationButton tour={data} />
+                {!data.viewer && <CreateInvitationButton tour={data} />}
               </List>
             )}
           </Card>

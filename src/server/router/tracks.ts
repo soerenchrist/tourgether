@@ -16,7 +16,7 @@ export const tracksRouter = createRouter()
       id: z.string(),
     }),
     async resolve({ input, ctx }) {
-      const userId = ctx.session?.user?.id;
+      const userId = ctx.session?.user?.email;
       if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
 
       return await ctx.prisma.track.findMany({
