@@ -48,8 +48,8 @@ export const toursRouter = createRouter()
         elevationUp: z.number().min(0),
         elevationDown: z.number().min(0),
         date: z.date(),
-        startTime: z.date().nullish(),
-        endTime: z.date().nullish(),
+        startTime: z.string().nullish(),
+        endTime: z.string().nullish(),
       }),
       tracks: z
         .object({

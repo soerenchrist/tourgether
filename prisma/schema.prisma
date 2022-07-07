@@ -20,8 +20,8 @@ model Tour {
     elevationDown Int
     distance Int
     date DateTime
-    startTime DateTime?
-    endTime DateTime?
+    startTime String?
+    endTime String?
     tracks Track[]
     creatorId String
     creator User @relation(fields: [creatorId], references: [id])

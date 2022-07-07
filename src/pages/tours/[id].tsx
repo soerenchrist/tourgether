@@ -53,14 +53,14 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
                 />
                 {data.startTime && (
                   <ListItem
-                    title={`${data.startTime.toLocaleTimeString()}`}
+                    title={`${data.startTime}`}
                     subtitle="Start time"
                   />
                 )}
 
                 {data.endTime && (
                   <ListItem
-                    title={`${data.endTime.toLocaleTimeString()}`}
+                    title={`${data.endTime}`}
                     subtitle="End time"
                   />
                 )}
