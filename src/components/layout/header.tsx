@@ -9,7 +9,7 @@ const UserDropdown: React.FC<{ session: Session }> = ({ session }) => {
   const handleSignOut = () => {
     signOut();
     router.push("/");
-  }
+  };
 
   return (
     <Dropdown
@@ -49,7 +49,9 @@ const Header = ({ session }: { session: Session | null }) => {
       <Navbar.Toggle />
       {!session?.user && (
         <div className="flex md:order-2">
-          <Button>Sign in</Button>
+          <Link href="/api/auth/signin">
+            <Button>Sign in</Button>
+          </Link>
           <Navbar.Toggle />
         </div>
       )}
@@ -62,6 +64,9 @@ const Header = ({ session }: { session: Session | null }) => {
       <Navbar.Collapse>
         {session?.user && (
           <>
+            <Link href="/dashboard">
+              <span className="cursor-pointer">Dashboard</span>
+            </Link>
             <Link href="/tours">
               <span className="cursor-pointer">My Tours</span>
             </Link>
