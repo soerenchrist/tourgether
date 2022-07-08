@@ -78,7 +78,12 @@ const ToursTable: React.FC<{
 };
 
 const ToursPage: NextPage = () => {
-  const { data, isLoading } = trpc.useQuery(["tours.get-tours"]);
+  const { data, isLoading } = trpc.useQuery(["tours.get-tours", {
+    pagination: {
+      count: 10,
+      page: 1
+    }
+  }]);
   const { status } = useSession();
 
   let content = <ToursTable isLoading={isLoading} data={data}></ToursTable>;

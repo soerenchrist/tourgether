@@ -209,7 +209,7 @@ const CreateTourContent = () => {
 const CreateTourPage: NextPage = () => {
   const { status } = useSession();
 
-  let content = <CreateTourPage />;
+  let content = <CreateTourContent />;
   if (status === "unauthenticated") content = <p>Access denied</p>;
   else if (status === "loading") content = <Spinner size="xl" />;
 

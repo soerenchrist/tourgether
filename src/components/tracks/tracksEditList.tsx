@@ -1,7 +1,7 @@
+import { Table } from "flowbite-react";
 import { ChangeEventHandler, useEffect, useState } from "react";
 import FileInput from "../common/fileInput";
 import Input from "../common/input";
-import Table, { TableCell, TableHeaderCell, TableRow } from "../common/table";
 
 type Track = {
   number: number;
@@ -32,29 +32,29 @@ const TrackItem = ({ track, onChange, onRemove }: {
   }
 
   return (
-    <TableRow key={track.name}>
-      <TableCell>
+    <Table.Row key={track.name}>
+      <Table.Cell>
         <Input
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onBlur={handleChange}
           id={`${track.number}`}
         />
-      </TableCell>
-      <TableCell>
+      </Table.Cell>
+      <Table.Cell>
         <div
           className="w-8 h-8 rounded-2xl"
           style={{ backgroundColor: track.color }}
         ></div>
-      </TableCell>
-      <TableCell className="flex justify-end mt-3 h-full items-center">
+      </Table.Cell>
+      <Table.Cell className="flex justify-end mt-3 h-full items-center">
         <span
           onClick={() => onRemove(track)}
           className="font-medium text-blue-500 cursor-pointer dark:text-blue-500 hover:underline">
           Remove
         </span>
-      </TableCell>
-    </TableRow>
+      </Table.Cell>
+    </Table.Row>
   );
 };
 
@@ -106,9 +106,9 @@ const TracksEditList: React.FC<{ onChange: (tracks: Track[]) => void }> = ({ onC
 
   const tableHeader = (
     <tr>
-      <TableHeaderCell>Name</TableHeaderCell>
-      <TableHeaderCell className="justify-start flex">Color</TableHeaderCell>
-      <TableHeaderCell></TableHeaderCell>
+      <Table.HeadCell>Name</Table.HeadCell>
+      <Table.HeadCell className="justify-start flex">Color</Table.HeadCell>
+      <Table.HeadCell></Table.HeadCell>
     </tr>
   );
   return (
@@ -123,7 +123,8 @@ const TracksEditList: React.FC<{ onChange: (tracks: Track[]) => void }> = ({ onC
       />
       <div className="p-2"></div>
       {tracks.length > 0 && (
-        <Table headerContent={tableHeader}>
+        <Table>
+          {tableHeader}
           {tracks.map((track) => (
             <TrackItem key={track.number}
               onRemove={handleRemove}  

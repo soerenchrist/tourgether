@@ -1,3 +1,4 @@
+import { Tour } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createRouter } from "./context";
@@ -11,27 +12,26 @@ export const toursRouter = createRouter()
     return next();
   })
   .query("get-tours", {
-    async resolve({ ctx }) {
+    input: z.object({
+      pagination: z.object({
+        page: z.number().default(1),
+        count: z.number().default(10),
+      }),
+    }),
+    async resolve({ ctx, input }) {
       const userId = ctx.session?.user?.email;
       if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
 
-      const myTours =  await ctx.prisma.tour.findMany({
-        where: {
-          creatorId: userId,
-        },
-      });
-
-      const invitedToursQuery = await ctx.prisma.tourViewer.findMany({
-        where: {
-          viewerId: userId
-        },
-        include: {
-          tour: true
-        }
-      });
-      const invitedTours = invitedToursQuery.map(x => x.tour);
-      const allTours = myTours.concat(invitedTours);
-      return allTours.sort((a, b) => a.date > b.date ? 1 : -1);
+      const { count, page } = input.pagination;
+      const skip = count * (page - 1);
+      const tours = await ctx.prisma.$queryRaw`SELECT * FROM Tour WHERE creatorId = ${userId}
+      UNION (SELECT Tour.* FROM TourViewer as tv
+                           INNER JOIN Tour
+                           ON Tour.id = tv.tourId
+                           WHERE viewerId = ${userId})
+              LIMIT ${skip}, ${count};`;
+      console.log(tours);
+      return tours as Tour[];
     },
   })
   .query("get-tour-by-id", {
@@ -53,11 +53,11 @@ export const toursRouter = createRouter()
       const viewerTour = await ctx.prisma.tourViewer.findFirst({
         where: {
           viewerId: userId,
-          tourId: input.id
+          tourId: input.id,
         },
         include: {
-          tour: true
-        }
+          tour: true,
+        },
       });
 
       if (!viewerTour) throw new TRPCError({ code: "NOT_FOUND" });
@@ -74,20 +74,20 @@ export const toursRouter = createRouter()
         _sum: {
           distance: true,
           elevationDown: true,
-          elevationUp: true
+          elevationUp: true,
         },
         _count: {
-          _all: true
+          _all: true,
         },
         where: {
-          creatorId: userId
-        }
-      })
+          creatorId: userId,
+        },
+      });
       return {
         count: aggregate._count._all,
-        ...aggregate._sum
+        ...aggregate._sum,
       };
-    }
+    },
   })
   .mutation("create-tour", {
     input: z.object({
