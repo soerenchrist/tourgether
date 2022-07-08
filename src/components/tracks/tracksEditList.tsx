@@ -17,10 +17,14 @@ const getColor = (index: number) => {
   return colors[realIndex]!;
 };
 
-const TrackItem = ({ track, onChange, onRemove }: {
-  track: Track,
-  onChange: (track: Track) => void,
-  onRemove: (track: Track) => void
+const TrackItem = ({
+  track,
+  onChange,
+  onRemove,
+}: {
+  track: Track;
+  onChange: (track: Track) => void;
+  onRemove: (track: Track) => void;
 }) => {
   const [value, setValue] = useState("");
 
@@ -29,7 +33,7 @@ const TrackItem = ({ track, onChange, onRemove }: {
   const handleChange = () => {
     track.name = value;
     onChange(track);
-  }
+  };
 
   return (
     <Table.Row key={track.name}>
@@ -50,7 +54,8 @@ const TrackItem = ({ track, onChange, onRemove }: {
       <Table.Cell className="flex justify-end mt-3 h-full items-center">
         <span
           onClick={() => onRemove(track)}
-          className="font-medium text-blue-500 cursor-pointer dark:text-blue-500 hover:underline">
+          className="font-medium text-blue-500 cursor-pointer dark:text-blue-500 hover:underline"
+        >
           Remove
         </span>
       </Table.Cell>
@@ -58,9 +63,9 @@ const TrackItem = ({ track, onChange, onRemove }: {
   );
 };
 
-
-
-const TracksEditList: React.FC<{ onChange: (tracks: Track[]) => void }> = ({ onChange }) => {
+const TracksEditList: React.FC<{ onChange: (tracks: Track[]) => void }> = ({
+  onChange,
+}) => {
   const [tracks, setTracks] = useState<Track[]>([]);
   const handleTracksChanged: ChangeEventHandler<HTMLInputElement> = (event) => {
     const { files } = event.target;
@@ -92,7 +97,7 @@ const TracksEditList: React.FC<{ onChange: (tracks: Track[]) => void }> = ({ onC
 
     setTracks([...prev, ...next]);
     onChange(tracks);
-  }
+  };
 
   const handleTrackChange = (track: Track) => {
     const index = tracks.indexOf(track);
@@ -102,14 +107,14 @@ const TracksEditList: React.FC<{ onChange: (tracks: Track[]) => void }> = ({ onC
 
     setTracks([...prev, track, ...next]);
     onChange(tracks);
-  }
+  };
 
   const tableHeader = (
-    <tr>
+    <Table.Head>
       <Table.HeadCell>Name</Table.HeadCell>
       <Table.HeadCell className="justify-start flex">Color</Table.HeadCell>
       <Table.HeadCell></Table.HeadCell>
-    </tr>
+    </Table.Head>
   );
   return (
     <div className="flex flex-col gap-2">
@@ -125,11 +130,16 @@ const TracksEditList: React.FC<{ onChange: (tracks: Track[]) => void }> = ({ onC
       {tracks.length > 0 && (
         <Table>
           {tableHeader}
-          {tracks.map((track) => (
-            <TrackItem key={track.number}
-              onRemove={handleRemove}  
-            onChange={handleTrackChange} track={track} />
-          ))}
+          <Table.Body>
+            {tracks.map((track) => (
+              <TrackItem
+                key={track.number}
+                onRemove={handleRemove}
+                onChange={handleTrackChange}
+                track={track}
+              />
+            ))}
+          </Table.Body>
         </Table>
       )}
     </div>
