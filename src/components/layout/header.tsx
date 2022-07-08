@@ -4,6 +4,11 @@ import Link from "next/link";
 const Menu = () => {
   return (
     <div className="flex justify-start gap-4">
+      <Link href="/">
+        <span className="text-xl font-bold cursor-pointer">
+          Tour<span className="text-blue-500">gether</span>
+        </span>
+      </Link>
       <Link href="/tours">Tours</Link>
       <Link href="/stats">Stats</Link>
     </div>

@@ -14,7 +14,6 @@ const Tours: NextPage = () => {
   const { data, isLoading } = trpc.useQuery(["tours.get-tours"]);
 
   const router = useRouter();
-  if (isLoading || !data) return <div>Loading...</div>;
 
   const handleAddClick = () => {
     router.push("/tours/create");
@@ -46,8 +45,8 @@ const Tours: NextPage = () => {
   return (
     <LayoutBase>
       <Table headerContent={tableHeader} className="rounded-b-none shadow-none">
-        {data.length === 0 && noDataContent}
-        {data.map((tour) => (
+        {data?.length === 0 || isLoading && noDataContent}
+        {data?.map((tour) => (
           <TableRow key={tour.id}>
             <TableCell>{tour.name}</TableCell>
             <TableCell className="hidden md:table-cell truncate max-w-xs">
