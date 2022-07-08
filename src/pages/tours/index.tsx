@@ -3,15 +3,19 @@ import LayoutBase from "@/components/layout/layoutBase";
 import { trpc } from "@/utils/trpc";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { Button, Card, Spinner, Table } from "flowbite-react";
+import { Button, Card, Pagination, Spinner, Table } from "flowbite-react";
 import { useSession } from "next-auth/react";
 import { Tour } from "@prisma/client";
 import CardTitle from "@/components/common/cardTitle";
+import { useEffect, useState } from "react";
 
 const ToursTable: React.FC<{
   isLoading: boolean;
+  page: number;
+  totalPages: number;
+  setPage: (page: number) => void;
   data: Tour[] | undefined;
-}> = ({ isLoading, data }) => {
+}> = ({ isLoading, data, setPage, totalPages, page }) => {
   const router = useRouter();
 
   const handleAddClick = () => {
@@ -47,12 +51,16 @@ const ToursTable: React.FC<{
       <Table className="rounded-b-none shadow-none">
         {tableHeader}
         <Table.Body>
-          {data?.length === 0 || (isLoading && noDataContent)}
+          {data?.length === 0 && !isLoading && noDataContent}
           {data?.map((tour) => (
             <Table.Row key={tour.id}>
               <Table.Cell>{tour.name}</Table.Cell>
               <Table.Cell className="hidden md:table-cell truncate max-w-xs">
-                {tour.description.length === 0 ? <span>-</span> : tour.description}
+                {tour.description.length === 0 ? (
+                  <span>-</span>
+                ) : (
+                  tour.description
+                )}
               </Table.Cell>
               <Table.Cell>{tour.distance}m</Table.Cell>
               <Table.Cell className="hidden md:table-cell">
@@ -69,6 +77,11 @@ const ToursTable: React.FC<{
           ))}
         </Table.Body>
       </Table>
+      <Pagination
+        currentPage={page}
+        totalPages={totalPages}
+        onPageChange={(p) => setPage(p)}
+      />
 
       <div className="flex justify-end p-2 items-center">
         <Button onClick={handleAddClick}>Add a new Tour</Button>
@@ -78,15 +91,28 @@ const ToursTable: React.FC<{
 };
 
 const ToursPage: NextPage = () => {
-  const { data, isLoading } = trpc.useQuery(["tours.get-tours", {
-    pagination: {
-      count: 10,
-      page: 1
-    }
-  }]);
+  const [page, setPage] = useState(1);
+  const count = 1;
+  const { data, isLoading } = trpc.useQuery([
+    "tours.get-tours",
+    {
+      count,
+      page: page,
+    },
+  ]);
   const { status } = useSession();
 
-  let content = <ToursTable isLoading={isLoading} data={data}></ToursTable>;
+  const totalPages = Math.ceil((data?.totalCount ?? 1) / count);
+
+  let content = (
+    <ToursTable
+      isLoading={isLoading}
+      page={page}
+      setPage={setPage}
+      totalPages={totalPages}
+      data={data?.tours}
+    ></ToursTable>
+  );
   if (status === "unauthenticated") content = <p>Access denied</p>;
   else if (status === "loading") content = <Spinner size="xl" />;
 

@@ -13,16 +13,14 @@ export const toursRouter = createRouter()
   })
   .query("get-tours", {
     input: z.object({
-      pagination: z.object({
-        page: z.number().default(1),
-        count: z.number().default(10),
-      }),
+      page: z.number().min(1),
+      count: z.number(),
     }),
     async resolve({ ctx, input }) {
       const userId = ctx.session?.user?.email;
       if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
 
-      const { count, page } = input.pagination;
+      const { count, page } = input;
       const skip = count * (page - 1);
       const tours = await ctx.prisma.$queryRaw`SELECT * FROM Tour WHERE creatorId = ${userId}
       UNION (SELECT Tour.* FROM TourViewer as tv
@@ -30,8 +28,18 @@ export const toursRouter = createRouter()
                            ON Tour.id = tv.tourId
                            WHERE viewerId = ${userId})
               LIMIT ${skip}, ${count};`;
-      console.log(tours);
-      return tours as Tour[];
+
+      const totalCount = await ctx.prisma.$queryRaw`SELECT Count(*) as count FROM (
+        SELECT * FROM Tour WHERE creatorId = ${userId}
+            UNION (SELECT Tour.* FROM TourViewer as tv
+                                 INNER JOIN Tour
+                                 ON Tour.id = tv.tourId
+                                 WHERE viewerId = ${userId})) as tv`
+      const countResult: any = totalCount
+      return {
+        tours: tours as Tour[],
+        totalCount: Number(countResult[0].count)
+      }
     },
   })
   .query("get-tour-by-id", {
