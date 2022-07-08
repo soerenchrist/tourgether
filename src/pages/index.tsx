@@ -1,11 +1,8 @@
-import TotalsDisplay from "@/components/dashboard/totalsDisplay";
 import type { NextPage } from "next";
-import { useSession } from "next-auth/react";
 import Head from "next/head";
 import LayoutBase from "../components/layout/layoutBase";
 
 const Home: NextPage = () => {
-  const session = useSession();
   return (
     <>
       <Head>

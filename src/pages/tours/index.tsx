@@ -8,11 +8,14 @@ import LayoutBase from "@/components/layout/layoutBase";
 import { trpc } from "@/utils/trpc";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { Button } from "flowbite-react";
+import { Button, Spinner } from "flowbite-react";
+import { useSession } from "next-auth/react";
+import { Tour } from "@prisma/client";
 
-const Tours: NextPage = () => {
-  const { data, isLoading } = trpc.useQuery(["tours.get-tours"]);
-
+const ToursTable: React.FC<{ isLoading: boolean; data: Tour[] | undefined }> = ({
+  isLoading,
+  data,
+}) => {
   const router = useRouter();
 
   const handleAddClick = () => {
@@ -40,12 +43,12 @@ const Tours: NextPage = () => {
       <TableCell></TableCell>
       <TableCell className="hidden md:table-cell"></TableCell>
       <TableCell></TableCell>
-    </TableRow>)
-
+    </TableRow>
+  );
   return (
-    <LayoutBase>
+    <>
       <Table headerContent={tableHeader} className="rounded-b-none shadow-none">
-        {data?.length === 0 || isLoading && noDataContent}
+        {data?.length === 0 || (isLoading && noDataContent)}
         {data?.map((tour) => (
           <TableRow key={tour.id}>
             <TableCell>{tour.name}</TableCell>
@@ -70,8 +73,23 @@ const Tours: NextPage = () => {
       <div className="flex justify-end p-2 items-center bg-gray-100 dark:bg-gray-900 dark:text-gray-400 rounded-b-xl">
         <Button onClick={handleAddClick}>Add a new Tour</Button>
       </div>
-    </LayoutBase>
+    </>
   );
 };
 
-export default Tours;
+const ToursPage: NextPage = () => {
+  const { data, isLoading } = trpc.useQuery(["tours.get-tours"]);
+  const { status } = useSession();
+
+  let content = <ToursTable isLoading={isLoading} data={data}></ToursTable>
+  if (status === "unauthenticated") content = (<p>Access denied</p>)
+  else if (status === "loading") content = (<Spinner size="xl" />)
+  
+  return (
+    <LayoutBase>
+      {content}
+    </LayoutBase>
+  )
+};
+
+export default ToursPage;
