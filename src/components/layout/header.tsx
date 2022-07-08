@@ -1,6 +1,6 @@
 import { Avatar, Button, Dropdown, Navbar } from "flowbite-react";
 import { Session } from "next-auth";
-import { signOut } from "next-auth/react";
+import { signIn, signOut } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
@@ -49,9 +49,7 @@ const Header = ({ session }: { session: Session | null }) => {
       <Navbar.Toggle />
       {!session?.user && (
         <div className="flex md:order-2">
-          <Link href="/api/auth/signin">
-            <Button>Sign in</Button>
-          </Link>
+            <Button onClick={() => signIn()}>Sign in</Button>
           <Navbar.Toggle />
         </div>
       )}
