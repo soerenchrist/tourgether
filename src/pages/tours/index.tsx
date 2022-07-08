@@ -6,9 +6,9 @@ import Table, {
 } from "@/components/common/table";
 import LayoutBase from "@/components/layout/layoutBase";
 import { trpc } from "@/utils/trpc";
-import Button from "@/components/common/button";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { Button } from "flowbite-react";
 
 const Tours: NextPage = () => {
   const { data, isLoading } = trpc.useQuery(["tours.get-tours"]);
@@ -67,7 +67,7 @@ const Tours: NextPage = () => {
         ))}
       </Table>
 
-      <div className="flex justify-end py-1 items-center bg-gray-50 dark:bg-gray-900 dark:text-gray-400 rounded-b-xl">
+      <div className="flex justify-end p-2 items-center bg-gray-100 dark:bg-gray-900 dark:text-gray-400 rounded-b-xl">
         <Button onClick={handleAddClick}>Add a new Tour</Button>
       </div>
     </LayoutBase>

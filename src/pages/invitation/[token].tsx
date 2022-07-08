@@ -1,8 +1,7 @@
-import Button from "@/components/common/button";
-import Spinner from "@/components/common/spinner";
 import LayoutBase from "@/components/layout/layoutBase";
 import { trpc } from "@/utils/trpc";
 import { InvitationLink, Tour } from "@prisma/client";
+import { Button, Spinner } from "flowbite-react";
 import { NextRouter, useRouter } from "next/router";
 import { useRef } from "react";
 
@@ -67,7 +66,7 @@ const InvitationPageContent: React.FC<{ token: string }> = ({ token }) => {
   const errorMessage = <div>{error?.message}</div>
 
   return <LayoutBase>
-    {isLoading ? <Spinner /> : (
+    {isLoading ? <Spinner size="xl" aria-label="page is loading" /> : (
       (isError || !data) ? errorMessage : (
         <InvitationDisplay invite={data} />
       )

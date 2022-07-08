@@ -31,13 +31,13 @@ const Table = (props: Props) => {
   return (
     <div className={`relative overflow-x-auto shadow-md rounded-lg ${props.className || ""}`}>
       <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-900 dark:text-gray-400">
+        <thead className="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-900 dark:text-gray-400">
           {props.headerContent}
         </thead>
         <tbody>
           {props.children}
         </tbody>
-        {props.footerContent && <tfoot className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-900 dark:text-gray-400">
+        {props.footerContent && <tfoot className="text-xs text-gray-700 uppercase bg-gray-200 dark:bg-gray-900 dark:text-gray-400">
           {props.footerContent}
         </tfoot>}
       </table>

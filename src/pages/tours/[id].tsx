@@ -1,9 +1,9 @@
-import Card from "@/components/common/card";
+import CardTitle from "@/components/common/cardTitle";
 import { List, ListItem } from "@/components/common/list";
-import Spinner from "@/components/common/spinner";
 import LayoutBase from "@/components/layout/layoutBase";
 import CreateInvitationButton from "@/components/tours/createInvitationButton";
 import { trpc } from "@/utils/trpc";
+import { Card, Spinner } from "flowbite-react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -23,7 +23,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
 
   const loadingIndicator = (
     <div className="w-full flex justify-center p-8">
-      <Spinner></Spinner>
+      <Spinner size="xl"></Spinner>
     </div>
   );
 
@@ -34,7 +34,8 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
       </Head>
       <LayoutBase>
         <div className="grid grid-cols-2 gap-6">
-          <Card title={data.name}>
+          <Card>
+            <CardTitle title={data.name} />
             {isLoading ? (
               loadingIndicator
             ) : (
@@ -72,7 +73,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
             )}
           </Card>
           {((tracks && tracks.length > 0) || isLoading) && (
-            <Card className="p-0 lg:p-0">
+            <Card>
               <Map tracks={tracks} />
             </Card>
           )}

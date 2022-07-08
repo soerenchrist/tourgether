@@ -1,5 +1,4 @@
-import Button from "@/components/common/button";
-import Card from "@/components/common/card";
+import CardTitle from "@/components/common/cardTitle";
 import Input from "@/components/common/input";
 import TextArea from "@/components/common/textarea";
 import LayoutBase from "@/components/layout/layoutBase";
@@ -7,6 +6,7 @@ import TracksEditList from "@/components/tracks/tracksEditList";
 import { getFileContents } from "@/utils/fileHelpers";
 import { trpc } from "@/utils/trpc";
 import axios from "axios";
+import { Button, Card } from "flowbite-react";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -91,7 +91,8 @@ const CreateTour = () => {
     <LayoutBase>
       <div className="grid grid-cols-2 gap-4">
 
-        <Card title="Create a new tour">
+        <Card>
+          <CardTitle title="Create a new tour" />
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="pt-4 flex flex-col gap-2">
               <Input
@@ -180,8 +181,12 @@ const CreateTour = () => {
             </div>
           </form>
         </Card>
-        <Card title="Add Tracks">
+        <Card>
+          <div className="flex flex-col justify-start h-full">
+
+          <CardTitle title="Add Tracks" />
           <TracksEditList onChange={handleTracksChanged} />
+          </div>
         </Card>
       </div>
     </LayoutBase>

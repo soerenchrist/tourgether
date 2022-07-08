@@ -1,8 +1,7 @@
 import { trpc } from "@/utils/trpc";
 import { Tour } from "@prisma/client";
+import { Button } from "flowbite-react";
 import { useState } from "react";
-import Button from "../common/button";
-import Input from "../common/input";
 
 type Props = {
   tour: Tour;
@@ -63,7 +62,7 @@ const CreateInvitationButton: React.FC<Props> = ({ tour }) => {
     mutate({ tourId: tour.id });
   };
   return (
-    <div>
+    <div className="pt-2">
       <Button onClick={handleClick}>Share with your friends!</Button>
       {url && <CopyInputField url={url} />}
     </div>

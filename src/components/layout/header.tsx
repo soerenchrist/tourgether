@@ -1,32 +1,77 @@
+import { Avatar, Button, Dropdown, Navbar } from "flowbite-react";
 import { Session } from "next-auth";
+import { signOut } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
-const Menu = () => {
+const UserDropdown: React.FC<{ session: Session }> = ({ session }) => {
+  const router = useRouter();
+  const handleSignOut = () => {
+    signOut();
+    router.push("/");
+  }
+
   return (
-    <div className="flex justify-start gap-4">
-      <Link href="/">
-        <span className="text-xl font-bold cursor-pointer">
-          Tour<span className="text-blue-500">gether</span>
+    <Dropdown
+      arrowIcon={false}
+      inline={true}
+      label={
+        <Avatar
+          alt="User settings"
+          img={session.user!.image ?? undefined}
+          rounded={true}
+        />
+      }
+    >
+      <Dropdown.Header>
+        <span className="block text-sm">{session.user!.name}</span>
+        <span className="block truncate text-sm font-medium">
+          {session.user!.email}
         </span>
-      </Link>
-      <Link href="/tours">Tours</Link>
-      <Link href="/stats">Stats</Link>
-    </div>
+      </Dropdown.Header>
+      <Dropdown.Item>Dashboard</Dropdown.Item>
+      <Dropdown.Item>Settings</Dropdown.Item>
+      <Dropdown.Item>Earnings</Dropdown.Item>
+      <Dropdown.Divider />
+      <Dropdown.Item onClick={handleSignOut}>Sign out</Dropdown.Item>
+    </Dropdown>
   );
 };
 
-
 const Header = ({ session }: { session: Session | null }) => {
   return (
-    <header className="bg-gray-700 sticky top-0 z-50 dark:bg-gray-900 text-white text-lg items-center pr-6 h-16 flex justify-between px-4">
-      {session?.user ? <Menu /> : <div></div>}
-
-      {session?.user?.email || (
-        <Link href="/api/auth/signin/auth0">
-          <div className="bg-blue-500 p-1 px-4 cursor-pointer rounded-2xl">Sign in</div>
-        </Link>
+    <Navbar fluid rounded>
+      <Navbar.Brand href="/">
+        <span className="text-xl font-bold cursor-pointer">
+          Tour<span className="text-blue-500">gether</span>
+        </span>
+      </Navbar.Brand>
+      <Navbar.Toggle />
+      {!session?.user && (
+        <div className="flex md:order-2">
+          <Button>Sign in</Button>
+          <Navbar.Toggle />
+        </div>
       )}
-    </header>
+
+      {session?.user && (
+        <div className="flex md:order-2">
+          <UserDropdown session={session} />
+        </div>
+      )}
+      <Navbar.Collapse>
+        {session?.user && (
+          <>
+            <Link href="/tours">
+              <span className="cursor-pointer">My Tours</span>
+            </Link>
+            <Link href="/peaks">
+              <span className="cursor-pointer">Peaks</span>
+            </Link>
+          </>
+        )}
+      </Navbar.Collapse>
+    </Navbar>
   );
 };
 
