@@ -27,6 +27,7 @@ model Tour {
     creator User @relation(fields: [creatorId], references: [id])
     viewers TourViewer[]
     invitationLinks InvitationLink[]
+    tourPeaks TourPeak[]
 }
 
 model TourViewer {
@@ -44,6 +45,27 @@ model Track {
     color String
     tour Tour @relation(fields: [tourId], references: [id])
     tourId String
+}
+
+model Peak {
+    id Int @id @default(autoincrement())
+    name String
+    osmId BigInt?
+    latitude Float
+    longitude Float
+    height Int
+    wikipedia String?
+    wikidata String?
+    tourPeaks TourPeak[]
+    creatorId String?
+}
+
+model TourPeak {
+    id String @id @default(cuid())
+    peakId Int
+    peak Peak @relation(fields: [peakId], references: [id])
+    tourId String
+    tour Tour @relation(fields: [tourId], references: [id])
 }
 
 model InvitationLink {
