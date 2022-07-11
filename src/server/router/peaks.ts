@@ -10,6 +10,35 @@ export const peaksRouter = createRouter()
 
     return next();
   })
+  .query("get-peak-by-id", {
+    input: z.object({
+      id: z.string(),
+    }),
+    async resolve({ ctx, input }) {
+      const userId = ctx.session?.user?.email;
+      if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
+
+      return await ctx.prisma.peak.findFirst({
+        where: {
+          AND: [
+            {
+              id: input.id,
+            },
+            {
+              OR: [
+                {
+                  creatorId: null,
+                },
+                {
+                  creatorId: userId,
+                },
+              ],
+            },
+          ],
+        },
+      });
+    },
+  })
   .query("get-peaks", {
     input: z.object({
       searchTerm: z.string(),
@@ -67,6 +96,24 @@ export const peaksRouter = createRouter()
           },
         });
       }
+    },
+  })
+  .mutation("delete-peak", {
+    input: z.object({
+      id: z.string(),
+    }),
+    async resolve({ ctx, input }) {
+      const userId = ctx.session?.user?.email;
+      if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
+
+      const result = await ctx.prisma.peak.deleteMany({
+        where: {
+          id: input.id,
+          creatorId: userId,
+        },
+      });
+      // You are not allowed to delete peaks that aren't created by you
+      if (result.count !== 1) throw new TRPCError({ code: "UNAUTHORIZED" });
     },
   })
   .mutation("create-peak", {
