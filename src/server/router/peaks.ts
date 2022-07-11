@@ -85,7 +85,7 @@ export const peaksRouter = createRouter()
         ...input,
       };
 
-      await ctx.prisma.peak.create({
+      return await ctx.prisma.peak.create({
         data: peak,
       });
     },

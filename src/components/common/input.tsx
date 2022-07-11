@@ -7,6 +7,7 @@ type Props = {
   value?: string;
   className?: string;
   disabled?: boolean;
+  step?: string;
   onChange?: ChangeEventHandler<HTMLInputElement>;
   onFocus?: FocusEventHandler<HTMLInputElement>;
   onBlur?: FocusEventHandler<HTMLInputElement>;

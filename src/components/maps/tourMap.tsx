@@ -1,5 +1,4 @@
 import { MapContainer, Polyline, TileLayer, useMap } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
 import { trpc } from "@/utils/trpc";
 import { useMemo, useState } from "react";
 import { LatLngExpression } from "leaflet";

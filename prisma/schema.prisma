@@ -48,7 +48,7 @@ model Track {
 }
 
 model Peak {
-    id Int @id @default(autoincrement())
+    id String @id @default(cuid())
     name String
     osmId BigInt?
     latitude Float
@@ -62,7 +62,7 @@ model Peak {
 
 model TourPeak {
     id String @id @default(cuid())
-    peakId Int
+    peakId String
     peak Peak @relation(fields: [peakId], references: [id])
     tourId String
     tour Tour @relation(fields: [tourId], references: [id])
