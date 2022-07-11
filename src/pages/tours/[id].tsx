@@ -9,7 +9,7 @@ import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { ReactNode, useState } from "react";
-import { MenuIcon } from "@heroicons/react/solid";
+import { DotsVerticalIcon } from "@heroicons/react/solid";
 
 const Map = dynamic(() => import("../../components/maps/tourMap"), {
   ssr: false,
@@ -71,7 +71,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
             <Dropdown
               inline={true}
               arrowIcon={false}
-              label={<MenuIcon className="h-5 w-5 cursor-pointer" />}
+              label={<DotsVerticalIcon className="h-5 w-5 cursor-pointer" />}
             >
               <Dropdown.Item onClick={() => setShowDelete(true)}>Delete this Tour</Dropdown.Item>
             </Dropdown>}
