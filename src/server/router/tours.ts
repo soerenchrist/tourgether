@@ -22,24 +22,26 @@ export const toursRouter = createRouter()
 
       const { count, page } = input;
       const skip = count * (page - 1);
-      const tours = await ctx.prisma.$queryRaw`SELECT * FROM Tour WHERE creatorId = ${userId}
+      const tours = await ctx.prisma
+        .$queryRaw`SELECT * FROM Tour WHERE creatorId = ${userId}
       UNION (SELECT Tour.* FROM TourViewer as tv
                            INNER JOIN Tour
                            ON Tour.id = tv.tourId
                            WHERE viewerId = ${userId})
               LIMIT ${skip}, ${count};`;
 
-      const totalCount = await ctx.prisma.$queryRaw`SELECT Count(*) as count FROM (
+      const totalCount = await ctx.prisma
+        .$queryRaw`SELECT Count(*) as count FROM (
         SELECT * FROM Tour WHERE creatorId = ${userId}
             UNION (SELECT Tour.* FROM TourViewer as tv
                                  INNER JOIN Tour
                                  ON Tour.id = tv.tourId
-                                 WHERE viewerId = ${userId})) as tv`
-      const countResult: any = totalCount
+                                 WHERE viewerId = ${userId})) as tv`;
+      const countResult: any = totalCount;
       return {
         tours: tours as Tour[],
-        totalCount: Number(countResult[0].count)
-      }
+        totalCount: Number(countResult[0].count),
+      };
     },
   })
   .query("get-tour-by-id", {
@@ -56,8 +58,8 @@ export const toursRouter = createRouter()
           id: input.id,
         },
         include: {
-          viewers: true
-        }
+          viewers: true,
+        },
       });
       if (myTour) return { viewer: false, ...myTour };
 
@@ -98,6 +100,29 @@ export const toursRouter = createRouter()
         count: aggregate._count._all,
         ...aggregate._sum,
       };
+    },
+  })
+  .mutation("delete-tour", {
+    input: z.object({
+      id: z.string(),
+    }),
+    async resolve({ ctx, input }) {
+      await ctx.prisma.tourViewer.deleteMany({
+        where: {
+          tourId: input.id,
+        },
+      });
+
+      await ctx.prisma.invitationLink.deleteMany({
+        where: {
+          tourId: input.id,
+        },
+      });
+      await ctx.prisma.tour.delete({
+        where: {
+          id: input.id,
+        },
+      });
     },
   })
   .mutation("create-tour", {
