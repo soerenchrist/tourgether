@@ -11,10 +11,15 @@ const UserDropdown: React.FC<{ session: Session }> = ({ session }) => {
     router.push("/");
   };
 
+  const goTo = (route: string) => {
+    router.push(route);
+  }
+
   return (
     <Dropdown
       arrowIcon={false}
       inline={true}
+      style={{zIndex: 900}}
       label={
         <Avatar
           alt="User settings"
@@ -25,13 +30,12 @@ const UserDropdown: React.FC<{ session: Session }> = ({ session }) => {
     >
       <Dropdown.Header>
         <span className="block text-sm">{session.user!.name}</span>
-        <span className="block truncate text-sm font-medium">
+        <span className="block truncate text-sm font-light">
           {session.user!.email}
         </span>
       </Dropdown.Header>
-      <Dropdown.Item>Dashboard</Dropdown.Item>
-      <Dropdown.Item>Settings</Dropdown.Item>
-      <Dropdown.Item>Earnings</Dropdown.Item>
+      <Dropdown.Item onClick={() => goTo("/dashboard")}>Dashboard</Dropdown.Item>
+      <Dropdown.Item onClick={() => goTo("/tours")}>My Tours</Dropdown.Item>
       <Dropdown.Divider />
       <Dropdown.Item onClick={handleSignOut}>Sign out</Dropdown.Item>
     </Dropdown>

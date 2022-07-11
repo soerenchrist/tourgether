@@ -7,7 +7,7 @@ import { Button, Card, Pagination, Spinner, Table } from "flowbite-react";
 import { useSession } from "next-auth/react";
 import { Tour } from "@prisma/client";
 import CardTitle from "@/components/common/cardTitle";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const ToursTable: React.FC<{
   isLoading: boolean;
@@ -21,14 +21,21 @@ const ToursTable: React.FC<{
   const handleAddClick = () => {
     router.push("/tours/create");
   };
+  
+  const format = (value: number | null | undefined) => {
+    if (!value) return "0 m";
+    if (value < 1000) return `${value} m`;
+    const rounded = Math.round((value / 1000) * 100) / 100;
+    return `${rounded} km`;
+  };
 
   const tableHeader = (
     <Table.Head>
       <Table.HeadCell>Name</Table.HeadCell>
-      <Table.HeadCell className="hidden md:table-cell">
-        Description
+      <Table.HeadCell>
+        Date
       </Table.HeadCell>
-      <Table.HeadCell>Distance</Table.HeadCell>
+      <Table.HeadCell className="hidden md:table-cell">Distance</Table.HeadCell>
       <Table.HeadCell className="hidden md:table-cell">
         Elevation
       </Table.HeadCell>
@@ -39,8 +46,8 @@ const ToursTable: React.FC<{
   const noDataContent = (
     <Table.Row>
       <Table.Cell>You dont have any tours yet</Table.Cell>
-      <Table.Cell className="hidden md:table-cell"></Table.Cell>
       <Table.Cell></Table.Cell>
+      <Table.Cell className="hidden md:table-cell"></Table.Cell>
       <Table.Cell className="hidden md:table-cell"></Table.Cell>
       <Table.Cell></Table.Cell>
     </Table.Row>
@@ -48,23 +55,19 @@ const ToursTable: React.FC<{
   return (
     <Card>
       <CardTitle title="Your Tours" />
-      <Table className="rounded-b-none shadow-none">
+      <Table className="rounded-b-none shadow-none" style={{zIndex: 1}}>
         {tableHeader}
         <Table.Body>
           {data?.length === 0 && !isLoading && noDataContent}
           {data?.map((tour) => (
             <Table.Row key={tour.id}>
               <Table.Cell>{tour.name}</Table.Cell>
-              <Table.Cell className="hidden md:table-cell truncate max-w-xs">
-                {tour.description.length === 0 ? (
-                  <span>-</span>
-                ) : (
-                  tour.description
-                )}
+              <Table.Cell>
+                {tour.date.toLocaleDateString()}
               </Table.Cell>
-              <Table.Cell>{tour.distance}m</Table.Cell>
+              <Table.Cell className="hidden md:table-cell">{format(tour.distance)}</Table.Cell>
               <Table.Cell className="hidden md:table-cell">
-                {tour.elevationUp}m
+                {format(tour.elevationUp)}
               </Table.Cell>
               <Table.Cell className="flex justify-end">
                 <Link href={`/tours/${tour.id}`}>
@@ -92,7 +95,7 @@ const ToursTable: React.FC<{
 
 const ToursPage: NextPage = () => {
   const [page, setPage] = useState(1);
-  const count = 1;
+  const count = 10;
   const { data, isLoading } = trpc.useQuery([
     "tours.get-tours",
     {
