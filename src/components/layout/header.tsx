@@ -50,7 +50,6 @@ const Header = ({ session }: { session: Session | null }) => {
           Tour<span className="text-blue-500">gether</span>
         </span>
       </Navbar.Brand>
-      <Navbar.Toggle />
       {!session?.user && (
         <div className="flex md:order-2">
             <Button onClick={() => signIn()}>Sign in</Button>
@@ -63,6 +62,7 @@ const Header = ({ session }: { session: Session | null }) => {
           <UserDropdown session={session} />
         </div>
       )}
+      <Navbar.Toggle />
       <Navbar.Collapse>
         {session?.user && (
           <>
