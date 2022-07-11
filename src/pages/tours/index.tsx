@@ -80,14 +80,18 @@ const ToursTable: React.FC<{
           ))}
         </Table.Body>
       </Table>
+
+      <div className="flex justify-between p-2 items-center">
       <Pagination
         currentPage={page}
         totalPages={totalPages}
         onPageChange={(p) => setPage(p)}
       />
 
-      <div className="flex justify-end p-2 items-center">
-        <Button onClick={handleAddClick}>Add a new Tour</Button>
+<div className="mt-2">
+
+        <Button size="sm" onClick={handleAddClick}>Add a new Tour</Button>
+</div>
       </div>
     </Card>
   );

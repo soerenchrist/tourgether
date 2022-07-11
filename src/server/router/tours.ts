@@ -55,6 +55,9 @@ export const toursRouter = createRouter()
           creatorId: userId,
           id: input.id,
         },
+        include: {
+          viewers: true
+        }
       });
       if (myTour) return { viewer: false, ...myTour };
 
@@ -70,7 +73,7 @@ export const toursRouter = createRouter()
 
       if (!viewerTour) throw new TRPCError({ code: "NOT_FOUND" });
 
-      return { viewer: true, ...viewerTour.tour };
+      return { viewer: true, viewers: [], ...viewerTour.tour };
     },
   })
   .query("get-totals", {

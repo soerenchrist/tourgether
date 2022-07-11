@@ -34,53 +34,58 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
       <Head>
         <title>Tour - {data.name}</title>
       </Head>
-      <LayoutBase>
-        <div className="grid grid-cols-2 gap-6">
-          <Card>
-            <CardTitle title={data.name} />
-            {isLoading ? (
-              loadingIndicator
-            ) : (
-              <List className="mt-4">
-                <ListItem title={`${data.distance}m`} subtitle="Distance" />
-                <ListItem
-                  title={`${data.elevationUp}m`}
-                  subtitle="Elevation Up"
-                />
-                <ListItem
-                  title={`${data.elevationDown}m`}
-                  subtitle="Elevation Down"
-                />
-                <ListItem
-                  title={`${data.date.toLocaleDateString()}`}
-                  subtitle="Date"
-                />
-                {data.startTime && (
-                  <ListItem
-                    title={`${data.startTime}`}
-                    subtitle="Start time"
-                  />
-                )}
+      <div className="grid grid-cols-2 gap-6">
+        <Card>
+          <CardTitle title={data.name} />
+          {isLoading ? (
+            loadingIndicator
+          ) : (
+            <List className="mt-4">
+              <ListItem title={`${data.distance}m`} subtitle="Distance" />
+              <ListItem
+                title={`${data.elevationUp}m`}
+                subtitle="Elevation Up"
+              />
+              <ListItem
+                title={`${data.elevationDown}m`}
+                subtitle="Elevation Down"
+              />
+              <ListItem
+                title={`${data.date.toLocaleDateString()}`}
+                subtitle="Date"
+              />
+              {data.startTime && (
+                <ListItem title={`${data.startTime}`} subtitle="Start time" />
+              )}
 
-                {data.endTime && (
-                  <ListItem
-                    title={`${data.endTime}`}
-                    subtitle="End time"
-                  />
-                )}
+              {data.endTime && (
+                <ListItem title={`${data.endTime}`} subtitle="End time" />
+              )}
 
+              {data.viewers.length > 0 && (
+                <ListItem
+                  title={data.viewers.map((x) => x.viewerId).join(", ")}
+                  subtitle="Shared with"
+                />
+              )}
+
+              {data.viewer && (
+                <ListItem title={data.creatorId} subtitle="Created by" />
+              )}
+
+              {data.description.lenth > 0 && (
                 <ListItem subtitle={data.description} />
-                {!data.viewer && <CreateInvitationButton tour={data} />}
-              </List>
-            )}
-          </Card>
-          {((tracks && tracks.length > 0) || isLoading) && (
-            <Card>
-              <Map tracks={tracks} />
-            </Card>
+              )}
+              {!data.viewer && <CreateInvitationButton tour={data} />}
+            </List>
           )}
-        </div>
-      </LayoutBase>
+        </Card>
+        {((tracks && tracks.length > 0) || isLoading) && (
+          <Card>
+            <Map tracks={tracks} />
+          </Card>
+        )}
+      </div>
     </>
   );
 };
@@ -94,14 +99,16 @@ const TourPage = () => {
   if (!id || typeof id !== "string") {
     content = <div>No ID</div>;
   } else {
-    if (status === "unauthenticated") content = <div>Access denied</div>
-    else if (status === "loading") content = <Spinner size="xl"></Spinner>
-    else content = <TourPageContent id={id} />
+    if (status === "unauthenticated") content = <div>Access denied</div>;
+    else if (status === "loading") content = <Spinner size="xl"></Spinner>;
+    else content = <TourPageContent id={id} />;
   }
 
-  return <LayoutBase>
-    {content}
-  </LayoutBase>
+  return (
+    <>
+      <LayoutBase>{content}</LayoutBase>
+    </>
+  );
 };
 
 export default TourPage;
