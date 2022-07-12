@@ -21,7 +21,7 @@ const ToursTable: React.FC<{
   const handleAddClick = () => {
     router.push("/tours/create");
   };
-  
+
   const format = (value: number | null | undefined) => {
     if (!value) return "0 m";
     if (value < 1000) return `${value} m`;
@@ -32,9 +32,7 @@ const ToursTable: React.FC<{
   const tableHeader = (
     <Table.Head>
       <Table.HeadCell>Name</Table.HeadCell>
-      <Table.HeadCell>
-        Date
-      </Table.HeadCell>
+      <Table.HeadCell>Date</Table.HeadCell>
       <Table.HeadCell className="hidden md:table-cell">Distance</Table.HeadCell>
       <Table.HeadCell className="hidden md:table-cell">
         Elevation
@@ -55,17 +53,17 @@ const ToursTable: React.FC<{
   return (
     <Card>
       <CardTitle title="Your Tours" />
-      <Table className="rounded-b-none shadow-none" style={{zIndex: 1}}>
+      <Table className="rounded-b-none shadow-none" style={{ zIndex: 1 }}>
         {tableHeader}
         <Table.Body>
           {data?.length === 0 && !isLoading && noDataContent}
           {data?.map((tour) => (
             <Table.Row key={tour.id}>
               <Table.Cell>{tour.name}</Table.Cell>
-              <Table.Cell>
-                {tour.date.toLocaleDateString()}
+              <Table.Cell>{tour.date.toLocaleDateString()}</Table.Cell>
+              <Table.Cell className="hidden md:table-cell">
+                {format(tour.distance)}
               </Table.Cell>
-              <Table.Cell className="hidden md:table-cell">{format(tour.distance)}</Table.Cell>
               <Table.Cell className="hidden md:table-cell">
                 {format(tour.elevationUp)}
               </Table.Cell>
@@ -82,16 +80,17 @@ const ToursTable: React.FC<{
       </Table>
 
       <div className="flex justify-between p-2 items-center">
-      <Pagination
-        currentPage={page}
-        totalPages={totalPages}
-        onPageChange={(p) => setPage(p)}
-      />
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={(p) => setPage(p)}
+        />
 
-<div className="mt-2">
-
-        <Button size="sm" onClick={handleAddClick}>Add a new Tour</Button>
-</div>
+        <div className="mt-2">
+          <Button size="sm" onClick={handleAddClick}>
+            Add a new Tour
+          </Button>
+        </div>
       </div>
     </Card>
   );
@@ -99,7 +98,7 @@ const ToursTable: React.FC<{
 
 const ToursPage: NextPage = () => {
   const [page, setPage] = useState(1);
-  const count = 10;
+  const count = 20;
   const { data, isLoading } = trpc.useQuery([
     "tours.get-tours",
     {

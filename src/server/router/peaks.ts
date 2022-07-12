@@ -1,4 +1,5 @@
 import { createPeakValidationSchema } from "@/pages/peaks/create";
+import { Peak } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createRouter } from "./context";
@@ -43,6 +44,10 @@ export const peaksRouter = createRouter()
   .query("get-peaks", {
     input: z.object({
       searchTerm: z.string(),
+      pagination: z.object({
+        page: z.number().min(1),
+        count: z.number()
+      }),
       bounds: z
         .object({
           minLat: z.number(),
@@ -56,8 +61,14 @@ export const peaksRouter = createRouter()
       const userId = ctx.session?.user?.email;
       if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
 
+      const { count, page } = input.pagination;
+      const skip = count * (page - 1);
+
+      let peaks: Peak[];
       if (input.bounds) {
-        return await ctx.prisma.peak.findMany({
+        peaks = await ctx.prisma.peak.findMany({
+          take: count,
+          skip: skip,
           where: {
             latitude: {
               gte: input.bounds.minLat,
@@ -81,7 +92,9 @@ export const peaksRouter = createRouter()
           },
         });
       } else {
-        return await ctx.prisma.peak.findMany({
+        peaks = await ctx.prisma.peak.findMany({
+          take: count,
+          skip: skip,
           where: {
             name: {
               contains: input.searchTerm,
@@ -96,6 +109,24 @@ export const peaksRouter = createRouter()
             ],
           },
         });
+      }
+
+      const totalCount = await ctx.prisma.peak.count({
+        where: {
+          OR: [
+            {
+              creatorId: null,
+            },
+            {
+              creatorId: userId,
+            },
+          ],
+        },
+      });
+
+      return {
+        peaks,
+        totalCount
       }
     },
   })
