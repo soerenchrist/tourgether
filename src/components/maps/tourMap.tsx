@@ -12,7 +12,6 @@ import { LatLngExpression } from "leaflet";
 import "leaflet-defaulticon-compatibility";
 import { calculateBounds, getWaypoints } from "@/utils/gpxHelpers";
 import { Peak, Track } from "@prisma/client";
-import { tracksRouter } from "@/server/router/tracks";
 
 type Props = {
   tracks?: Track[];
@@ -34,7 +33,7 @@ const PositionHandler: React.FC<{
       const bounds = calculateBounds(
         peaks!.map((p) => ({ lat: p.latitude, lng: p.longitude }))
       );
-      map.flyToBounds(bounds, { padding: [10, 10], duration: 1 });
+      map.flyToBounds(bounds, { maxZoom: 12, duration: 1 });
     }
   }, [tracks, map, peaks]);
 
@@ -58,7 +57,7 @@ const TrackLine: React.FC<{
       setPoints(latLngs);
       if (flyTo) {
         const bounds = calculateBounds(latLngs);
-        map.flyToBounds(bounds, { duration: 1, maxZoom: 10 });
+        map.flyToBounds(bounds, { duration: 1, padding: [10, 10] });
       }
     }
   }, [data, map, flyTo]);
@@ -71,8 +70,9 @@ const TourMap = (props: Props) => {
   return (
     <MapContainer
       className="h-full"
-      center={[51.505, -0.09]}
+      center={[47, 11]}
       zoom={13}
+      style={{zIndex: 0}}
       scrollWheelZoom={true}
     >
       <TileLayer

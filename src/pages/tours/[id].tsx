@@ -53,6 +53,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
             <CardTitle title={data.name} />
             {!data.viewer && (
               <Dropdown
+                placement="top"
                 inline={true}
                 arrowIcon={false}
                 label={<DotsVerticalIcon className="h-5 w-5 cursor-pointer" />}
