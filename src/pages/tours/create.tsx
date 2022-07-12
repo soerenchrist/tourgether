@@ -4,6 +4,7 @@ import TextArea from "@/components/common/textarea";
 import LayoutBase from "@/components/layout/layoutBase";
 import TracksEditList from "@/components/tracks/tracksEditList";
 import { getFileContents } from "@/utils/fileHelpers";
+import { useZodForm } from "@/utils/formHelpers";
 import { trpc } from "@/utils/trpc";
 import axios from "axios";
 import { Button, Card, Spinner } from "flowbite-react";
@@ -11,18 +12,20 @@ import { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-type FormData = {
-  name: string;
-  distance: number;
-  elevationUp: number;
-  elevationDown: number;
-  date: string;
-  description: string;
-  start: string;
-  end: string;
-};
+export const createTourValidationSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  distance: z.number().min(0, "Distance must be greater than 0"),
+  elevationUp: z.number().min(0, "Elevation up must be greater than 0"),
+  elevationDown: z.number().min(0, "Elevation down must be greater than 0"),
+  date: z.date(),
+  description: z.string(),
+  start: z.string().nullable(),
+  end: z.string().nullable(),
+});
+
+type FormData = z.infer<typeof createTourValidationSchema>;
 
 const CreateTourContent = () => {
   const navigate = useRouter();
@@ -35,9 +38,10 @@ const CreateTourContent = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>({
+  } = useZodForm({
+    schema: createTourValidationSchema,
     defaultValues: {
-      date: new Date().toISOString().split("T")[0],
+      date: new Date(),
     },
   });
 
@@ -81,16 +85,7 @@ const CreateTourContent = () => {
     setLoading(true);
     const tracks = await uploadTracks();
     mutate({
-      tour: {
-        name: data.name,
-        description: data.description,
-        date: new Date(data.date),
-        distance: parseInt("" + data.distance),
-        elevationUp: parseInt("" + data.elevationUp),
-        elevationDown: parseInt("" + data.elevationDown),
-        startTime: data.start.length > 0 ? data.start : undefined,
-        endTime: data.end.length > 0 ? data.end : undefined,
-      },
+      tour: data,
       tracks: tracks,
     });
   };
@@ -110,7 +105,7 @@ const CreateTourContent = () => {
             <Input
               id="name"
               label="Name"
-              {...register("name", { required: "Name is required" })}
+              {...register("name")}
               error={errors.name?.message}
               placeholder="Hiking tour to Zugspitze"
             />
@@ -119,11 +114,7 @@ const CreateTourContent = () => {
               id="distance"
               label="Distance in meters"
               {...register("distance", {
-                required: "Distance is required",
-                min: {
-                  message: "Distance should be greater than 0",
-                  value: 0,
-                },
+                valueAsNumber: true,
               })}
               error={errors.distance?.message}
               placeholder="Hiking distance"
@@ -133,11 +124,7 @@ const CreateTourContent = () => {
               id="elevationUp"
               label="Elevation upwards in meters"
               {...register("elevationUp", {
-                required: "Elevation Down is required",
-                min: {
-                  message: "Elevation should be greater than 0",
-                  value: 0,
-                },
+                valueAsNumber: true,
               })}
               error={errors.elevationUp?.message}
               placeholder="Elevation upwards"
@@ -148,11 +135,7 @@ const CreateTourContent = () => {
               label="Elevation downwards in meters"
               error={errors.elevationDown?.message}
               {...register("elevationDown", {
-                required: "Elevation Down is required",
-                min: {
-                  message: "Elevation should be greater than 0",
-                  value: 0,
-                },
+                valueAsNumber: true,
               })}
               placeholder="Elevation downwards"
             />
@@ -162,7 +145,7 @@ const CreateTourContent = () => {
               error={errors.date?.message}
               label="Hiking date"
               {...register("date", {
-                required: "Date is required",
+                valueAsDate: true
               })}
               placeholder="Hiking date"
             />

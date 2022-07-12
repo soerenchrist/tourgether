@@ -1,3 +1,4 @@
+import { createTourValidationSchema } from "@/pages/tours/create";
 import { Tour } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -127,16 +128,7 @@ export const toursRouter = createRouter()
   })
   .mutation("create-tour", {
     input: z.object({
-      tour: z.object({
-        name: z.string().min(1),
-        description: z.string(),
-        distance: z.number().min(0),
-        elevationUp: z.number().min(0),
-        elevationDown: z.number().min(0),
-        date: z.date(),
-        startTime: z.string().nullish(),
-        endTime: z.string().nullish(),
-      }),
+      tour: createTourValidationSchema,
       tracks: z
         .object({
           file_url: z.string(),
