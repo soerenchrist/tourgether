@@ -1,4 +1,4 @@
-import { createPeakValidationSchema } from "@/pages/peaks/create";
+import { createPeakValidationSchema } from "@/components/peaks/editPeaksForm";
 import { Peak } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -147,6 +147,27 @@ export const peaksRouter = createRouter()
       // You are not allowed to delete peaks that aren't created by you
       if (result.count !== 1) throw new TRPCError({ code: "UNAUTHORIZED" });
     },
+  })
+  .mutation("update-peak", {
+    input: createPeakValidationSchema.merge(z.object({
+      id: z.string()
+    })),
+    async resolve({ ctx, input }) {
+      const userId = ctx.session?.user?.email;
+      if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
+
+      const peak = {
+        creatorId: userId,
+        ...input
+      }
+
+      return await ctx.prisma.peak.update({
+        where: {
+          id: input.id
+        },
+        data: peak
+      })
+    }
   })
   .mutation("create-peak", {
     input: createPeakValidationSchema,

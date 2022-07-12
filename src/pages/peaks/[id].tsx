@@ -2,7 +2,11 @@ import CardTitle from "@/components/common/cardTitle";
 import ConfirmDeleteModal from "@/components/common/confirmDeleteModal";
 import LayoutBase from "@/components/layout/layoutBase";
 import { trpc } from "@/utils/trpc";
-import { DotsVerticalIcon } from "@heroicons/react/solid";
+import {
+  DotsVerticalIcon,
+  PencilIcon,
+  TrashIcon,
+} from "@heroicons/react/solid";
 import { Card, Dropdown, Spinner } from "flowbite-react";
 import { NextPage } from "next";
 import { useSession } from "next-auth/react";
@@ -21,7 +25,7 @@ const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
   const { mutate: deletePeak } = trpc.useMutation("peaks.delete-peak", {
     onSuccess: () => {
       router.push("/peaks");
-    }
+    },
   });
   const { data: peak, isLoading } = trpc.useQuery([
     "peaks.get-peak-by-id",
@@ -38,7 +42,6 @@ const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
   const onDeletePeak = () => {
     deletePeak({ id });
   };
-
   return (
     <>
       <Head>
@@ -55,7 +58,18 @@ const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
             >
               <div className="bg-white h-full w-full">
                 <Dropdown.Item onClick={() => setShowDelete(true)}>
-                  Delete this Peak
+                  <div className="flex">
+                    <TrashIcon className="w-5 h-5 mr-2" />
+                    Delete this Peak
+                  </div>
+                </Dropdown.Item>
+                <Dropdown.Item
+                  onClick={() => router.push(`/peaks/edit/${peak.id}`)}
+                >
+                  <div className="flex">
+                    <PencilIcon className="w-5 h-5 mr-2" />
+                    Edit Peak
+                  </div>
                 </Dropdown.Item>
               </div>
             </Dropdown>
