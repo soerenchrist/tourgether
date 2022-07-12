@@ -1,9 +1,13 @@
 import { Peak } from "@prisma/client";
 import { Spinner, Table } from "flowbite-react";
+import { TableRow } from "flowbite-react/lib/esm/components/Table/TableRow";
 import Link from "next/link";
 
 
-const PeaksList: React.FC<{peaks: Peak[] | undefined, isLoading: boolean }> = ({ peaks, isLoading }) => {
+const PeaksList: React.FC<{peaks: Peak[] | undefined | undefined, isLoading: boolean }> = ({ peaks, isLoading }) => {
+
+  const loader = <TableRow><div className="p-4 flex justify-center"><Spinner size="xl" /></div></TableRow>
+
   return (
     <Table>
       <Table.Head>
@@ -16,7 +20,7 @@ const PeaksList: React.FC<{peaks: Peak[] | undefined, isLoading: boolean }> = ({
         <Table.HeadCell></Table.HeadCell>
       </Table.Head>
       <Table.Body>
-        {isLoading && <Spinner />}
+        {isLoading && loader}
         {peaks?.map(peak => (
           <Table.Row key={peak.id}>
             <Table.Cell>

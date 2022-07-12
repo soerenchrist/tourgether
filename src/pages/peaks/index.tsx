@@ -26,7 +26,7 @@ const PeaksPageContent: React.FC = () => {
         placeholder="Search..."
         id="searchPeaks"
       />
-      {peaks && <PeaksList peaks={peaks} isLoading={isLoading} />}
+      <PeaksList peaks={peaks} isLoading={isLoading} />
     </Card>
   );
 };

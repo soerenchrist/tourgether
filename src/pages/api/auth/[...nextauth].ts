@@ -20,7 +20,8 @@ export const authOptions: NextAuthOptions = {
       issuer: process.env.AUTH0_ISSUER || "",
       name: "Username and Password"
     })
-  ]
+  ],
+  secret: process.env.NEXTAUTH_SECRET
 };
 
 export default NextAuth(authOptions);
