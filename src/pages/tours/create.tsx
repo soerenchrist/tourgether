@@ -2,6 +2,7 @@ import CardTitle from "@/components/common/cardTitle";
 import Input from "@/components/common/input";
 import TextArea from "@/components/common/textarea";
 import LayoutBase from "@/components/layout/layoutBase";
+import PeakSelector from "@/components/peaks/peakSelector";
 import TracksEditList from "@/components/tracks/tracksEditList";
 import { getFileContents } from "@/utils/fileHelpers";
 import { useZodForm } from "@/utils/formHelpers";
@@ -180,7 +181,9 @@ const CreateTourContent = () => {
         </form>
       </Card>
       <Card>
-        <div className="flex flex-col justify-start h-full">
+        <div className="flex flex-col justify-start h-full gap-4">
+          <CardTitle title="Select peaks" />
+          <PeakSelector />
           <CardTitle title="Add Tracks" />
           <TracksEditList onChange={handleTracksChanged} />
         </div>
