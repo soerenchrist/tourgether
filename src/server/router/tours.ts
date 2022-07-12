@@ -30,6 +30,7 @@ export const toursRouter = createRouter()
                            INNER JOIN Tour
                            ON Tour.id = tv.tourId
                            WHERE viewerId = ${userId})
+              ORDER BY date DESC
               LIMIT ${skip}, ${count};`;
 
       const totalCount = await ctx.prisma
@@ -61,6 +62,11 @@ export const toursRouter = createRouter()
         },
         include: {
           viewers: true,
+          tourPeaks: {
+            include: {
+              peak: true
+            }
+          }
         },
       });
       if (myTour) return { viewer: false, ...myTour };
@@ -71,7 +77,15 @@ export const toursRouter = createRouter()
           tourId: input.id,
         },
         include: {
-          tour: true,
+          tour: {
+            include: {
+              tourPeaks: {
+                include: {
+                  peak: true
+                }
+              }
+            }
+          },
         },
       });
 
@@ -192,6 +206,9 @@ export const toursRouter = createRouter()
           color: z.string(),
         })
         .array(),
+      peaks: z.object({
+        id: z.string()
+      }).array()
     }),
     async resolve({ input, ctx }) {
       const userId = ctx.session?.user?.email;
@@ -215,6 +232,20 @@ export const toursRouter = createRouter()
         };
         await ctx.prisma.track.create({
           data: track,
+        });
+      }
+
+      for (let i = 0; i < input.peaks.length; i++) {
+        const peak = input.peaks[i];
+        if (!peak) continue;
+
+        const tourPeak = {
+          tourId: insertedTour.id,
+          peakId: peak.id
+        };
+
+        await ctx.prisma.tourPeak.create({
+          data: tourPeak
         });
       }
 

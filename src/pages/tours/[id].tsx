@@ -68,15 +68,23 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
             loadingIndicator
           ) : (
             <List className="mt-4">
-              <ListItem title={`${data.distance}m`} subtitle="Distance" />
+              <ListItem title={`${data.distance} m`} subtitle="Distance" />
               <ListItem
-                title={`${data.elevationUp}m`}
+                title={`${data.elevationUp} m`}
                 subtitle="Elevation Up"
               />
               <ListItem
-                title={`${data.elevationDown}m`}
+                title={`${data.elevationDown} m`}
                 subtitle="Elevation Down"
               />
+
+              {data.tourPeaks.length > 0 && (
+                <ListItem
+                  title={data.tourPeaks.map((x) => x.peak.name).join(",")}
+                  subtitle="Peaks"
+                />
+              )}
+
               <ListItem
                 title={`${data.date.toLocaleDateString()}`}
                 subtitle="Date"
@@ -107,11 +115,9 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
             </List>
           )}
         </Card>
-        {((tracks && tracks.length > 0) || isLoading) && (
-          <Card>
-            <Map tracks={tracks} />
-          </Card>
-        )}
+        <Card>
+          <Map tracks={tracks} peaks={data.tourPeaks?.map((t) => t.peak)} />
+        </Card>
       </div>
       <ConfirmDeleteModal
         text="Do you really want to delete the tour? All data will be lost?"

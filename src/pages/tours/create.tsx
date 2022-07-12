@@ -7,6 +7,7 @@ import TracksEditList from "@/components/tracks/tracksEditList";
 import { getFileContents } from "@/utils/fileHelpers";
 import { useZodForm } from "@/utils/formHelpers";
 import { trpc } from "@/utils/trpc";
+import { Peak } from "@prisma/client";
 import axios from "axios";
 import { Button, Card, Spinner } from "flowbite-react";
 import { NextPage } from "next";
@@ -22,14 +23,15 @@ export const createTourValidationSchema = z.object({
   elevationDown: z.number().min(0, "Elevation down must be greater than 0"),
   date: z.date(),
   description: z.string(),
-  start: z.string().nullable(),
-  end: z.string().nullable(),
+  startTime: z.string().nullable(),
+  endTime: z.string().nullable(),
 });
 
 type FormData = z.infer<typeof createTourValidationSchema>;
 
 const CreateTourContent = () => {
   const navigate = useRouter();
+  const [selectedPeaks, setSelectedPeaks] = useState<Peak[]>([]);
   const [tracks, setTracks] = useState<
     { name: string; color: string; file: File }[]
   >([]);
@@ -88,6 +90,7 @@ const CreateTourContent = () => {
     mutate({
       tour: data,
       tracks: tracks,
+      peaks: selectedPeaks
     });
   };
 
@@ -96,6 +99,10 @@ const CreateTourContent = () => {
   ) => {
     setTracks(tracks);
   };
+
+  const handleSelectedPeaksChanged = (peaks: Peak[]) => {
+    setSelectedPeaks(peaks);
+  }
 
   return (
     <div className="grid grid-cols-2 gap-4">
@@ -155,14 +162,14 @@ const CreateTourContent = () => {
               type="time"
               id="startTime"
               label="Start time (optional)"
-              {...register("start")}
+              {...register("startTime")}
               placeholder="Start time"
             />
             <Input
               type="time"
               id="endTime"
               label="End time (optional)"
-              {...register("end")}
+              {...register("endTime")}
               placeholder="End time"
             />
 
@@ -183,7 +190,7 @@ const CreateTourContent = () => {
       <Card>
         <div className="flex flex-col justify-start h-full gap-4">
           <CardTitle title="Select peaks" />
-          <PeakSelector />
+          <PeakSelector onPeaksChanged={handleSelectedPeaksChanged} />
           <CardTitle title="Add Tracks" />
           <TracksEditList onChange={handleTracksChanged} />
         </div>

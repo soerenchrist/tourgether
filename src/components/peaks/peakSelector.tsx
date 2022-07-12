@@ -1,8 +1,7 @@
 import { trpc } from "@/utils/trpc";
 import { Peak } from "@prisma/client";
 import { Badge, Checkbox, Spinner, Table } from "flowbite-react";
-import { ChangeEventHandler, useState } from "react";
-import CardTitle from "../common/cardTitle";
+import { useState } from "react";
 import Input from "../common/input";
 
 const PeakSelectorTable: React.FC<{
@@ -61,9 +60,15 @@ const PeakSelectorTable: React.FC<{
   );
 };
 
-const PeakSelector: React.FC = () => {
+const PeakSelector: React.FC<{onPeaksChanged: (peaks: Peak[]) => void}> = ({onPeaksChanged}) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPeaks, setSelectedPeaks] = useState<Peak[]>([]);
+
+  const handlePeaksChanged = (peaks: Peak[]) => {
+    setSelectedPeaks(peaks);
+    onPeaksChanged(peaks);
+  }
+
   const { data, isLoading } = trpc.useQuery([
     "peaks.get-peaks",
     {
@@ -92,7 +97,7 @@ const PeakSelector: React.FC = () => {
         peaks={data?.peaks}
         isLoading={isLoading}
         selectedPeaks={selectedPeaks}
-        setSelectedPeaks={setSelectedPeaks}
+        setSelectedPeaks={handlePeaksChanged}
       />
     </div>
   );
