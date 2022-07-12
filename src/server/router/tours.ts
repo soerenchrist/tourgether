@@ -1,4 +1,5 @@
 import { createTourValidationSchema } from "@/pages/tours/create";
+import { getDateXDaysBeforeToday } from "@/utils/dateUtils";
 import { Tour } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -101,6 +102,61 @@ export const toursRouter = createRouter()
         count: aggregate._count._all,
         ...aggregate._sum,
       };
+    },
+  })
+  .query("get-history", {
+    input: z.object({}),
+    async resolve({ ctx }) {
+      const distance: { date: Date; value: number }[] = [];
+      const elevationUp: { date: Date; value: number }[] = [];
+      const elevationDown: { date: Date; value: number }[] = [];
+
+      for (let i = 12; i >= 0; i--) {
+        const startOfRange = getDateXDaysBeforeToday(i * 30);
+        const endOfRange = getDateXDaysBeforeToday((i - 1) * 30);
+
+        const result = await ctx.prisma.tour.aggregate({
+          where: {
+            AND: [
+              {
+                date: {
+                  gt: startOfRange,
+                },
+              },
+              {
+                date: {
+                  lte: endOfRange,
+                },
+              },
+            ],
+          },
+          _sum: {
+            distance: true,
+            elevationDown: true,
+            elevationUp: true,
+          },
+        });
+        distance.push({
+          date: endOfRange,
+          value: result._sum.distance || 0,
+        });
+
+        elevationUp.push({
+          date: endOfRange,
+          value: result._sum.elevationUp || 0,
+        });
+
+        elevationDown.push({
+          date: endOfRange,
+          value: result._sum.elevationDown || 0,
+        });
+      }
+
+      return [
+        { label: "Distance", data: distance },
+        { label: "Elevation Up", data: elevationUp },
+        { label: "Elevation Down", data: elevationDown },
+      ];
     },
   })
   .mutation("delete-tour", {
