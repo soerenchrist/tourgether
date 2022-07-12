@@ -1,3 +1,4 @@
+import { createPeakValidationSchema } from "@/pages/peaks/create";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createRouter } from "./context";
@@ -117,12 +118,7 @@ export const peaksRouter = createRouter()
     },
   })
   .mutation("create-peak", {
-    input: z.object({
-      name: z.string().min(1),
-      latitude: z.number().min(-90).max(90),
-      longitude: z.number().min(-180).max(180),
-      height: z.number().min(0),
-    }),
+    input: createPeakValidationSchema,
     async resolve({ ctx, input }) {
       const userId = ctx.session?.user?.email;
       if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });

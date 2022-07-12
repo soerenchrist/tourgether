@@ -8,14 +8,15 @@ import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { ChangeEventHandler, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useZodForm } from "@/utils/formHelpers";
+import { z } from "zod";
 
-type FormData = {
-  name: string;
-  height: number;
-  latitude: number;
-  longitude: number;
-};
+export const createPeakValidationSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  height: z.number().min(0, "Height must be positive number"),
+  latitude: z.number().min(-90, "Latitude must be between -90 and 90").max(90, "Latitude must be between -90 and 90"),
+  longitude: z.number().min(-180, "Longitude must be between -180 and 180").max(180, "Longitude must be between -180 and 180"),
+});
 
 const Map = dynamic(() => import("../../components/maps/peakSelectionMap"), {
   ssr: false,
@@ -30,8 +31,9 @@ const CreatePeakPageContent: React.FC = () => {
     handleSubmit,
     formState: { errors },
     setValue,
-    setError,
-  } = useForm<FormData>();
+  } = useZodForm({
+    schema: createPeakValidationSchema,
+  });
   const router = useRouter();
 
   const { mutate: createPeak } = trpc.useMutation("peaks.create-peak", {
@@ -49,32 +51,6 @@ const CreatePeakPageContent: React.FC = () => {
     setValue("longitude", coord.lng);
     setLat(coord.lat);
     setLng(coord.lng);
-  };
-
-  const onSubmit = async (data: FormData) => {
-    const latitude = parseFloat("" + data.latitude);
-    const longitude = parseFloat("" + data.longitude);
-    if (isNaN(latitude)) {
-      setError("latitude", { message: "Must be numeric" });
-      return;
-    }
-    if (isNaN(longitude)) {
-      setError("longitude", { message: "Must be numeric" });
-      return;
-    }
-    const height = parseInt("" + data.height);
-    if (isNaN(height)) {
-      setError("height", { message: "Must be numeric" });
-      return;
-    }
-
-    setLoading(true);
-    createPeak({
-      name: data.name,
-      height,
-      latitude,
-      longitude,
-    });
   };
 
   const onChangeLatitude: ChangeEventHandler<HTMLInputElement> = (event) => {
@@ -95,12 +71,15 @@ const CreatePeakPageContent: React.FC = () => {
     <div className="grid grid-cols-2 gap-6">
       <Card>
         <CardTitle title="Create a new Peak" />
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(async (values) => {
+          setLoading(true);
+          createPeak(values);
+        })}>
           <div className="pt-4 flex flex-col gap-2">
             <Input
               id="name"
               label="Name"
-              {...register("name", { required: "Name is required" })}
+              {...register("name")}
               error={errors.name?.message}
               placeholder="Zugspitze"
             />
@@ -110,11 +89,7 @@ const CreatePeakPageContent: React.FC = () => {
               type="number"
               label="Height in metres"
               {...register("height", {
-                required: "Height is required",
-                min: {
-                  value: 0,
-                  message: "Must be bigger than 0",
-                },
+                valueAsNumber: true
               })}
               error={errors.height?.message}
               placeholder="2963"
@@ -125,20 +100,7 @@ const CreatePeakPageContent: React.FC = () => {
               type="text"
               label="Latitude"
               {...register("latitude", {
-                required: "Latitude is required",
-                min: {
-                  value: -90,
-                  message: "Must be bigger than -90",
-                },
-                max: {
-                  value: 90,
-                  message: "Must be smaller than 90",
-                },
-                valueAsNumber: true,
-                pattern: {
-                  message: "Must be numeric",
-                  value: /^[0-9]+$/,
-                },
+                valueAsNumber: true
               })}
               onChange={onChangeLatitude}
               error={errors.latitude?.message}
@@ -150,20 +112,7 @@ const CreatePeakPageContent: React.FC = () => {
               type="text"
               label="Longitude"
               {...register("longitude", {
-                required: "Longitude is required",
-                min: {
-                  value: -180,
-                  message: "Must be bigger than -180",
-                },
-                max: {
-                  value: 180,
-                  message: "Must be smaller than 180",
-                },
-                valueAsNumber: true,
-                pattern: {
-                  message: "Must be numeric",
-                  value: /^[0-9]+$/,
-                },
+                valueAsNumber: true
               })}
               onChange={onChangeLongitude}
               error={errors.longitude?.message}
