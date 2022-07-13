@@ -2,12 +2,16 @@
   "name": "tourgether",
   "version": "0.1.0",
   "private": true,
+  "prisma": {
+    "seed": "node prisma/database-seed.js"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "seed": "node prisma/database-seed.js"
   },
   "dependencies": {
     "@heroicons/react": "^1.0.6",
