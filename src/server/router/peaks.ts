@@ -70,6 +70,9 @@ export const peaksRouter = createRouter()
         peaks = await ctx.prisma.peak.findMany({
           take: count,
           skip: skip,
+          orderBy: {
+            name: "asc"
+          },
           where: {
             latitude: {
               gte: input.bounds.minLat,
@@ -96,6 +99,9 @@ export const peaksRouter = createRouter()
         peaks = await ctx.prisma.peak.findMany({
           take: count,
           skip: skip,
+          orderBy: {
+            name: "asc"
+          },
           where: {
             name: {
               contains: input.searchTerm,
