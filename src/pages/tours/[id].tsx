@@ -3,7 +3,7 @@ import { List, ListItem } from "@/components/common/list";
 import LayoutBase from "@/components/layout/layoutBase";
 import CreateInvitationButton from "@/components/tours/createInvitationButton";
 import { trpc } from "@/utils/trpc";
-import { Card, Dropdown, Spinner } from "flowbite-react";
+import { Badge, Card, Dropdown, Spinner } from "flowbite-react";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
@@ -12,6 +12,7 @@ import { ReactNode, useState } from "react";
 import { DotsVerticalIcon } from "@heroicons/react/solid";
 import ConfirmDeleteModal from "@/components/common/confirmDeleteModal";
 import NotFound from "@/components/common/notFound";
+import Link from "next/link";
 
 const Map = dynamic(() => import("../../components/maps/tourMap"), {
   ssr: false,
@@ -63,15 +64,17 @@ const ViewerItem: React.FC<{ viewer: string; tourId: string }> = ({
   });
 
   return (
-    <Dropdown
-      inline
-      arrowIcon={false}
-      label={<span className="text-blue-500">{viewer}</span>}
-    >
-      <Dropdown.Item onClick={() => revokeAccess({ tourId, viewerId: viewer })}>
-        Revoke access
-      </Dropdown.Item>
-    </Dropdown>
+    <div className="mr-2">
+      <Dropdown
+        inline
+        arrowIcon={false}
+        label={<span className="text-blue-500">{viewer}</span>}
+      >
+        <Dropdown.Item onClick={() => revokeAccess({ tourId, viewerId: viewer })}>
+          Revoke access
+        </Dropdown.Item>
+      </Dropdown>
+    </div>
   );
 };
 
@@ -151,7 +154,11 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
 
               {data.tourPeaks.length > 0 && (
                 <ListItem
-                  title={data.tourPeaks.map((x) => x.peak.name).join(",")}
+                  title={data.tourPeaks.map(tp => (
+                    <Link href={`/peaks/${tp.peak.id}`} key={tp.id}>
+                      <span className="cursor-pointer mr-2 text-blue-500 font-medium hover:underline w-auto">{tp.peak.name}</span>
+                    </Link>
+                  ))}
                   subtitle="Peaks"
                 />
               )}
