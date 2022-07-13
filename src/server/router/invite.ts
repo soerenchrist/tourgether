@@ -105,6 +105,26 @@ export const inviteRouter = createRouter()
       throw new TRPCError({ code: "NOT_FOUND" });
   }
 })
+.mutation("revoke-access", {
+  input: z.object({
+    tourId: z.string(),
+    viewerId: z.string()
+  }),
+  async resolve({ ctx, input }) {
+    const userId = ctx.session?.user?.email;
+    if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
+
+    const result = await ctx.prisma.tourViewer.deleteMany({
+      where: {
+        tourId: input.tourId,
+        viewerId: input.viewerId
+      }
+    });
+    
+    if (result.count !== 1)
+      throw new TRPCError({ code: "NOT_FOUND" });
+  }
+})
 .mutation("create-invitation-link", {
   input: z.object({
     tourId: z.string(),

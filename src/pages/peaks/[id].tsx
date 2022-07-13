@@ -1,5 +1,6 @@
 import CardTitle from "@/components/common/cardTitle";
 import ConfirmDeleteModal from "@/components/common/confirmDeleteModal";
+import NotFound from "@/components/common/notFound";
 import LayoutBase from "@/components/layout/layoutBase";
 import { trpc } from "@/utils/trpc";
 import {
@@ -37,7 +38,7 @@ const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
   if (isLoading) {
     return <Spinner size="xl" />;
   }
-  if (!peak) return <div>Peak not found...</div>;
+  if (!peak) return <NotFound message="Peak not found..."></NotFound>;
 
   const onDeletePeak = () => {
     deletePeak({ id });

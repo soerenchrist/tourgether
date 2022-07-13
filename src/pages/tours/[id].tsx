@@ -11,16 +11,15 @@ import { useRouter } from "next/router";
 import { ReactNode, useState } from "react";
 import { DotsVerticalIcon } from "@heroicons/react/solid";
 import ConfirmDeleteModal from "@/components/common/confirmDeleteModal";
-import { Tour } from "@prisma/client";
+import NotFound from "@/components/common/notFound";
 
 const Map = dynamic(() => import("../../components/maps/tourMap"), {
   ssr: false,
 });
 
 const ViewerMenu: React.FC<{
-  tour: Tour;
   setShowDelete: (value: boolean) => void;
-}> = ({ tour, setShowDelete }) => {
+}> = ({ setShowDelete }) => {
   return (
     <Dropdown
       placement="top"
@@ -36,9 +35,8 @@ const ViewerMenu: React.FC<{
 };
 
 const OwnerMenu: React.FC<{
-  tour: Tour;
   setShowDelete: (value: boolean) => void;
-}> = ({ tour, setShowDelete }) => {
+}> = ({ setShowDelete }) => {
   return (
     <Dropdown
       placement="top"
@@ -53,8 +51,34 @@ const OwnerMenu: React.FC<{
   );
 };
 
+const ViewerItem: React.FC<{ viewer: string; tourId: string }> = ({
+  viewer,
+  tourId,
+}) => {
+  const utils = trpc.useContext();
+  const { mutate: revokeAccess } = trpc.useMutation("invite.revoke-access", {
+    onSuccess: () => {
+      utils.invalidateQueries(["tours.get-tour-by-id"]);
+    },
+  });
+
+  return (
+    <Dropdown
+      inline
+      arrowIcon={false}
+      label={<span className="text-blue-500">{viewer}</span>}
+    >
+      <Dropdown.Item onClick={() => revokeAccess({ tourId, viewerId: viewer })}>
+        Revoke access
+      </Dropdown.Item>
+    </Dropdown>
+  );
+};
+
 const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
-  const { data, isLoading } = trpc.useQuery(["tours.get-tour-by-id", { id }]);
+  const { data, isLoading } = trpc.useQuery(["tours.get-tour-by-id", { id }], {
+    retry: false,
+  });
   const { data: tracks } = trpc.useQuery([
     "tracks.get-tracks-for-tour",
     { id },
@@ -65,16 +89,20 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
       router.push("/tours");
     },
   });
-  
-  const { mutate: removeInvitedTour } = trpc.useMutation("invite.remove-invited-tour", {
-    onSuccess: () => {
-      router.push("/tours");
-    },
-  });
+
+  const { mutate: removeInvitedTour } = trpc.useMutation(
+    "invite.remove-invited-tour",
+    {
+      onSuccess: () => {
+        router.push("/tours");
+      },
+    }
+  );
 
   const [showDelete, setShowDelete] = useState(false);
 
-  if (!data) return <div>Tour not found...</div>;
+  if (isLoading) return <Spinner size="xl" />;
+  else if (!data) return <NotFound message="Tour not found!" />;
 
   const loadingIndicator = (
     <div className="w-full flex justify-center p-8">
@@ -83,6 +111,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
   );
 
   const deleteTour = () => {
+    if (!data) return;
     if (data.viewer) {
       removeInvitedTour({ tourId: id });
     } else {
@@ -98,11 +127,11 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
       <div className="grid grid-cols-2 gap-6">
         <Card>
           <div className="flex justify-between">
-            <CardTitle title={data.name} />
+            <CardTitle title={data.name ?? ""} />
             {data.viewer ? (
-              <ViewerMenu tour={data} setShowDelete={setShowDelete} />
+              <ViewerMenu setShowDelete={setShowDelete} />
             ) : (
-              <OwnerMenu tour={data} setShowDelete={setShowDelete} />
+              <OwnerMenu setShowDelete={setShowDelete} />
             )}
           </div>
 
@@ -141,7 +170,13 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
 
               {data.viewers.length > 0 && (
                 <ListItem
-                  title={data.viewers.map((x) => x.viewerId).join(", ")}
+                  title={data.viewers.map((x) => (
+                    <ViewerItem
+                      key={x.id}
+                      viewer={x.viewerId}
+                      tourId={data.id}
+                    />
+                  ))}
                   subtitle="Shared with"
                 />
               )}
@@ -158,11 +193,15 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
           )}
         </Card>
         <Card>
-          <Map tracks={tracks} peaks={data.tourPeaks?.map((t) => t.peak)} />
+          <Map tracks={tracks} peaks={data?.tourPeaks?.map((t) => t.peak)} />
         </Card>
       </div>
       <ConfirmDeleteModal
-        text={data.viewer ? "Do you really want to remove the tour? You will lose access to the data!" : "Do you really want to delete the tour? All data will be lost!"}
+        text={
+          data.viewer
+            ? "Do you really want to remove the tour? You will lose access to the data!"
+            : "Do you really want to delete the tour? All data will be lost!"
+        }
         show={showDelete}
         accept={deleteTour}
         acceptButton={data.viewer ? "Remove" : "Delete"}

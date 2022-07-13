@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 
-export const ListItem: React.FC<{ title?: string; subtitle?: string }> = ({
+export const ListItem: React.FC<{ title?: string | ReactNode; subtitle?: string }> = ({
   title,
   subtitle,
 }) => {
