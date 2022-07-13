@@ -28,7 +28,7 @@ export const inviteRouter = createRouter()
         tour: true
       }
     });
-    if (!invitation) throw new TRPCError({ code: "NOT_FOUND", message: "Invalid invitation" });
+    if (!invitation) throw new TRPCError({ code: "NOT_FOUND", message: "This invitation is not valid anymore. Please request a new one." });
 
     if (invitation.validUnit < now) {
       // remove the token
@@ -37,7 +37,7 @@ export const inviteRouter = createRouter()
           invite_token: input.invite_token
         }
       });
-      throw new TRPCError({ code: "NOT_FOUND", message: "Token is not valid anymore" })
+      throw new TRPCError({ code: "NOT_FOUND", message: "This invitation has expired. Please request a new one." })
     }
 
     return invitation;
