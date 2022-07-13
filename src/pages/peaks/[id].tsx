@@ -57,38 +57,42 @@ const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
       </Head>
       <div className="grid xl:grid-cols-2 grid-cols-1 gap-4">
         <Card>
-          <div className="flex justify-between">
-            <CardTitle title={`${peak.name} (${peak.height} m)`} />
-            {peak.creatorId && (
-              <Dropdown
-                inline={true}
-                arrowIcon={false}
-                label={<DotsVerticalIcon className="h-5 w-5 cursor-pointer" />}
-              >
-                <div className="bg-white h-full w-full">
-                  <Dropdown.Item onClick={() => setShowDelete(true)}>
-                    <div className="flex">
-                      <TrashIcon className="w-5 h-5 mr-2" />
-                      Delete this Peak
-                    </div>
-                  </Dropdown.Item>
-                  <Dropdown.Item
-                    onClick={() => router.push(`/peaks/edit/${peak.id}`)}
-                  >
-                    <div className="flex">
-                      <PencilIcon className="w-5 h-5 mr-2" />
-                      Edit Peak
-                    </div>
-                  </Dropdown.Item>
-                </div>
-              </Dropdown>
-            )}
+          <div className="flex flex-col h-full justify-start gap-4">
+            <div className="flex justify-between">
+              <CardTitle title={`${peak.name} (${peak.height} m)`} />
+              {peak.creatorId && (
+                <Dropdown
+                  inline={true}
+                  arrowIcon={false}
+                  label={
+                    <DotsVerticalIcon className="h-5 w-5 cursor-pointer" />
+                  }
+                >
+                  <div className="bg-white h-full w-full">
+                    <Dropdown.Item onClick={() => setShowDelete(true)}>
+                      <div className="flex">
+                        <TrashIcon className="w-5 h-5 mr-2" />
+                        Delete this Peak
+                      </div>
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      onClick={() => router.push(`/peaks/edit/${peak.id}`)}
+                    >
+                      <div className="flex">
+                        <PencilIcon className="w-5 h-5 mr-2" />
+                        Edit Peak
+                      </div>
+                    </Dropdown.Item>
+                  </div>
+                </Dropdown>
+              )}
+            </div>
+            <Map peak={peak} />
           </div>
-          <Map peak={peak} />
         </Card>
         <Card>
           <div className="flex flex-col justify-start h-full gap-4">
-            <CardTitle title={`Your tours to ${peak.name}`} />
+            <CardTitle title={`Your Tours to ${peak.name}`} />
             <ToursTable tours={tours} isLoading={toursLoading} />
           </div>
         </Card>
