@@ -4,7 +4,7 @@ import PaginationText from "@/components/common/paginationText";
 import LayoutBase from "@/components/layout/layoutBase";
 import PeaksList from "@/components/peaks/peaksList";
 import { trpc } from "@/utils/trpc";
-import { MapIcon, ViewListIcon } from "@heroicons/react/solid";
+import { LocationMarkerIcon, ViewListIcon } from "@heroicons/react/solid";
 import { Button, Card, Pagination, Spinner, Tooltip } from "flowbite-react";
 import { NextPage } from "next";
 import { useSession } from "next-auth/react";
@@ -65,7 +65,7 @@ const PeaksPageContent: React.FC = () => {
       <div className="flex justify-between">
         <CardTitle title="Peaks" />
         <Tooltip content="Display map">
-          <MapIcon
+          <LocationMarkerIcon
             className="h-5 w-5 text-gray-500 cursor-pointer"
             onClick={() => setMapMode(true)}
           />
