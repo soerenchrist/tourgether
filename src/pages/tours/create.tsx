@@ -90,7 +90,7 @@ const CreateTourContent = () => {
     mutate({
       tour: data,
       tracks: tracks,
-      peaks: selectedPeaks
+      peaks: selectedPeaks,
     });
   };
 
@@ -102,90 +102,92 @@ const CreateTourContent = () => {
 
   const handleSelectedPeaksChanged = (peaks: Peak[]) => {
     setSelectedPeaks(peaks);
-  }
+  };
 
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
       <Card>
-        <CardTitle title="Create a new tour" />
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="pt-4 flex flex-col gap-2">
-            <Input
-              id="name"
-              label="Name"
-              {...register("name")}
-              error={errors.name?.message}
-              placeholder="Hiking tour to Zugspitze"
-            />
-            <Input
-              type="number"
-              id="distance"
-              label="Distance in meters"
-              {...register("distance", {
-                valueAsNumber: true,
-              })}
-              error={errors.distance?.message}
-              placeholder="Hiking distance"
-            />
-            <Input
-              type="number"
-              id="elevationUp"
-              label="Elevation upwards in meters"
-              {...register("elevationUp", {
-                valueAsNumber: true,
-              })}
-              error={errors.elevationUp?.message}
-              placeholder="Elevation upwards"
-            />
-            <Input
-              type="number"
-              id="elevationDown"
-              label="Elevation downwards in meters"
-              error={errors.elevationDown?.message}
-              {...register("elevationDown", {
-                valueAsNumber: true,
-              })}
-              placeholder="Elevation downwards"
-            />
-            <Input
-              type="date"
-              id="date"
-              error={errors.date?.message}
-              label="Hiking date"
-              {...register("date", {
-                valueAsDate: true
-              })}
-              placeholder="Hiking date"
-            />
+        <div className="flex flex-col justify-start h-full gap-4">
+          <CardTitle title="Create a new tour" />
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="pt-4 flex flex-col gap-2">
+              <Input
+                id="name"
+                label="Name"
+                {...register("name")}
+                error={errors.name?.message}
+                placeholder="Hiking tour to Zugspitze"
+              />
+              <Input
+                type="number"
+                id="distance"
+                label="Distance in meters"
+                {...register("distance", {
+                  valueAsNumber: true,
+                })}
+                error={errors.distance?.message}
+                placeholder="Hiking distance"
+              />
+              <Input
+                type="number"
+                id="elevationUp"
+                label="Elevation upwards in meters"
+                {...register("elevationUp", {
+                  valueAsNumber: true,
+                })}
+                error={errors.elevationUp?.message}
+                placeholder="Elevation upwards"
+              />
+              <Input
+                type="number"
+                id="elevationDown"
+                label="Elevation downwards in meters"
+                error={errors.elevationDown?.message}
+                {...register("elevationDown", {
+                  valueAsNumber: true,
+                })}
+                placeholder="Elevation downwards"
+              />
+              <Input
+                type="date"
+                id="date"
+                error={errors.date?.message}
+                label="Hiking date"
+                {...register("date", {
+                  valueAsDate: true,
+                })}
+                placeholder="Hiking date"
+              />
 
-            <Input
-              type="time"
-              id="startTime"
-              label="Start time (optional)"
-              {...register("startTime")}
-              placeholder="Start time"
-            />
-            <Input
-              type="time"
-              id="endTime"
-              label="End time (optional)"
-              {...register("endTime")}
-              placeholder="End time"
-            />
+              <Input
+                type="time"
+                id="startTime"
+                label="Start time (optional)"
+                {...register("startTime")}
+                placeholder="Start time"
+              />
+              <Input
+                type="time"
+                id="endTime"
+                label="End time (optional)"
+                {...register("endTime")}
+                placeholder="End time"
+              />
 
-            <TextArea
-              id="description"
-              label="Description (optional)"
-              {...register("description")}
-              placeholder="Hiking trip to the zugspitze over the Höllentalklamm"
-            />
-            <div className="flex justify-end">
-              <Button disabled={isLoading} type="submit">
-                Create your Tour
-              </Button>
+              <TextArea
+                id="description"
+                label="Description (optional)"
+                {...register("description")}
+                placeholder="Hiking trip to the zugspitze over the Höllentalklamm"
+              />
+              <div className="lg:flex justify-end hidden">
+                <Button disabled={isLoading} type="submit">
+                  Create your Tour
+                </Button>
+              </div>
             </div>
-          </div>
-        </form>
+          </form>
+        </div>
       </Card>
       <Card>
         <div className="flex flex-col justify-start h-full gap-4">
@@ -193,6 +195,12 @@ const CreateTourContent = () => {
           <PeakSelector onPeaksChanged={handleSelectedPeaksChanged} />
           <CardTitle title="Add Tracks" />
           <TracksEditList onChange={handleTracksChanged} />
+          
+          <div className="flex justify-end lg:hidden">
+                <Button disabled={isLoading} type="submit">
+                  Create your Tour
+                </Button>
+              </div>
         </div>
       </Card>
     </div>

@@ -75,7 +75,7 @@ const PeakSelector: React.FC<{onPeaksChanged: (peaks: Peak[]) => void}> = ({onPe
       searchTerm,
       pagination: {
         page: 1,
-        count: 10,
+        count: 5,
       },
     },
   ]);
