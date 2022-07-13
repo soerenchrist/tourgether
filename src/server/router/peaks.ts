@@ -1,6 +1,7 @@
 import { createPeakValidationSchema } from "@/components/peaks/editPeaksForm";
 import { Peak } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
+import { resolve } from "path";
 import { z } from "zod";
 import { createRouter } from "./context";
 
@@ -46,7 +47,7 @@ export const peaksRouter = createRouter()
       searchTerm: z.string(),
       pagination: z.object({
         page: z.number().min(1),
-        count: z.number()
+        count: z.number(),
       }),
       bounds: z
         .object({
@@ -126,8 +127,42 @@ export const peaksRouter = createRouter()
 
       return {
         peaks,
-        totalCount
-      }
+        totalCount,
+      };
+    },
+  })
+  .query("get-tours-by-peak", {
+    input: z.object({
+      peakId: z.string(),
+    }),
+    async resolve({ ctx, input }) {
+      const userId = ctx.session?.user?.email;
+      if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
+
+      const result = await ctx.prisma.tourPeak.findMany({
+        where: {
+          peakId: input.peakId,
+          tour: {
+            OR: [
+              {
+                creatorId: userId,
+              },
+              {
+                viewers: {
+                  some: {
+                    viewerId: userId,
+                  },
+                },
+              },
+            ],
+          },
+        },
+        select: {
+          tour: true,
+        },
+      });
+
+      return result.map((x) => x.tour);
     },
   })
   .mutation("delete-peak", {
@@ -149,25 +184,27 @@ export const peaksRouter = createRouter()
     },
   })
   .mutation("update-peak", {
-    input: createPeakValidationSchema.merge(z.object({
-      id: z.string()
-    })),
+    input: createPeakValidationSchema.merge(
+      z.object({
+        id: z.string(),
+      })
+    ),
     async resolve({ ctx, input }) {
       const userId = ctx.session?.user?.email;
       if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
 
       const peak = {
         creatorId: userId,
-        ...input
-      }
+        ...input,
+      };
 
       return await ctx.prisma.peak.update({
         where: {
-          id: input.id
+          id: input.id,
         },
-        data: peak
-      })
-    }
+        data: peak,
+      });
+    },
   })
   .mutation("create-peak", {
     input: createPeakValidationSchema,
