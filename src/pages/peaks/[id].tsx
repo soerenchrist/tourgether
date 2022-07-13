@@ -42,8 +42,6 @@ const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
     },
   ]);
 
-  console.log(tours);
-
   if (isLoading) {
     return <Spinner size="xl" />;
   }

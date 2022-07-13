@@ -5,7 +5,7 @@ import LayoutBase from "@/components/layout/layoutBase";
 import PeaksList from "@/components/peaks/peaksList";
 import { trpc } from "@/utils/trpc";
 import { MapIcon, ViewListIcon } from "@heroicons/react/solid";
-import { Button, Card, Pagination, Spinner } from "flowbite-react";
+import { Button, Card, Pagination, Spinner, Tooltip } from "flowbite-react";
 import { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
@@ -39,11 +39,12 @@ const PeaksPageContent: React.FC = () => {
       <Card>
         <div className="flex justify-between">
           <CardTitle title="Peaks" />
-
-          <ViewListIcon
-            className="h-5 w-5 text-gray-500 cursor-pointer"
-            onClick={() => setMapMode(false)}
-          />
+          <Tooltip content="Display list">
+            <ViewListIcon
+              className="h-5 w-5 text-gray-500 cursor-pointer"
+              onClick={() => setMapMode(false)}
+            />
+          </Tooltip>
         </div>
 
         <Input
@@ -63,11 +64,12 @@ const PeaksPageContent: React.FC = () => {
     <Card>
       <div className="flex justify-between">
         <CardTitle title="Peaks" />
-
-        <MapIcon
-          className="h-5 w-5 text-gray-500 cursor-pointer"
-          onClick={() => setMapMode(true)}
-        />
+        <Tooltip content="Display map">
+          <MapIcon
+            className="h-5 w-5 text-gray-500 cursor-pointer"
+            onClick={() => setMapMode(true)}
+          />
+        </Tooltip>
       </div>
       <Input
         value={searchTerm}
