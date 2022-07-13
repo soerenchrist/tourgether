@@ -86,6 +86,25 @@ export const inviteRouter = createRouter()
     });
   }
 })
+.mutation("remove-invited-tour", {
+  input: z.object({
+    tourId: z.string()
+  }),
+  async resolve({ctx, input}) {
+    const userId = ctx.session?.user?.email;
+    if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
+
+    const result = await ctx.prisma.tourViewer.deleteMany({
+      where: {
+        tourId: input.tourId,
+        viewerId: userId
+      }
+    });
+
+    if (result.count !== 1)
+      throw new TRPCError({ code: "NOT_FOUND" });
+  }
+})
 .mutation("create-invitation-link", {
   input: z.object({
     tourId: z.string(),

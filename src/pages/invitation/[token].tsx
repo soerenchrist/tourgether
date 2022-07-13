@@ -1,95 +1,134 @@
+import CardTitle from "@/components/common/cardTitle";
 import LayoutBase from "@/components/layout/layoutBase";
 import { trpc } from "@/utils/trpc";
+import { BanIcon, CheckIcon } from "@heroicons/react/solid";
 import { InvitationLink, Tour } from "@prisma/client";
-import { Button, Spinner } from "flowbite-react";
+import { Button, Card, Spinner } from "flowbite-react";
+import { Session } from "next-auth";
+import { useSession } from "next-auth/react";
 import { NextRouter, useRouter } from "next/router";
-import { useRef } from "react";
+import { ReactNode, useRef } from "react";
 
-
-
-const DeclineButton: React.FC<{ token: string, router: NextRouter }> = ({ token, router }) => {
+const DeclineButton: React.FC<{ token: string; router: NextRouter }> = ({
+  token,
+  router,
+}) => {
   const { mutate } = trpc.useMutation("invite.decline-invitation", {
     onSuccess: () => {
       router.push("/");
-    }
+    },
   });
 
   const handleClick = () => {
     mutate({
-      invite_token: token
-    })
-  }
-  return (
-    <Button onClick={handleClick}>Decline</Button>
-  );
-}
+      invite_token: token,
+    });
+  };
+  return <Button outline color="dark" onClick={handleClick}>
+    <BanIcon className="w-5 h-5 mr-2 text-gray-800" />
+    Decline</Button>;
+};
 
-
-const AcceptButton: React.FC<{ token: string, router: NextRouter }> = ({ token, router }) => {
+const AcceptButton: React.FC<{ token: string; router: NextRouter }> = ({
+  token,
+  router,
+}) => {
   const { mutate } = trpc.useMutation("invite.accept-invitation", {
     onSuccess: () => {
-      router.push("/?invation_accepted=true");
-    }
+      router.push("/tours?invation_accepted=true");
+    },
   });
 
   const handleClick = () => {
     mutate({
-      invite_token: token
-    })
-  }
+      invite_token: token,
+    });
+  };
   return (
-    <Button onClick={handleClick}>Accept</Button>
+    <Button color="success" onClick={handleClick}>
+      <CheckIcon className="w-5 h-5 mr-2 text-white" /> Accept
+    </Button>
   );
-}
+};
 
-const InvitationDisplay: React.FC<{ invite: (InvitationLink & { tour: Tour; }) }> = ({ invite }) => {
+const InvitationDisplay: React.FC<{
+  invite: InvitationLink & { tour: Tour };
+  session: Session;
+}> = ({ invite, session }) => {
   const router = useRouter();
   return (
-    <div>
-      <p className="text-xl">You have been invited to share the tour {invite.tour.name} by user {invite.issuedBy}.</p>
-      <AcceptButton router={router} token={invite.invite_token} />
-      <DeclineButton router={router} token={invite.invite_token} />
-    </div>
-  )
-}
+    <Card>
+      <CardTitle title="You received an Invitation!"></CardTitle>
+      <p className="text-xl">Hello {session.user!.name},</p>
+      <p className="text-xl">
+        {invite.issuedBy} invited you to join the tour <b>{invite.tour.name}</b>!
+      </p>
+      <p className="text-xl">
+        Do you accept the invitation?
+      </p>
 
-const InvitationPageContent: React.FC<{ token: string }> = ({ token }) => {
+      <div className="flex justify-start gap-4 mt-4">
+        <AcceptButton router={router} token={invite.invite_token} />
+        <DeclineButton router={router} token={invite.invite_token} />
+      </div>
+    </Card>
+  );
+};
+
+const InvitationPageContent: React.FC<{ token: string; session: Session }> = ({
+  token,
+  session,
+}) => {
   const enabled = useRef(true);
-  const { data, error, isError, isLoading } = trpc.useQuery(["invite.get-invitation", { invite_token: token }], {
-    onError: () => {
-      enabled.current = false
-    },
-    retry: false,
-    enabled: enabled.current
-  })
+  const { data, error, isError, isLoading } = trpc.useQuery(
+    ["invite.get-invitation", { invite_token: token }],
+    {
+      onError: () => {
+        enabled.current = false;
+      },
+      retry: false,
+      enabled: enabled.current,
+    }
+  );
 
-  const errorMessage = <div>{error?.message}</div>
+  const errorMessage = <div>{error?.message}</div>;
 
-  return <LayoutBase>
-    {isLoading ? <Spinner size="xl" aria-label="page is loading" /> : (
-      (isError || !data) ? errorMessage : (
-        <InvitationDisplay invite={data} />
-      )
-    )}
-  </LayoutBase>
-}
-
+  return (
+    <>
+      {isLoading ? (
+        <Spinner size="xl" aria-label="page is loading" />
+      ) : isError || !data ? (
+        errorMessage
+      ) : (
+        <InvitationDisplay invite={data} session={session} />
+      )}
+    </>
+  );
+};
 
 const InvalidInvitation = () => {
-  return <LayoutBase>
-    <h1 className="text-3xl">Invalid invitation</h1>
-  </LayoutBase>;
-}
+  return (
+    <LayoutBase>
+      <h1 className="text-3xl">Invalid invitation</h1>
+    </LayoutBase>
+  );
+};
 
 const InvitationPage = () => {
+  const { data: session, status } = useSession();
   const { query } = useRouter();
   const { token } = query;
 
+  let content: ReactNode;
+  if (status === "loading") content = <Spinner size="xl" />;
+  else if (status === "unauthenticated") content = <p>Unauthorized</p>;
   if (!token || typeof token !== "string") {
-    return <InvalidInvitation />;
+    content = <InvalidInvitation />;
+  } else {
+    content = <InvitationPageContent token={token} session={session!} />;
   }
 
-  return <InvitationPageContent token={token} />;
+  return <LayoutBase>{content}</LayoutBase>;
 };
 
 export default InvitationPage;

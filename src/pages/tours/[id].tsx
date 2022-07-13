@@ -11,10 +11,47 @@ import { useRouter } from "next/router";
 import { ReactNode, useState } from "react";
 import { DotsVerticalIcon } from "@heroicons/react/solid";
 import ConfirmDeleteModal from "@/components/common/confirmDeleteModal";
+import { Tour } from "@prisma/client";
 
 const Map = dynamic(() => import("../../components/maps/tourMap"), {
   ssr: false,
 });
+
+const ViewerMenu: React.FC<{
+  tour: Tour;
+  setShowDelete: (value: boolean) => void;
+}> = ({ tour, setShowDelete }) => {
+  return (
+    <Dropdown
+      placement="top"
+      inline={true}
+      arrowIcon={false}
+      label={<DotsVerticalIcon className="h-5 w-5 cursor-pointer" />}
+    >
+      <Dropdown.Item onClick={() => setShowDelete(true)}>
+        Remove this Tour
+      </Dropdown.Item>
+    </Dropdown>
+  );
+};
+
+const OwnerMenu: React.FC<{
+  tour: Tour;
+  setShowDelete: (value: boolean) => void;
+}> = ({ tour, setShowDelete }) => {
+  return (
+    <Dropdown
+      placement="top"
+      inline={true}
+      arrowIcon={false}
+      label={<DotsVerticalIcon className="h-5 w-5 cursor-pointer" />}
+    >
+      <Dropdown.Item onClick={() => setShowDelete(true)}>
+        Delete this Tour
+      </Dropdown.Item>
+    </Dropdown>
+  );
+};
 
 const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
   const { data, isLoading } = trpc.useQuery(["tours.get-tour-by-id", { id }]);
@@ -28,6 +65,13 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
       router.push("/tours");
     },
   });
+  
+  const { mutate: removeInvitedTour } = trpc.useMutation("invite.remove-invited-tour", {
+    onSuccess: () => {
+      router.push("/tours");
+    },
+  });
+
   const [showDelete, setShowDelete] = useState(false);
 
   if (!data) return <div>Tour not found...</div>;
@@ -39,7 +83,11 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
   );
 
   const deleteTour = () => {
-    deleteTourOnServer({ id });
+    if (data.viewer) {
+      removeInvitedTour({ tourId: id });
+    } else {
+      deleteTourOnServer({ id });
+    }
   };
 
   return (
@@ -51,17 +99,10 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
         <Card>
           <div className="flex justify-between">
             <CardTitle title={data.name} />
-            {!data.viewer && (
-              <Dropdown
-                placement="top"
-                inline={true}
-                arrowIcon={false}
-                label={<DotsVerticalIcon className="h-5 w-5 cursor-pointer" />}
-              >
-                <Dropdown.Item onClick={() => setShowDelete(true)}>
-                  Delete this Tour
-                </Dropdown.Item>
-              </Dropdown>
+            {data.viewer ? (
+              <ViewerMenu tour={data} setShowDelete={setShowDelete} />
+            ) : (
+              <OwnerMenu tour={data} setShowDelete={setShowDelete} />
             )}
           </div>
 
@@ -121,9 +162,10 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
         </Card>
       </div>
       <ConfirmDeleteModal
-        text="Do you really want to delete the tour? All data will be lost?"
+        text={data.viewer ? "Do you really want to remove the tour? You will lose access to the data!" : "Do you really want to delete the tour? All data will be lost!"}
         show={showDelete}
         accept={deleteTour}
+        acceptButton={data.viewer ? "Remove" : "Delete"}
         decline={() => setShowDelete(false)}
       />
     </>
