@@ -3,7 +3,7 @@ import { List, ListItem } from "@/components/common/list";
 import LayoutBase from "@/components/layout/layoutBase";
 import CreateInvitationButton from "@/components/tours/createInvitationButton";
 import { trpc } from "@/utils/trpc";
-import { Badge, Card, Dropdown, Spinner } from "flowbite-react";
+import { Card, Dropdown, Spinner } from "flowbite-react";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
@@ -82,10 +82,6 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
   const { data, isLoading } = trpc.useQuery(["tours.get-tour-by-id", { id }], {
     retry: false,
   });
-  const { data: tracks } = trpc.useQuery([
-    "tracks.get-tracks-for-tour",
-    { id },
-  ]);
   const router = useRouter();
   const { mutate: deleteTourOnServer } = trpc.useMutation("tours.delete-tour", {
     onSuccess: () => {
@@ -200,7 +196,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
           )}
         </Card>
         <Card>
-          <Map tracks={tracks} peaks={data?.tourPeaks?.map((t) => t.peak)} />
+          <Map peaks={data?.tourPeaks?.map((t) => t.peak)} />
         </Card>
       </div>
       <ConfirmDeleteModal

@@ -1,33 +1,28 @@
 import {
   MapContainer,
   Marker,
-  Polyline,
   TileLayer,
   Tooltip,
   useMap,
 } from "react-leaflet";
-import { trpc } from "@/utils/trpc";
-import { useEffect, useMemo, useState } from "react";
-import { LatLngExpression } from "leaflet";
+import { useEffect } from "react";
 import "leaflet-defaulticon-compatibility";
-import { calculateBounds, getWaypoints } from "@/utils/gpxHelpers";
-import { Peak, Track } from "@prisma/client";
+import { calculateBounds } from "@/utils/gpxHelpers";
+import { Peak } from "@prisma/client";
 
 type Props = {
-  tracks?: Track[];
   peaks?: Peak[];
 };
 
 const PositionHandler: React.FC<{
-  tracks: Track[] | undefined;
   peaks: Peak[] | undefined;
-}> = ({ tracks, peaks }) => {
+}> = ({ peaks }) => {
   const map = useMap();
 
   useEffect(() => {
-    if ((tracks?.length || 0) > 0) {
+    /*if ((tracks?.length || 0) > 0) {
       return;
-    }
+    }*/
 
     if ((peaks?.length || 0) > 0) {
       const bounds = calculateBounds(
@@ -35,19 +30,14 @@ const PositionHandler: React.FC<{
       );
       map.flyToBounds(bounds, { maxZoom: 12, duration: 1 });
     }
-  }, [tracks, map, peaks]);
+  }, [map, peaks]);
 
   return <></>;
 };
-
+/*
 const TrackLine: React.FC<{
-  track: Track;
   flyTo: boolean;
-}> = ({ track, flyTo }) => {
-  const { data, isLoading } = trpc.useQuery([
-    "tracks.get-track-content",
-    { id: track.id },
-  ]);
+}> = ({ flyTo }) => {
   const [points, setPoints] = useState<LatLngExpression[]>([]);
   const map = useMap();
 
@@ -65,7 +55,7 @@ const TrackLine: React.FC<{
   if (isLoading) return <></>;
   return <Polyline positions={points} color={track.color} />;
 };
-
+*/
 const TourMap = (props: Props) => {
   return (
     <MapContainer
@@ -79,11 +69,8 @@ const TourMap = (props: Props) => {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-
-      {props.tracks?.map((track, index) => (
-        <TrackLine key={track.id} track={track} flyTo={index === 0} />
-      ))}
-      <PositionHandler peaks={props.peaks} tracks={props.tracks} />
+      
+      <PositionHandler peaks={props.peaks} />
       {props.peaks?.map((peak) => (
         <Marker key={peak.id} position={[peak.latitude, peak.longitude]}>
           <Tooltip permanent>{peak.name}</Tooltip>

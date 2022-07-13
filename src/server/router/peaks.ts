@@ -1,7 +1,6 @@
 import { createPeakValidationSchema } from "@/components/peaks/editPeaksForm";
 import { Peak } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
-import { resolve } from "path";
 import { z } from "zod";
 import { createRouter } from "./context";
 

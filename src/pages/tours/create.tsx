@@ -3,12 +3,9 @@ import Input from "@/components/common/input";
 import TextArea from "@/components/common/textarea";
 import LayoutBase from "@/components/layout/layoutBase";
 import PeakSelector from "@/components/peaks/peakSelector";
-import TracksEditList from "@/components/tracks/tracksEditList";
-import { getFileContents } from "@/utils/fileHelpers";
+import GPXUpload, { AnalysisResult } from "@/components/tracks/gpxUpload";
 import { useZodForm } from "@/utils/formHelpers";
 import { trpc } from "@/utils/trpc";
-import { Peak } from "@prisma/client";
-import axios from "axios";
 import { Button, Card, Spinner } from "flowbite-react";
 import { NextPage } from "next";
 import { useSession } from "next-auth/react";
@@ -31,15 +28,18 @@ type FormData = z.infer<typeof createTourValidationSchema>;
 
 const CreateTourContent = () => {
   const navigate = useRouter();
-  const [selectedPeaks, setSelectedPeaks] = useState<Peak[]>([]);
-  const [tracks, setTracks] = useState<
-    { name: string; color: string; file: File }[]
+  const [points, setPoints] = useState<
+    { latitude: number; longitude: number; elevation: number; time: Date }[]
+  >([]);
+  const [selectedPeaks, setSelectedPeaks] = useState<
+    { name: string; height: number; id: string }[]
   >([]);
   const [isLoading, setLoading] = useState(false);
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useZodForm({
     schema: createTourValidationSchema,
@@ -58,49 +58,31 @@ const CreateTourContent = () => {
     },
   });
 
-  const uploadTracks = async () => {
-    const trackData: { file_url: string; name: string; color: string }[] = [];
-    for (let i = 0; i < tracks.length; i++) {
-      const track = tracks[i];
-      if (!track) continue;
-
-      const content = await getFileContents(track.file);
-      if (!content) continue;
-
-      const config = {
-        headers: {
-          "Content-Type": "application/gpx+xml",
-        },
-      };
-      const result = await axios.post("/api/files/upload", content, config);
-      if (result.status === 200) {
-        trackData.push({
-          file_url: result.data.filename,
-          name: track.name,
-          color: track.color,
-        });
-      }
-    }
-    return trackData;
-  };
-
   const onSubmit = async (data: FormData) => {
     setLoading(true);
-    const tracks = await uploadTracks();
+    console.log("test")
     mutate({
       tour: data,
-      tracks: tracks,
       peaks: selectedPeaks,
+      points,
     });
   };
 
-  const handleTracksChanged = async (
-    tracks: { name: string; color: string; file: File }[]
-  ) => {
-    setTracks(tracks);
+  const handleGpxFileUpload = async (data: AnalysisResult) => {
+    setValue("name", data.name);
+    setValue("distance", Math.floor(data.distance));
+    setValue("date", data.date);
+    setValue("elevationDown", Math.floor(data.elevationDown));
+    setValue("elevationUp", Math.floor(data.elevationUp));
+    setValue("startTime", data.start);
+    setValue("endTime", data.end);
+
+    setPoints(data.points);
   };
 
-  const handleSelectedPeaksChanged = (peaks: Peak[]) => {
+  const handleSelectedPeaksChanged = (
+    peaks: { name: string; height: number; id: string }[]
+  ) => {
     setSelectedPeaks(peaks);
   };
 
@@ -194,13 +176,13 @@ const CreateTourContent = () => {
           <CardTitle title="Select peaks" />
           <PeakSelector onPeaksChanged={handleSelectedPeaksChanged} />
           <CardTitle title="Add Tracks" />
-          <TracksEditList onChange={handleTracksChanged} />
-          
+          <GPXUpload onChange={handleGpxFileUpload} />
+
           <div className="flex justify-end lg:hidden">
-                <Button disabled={isLoading} type="submit">
-                  Create your Tour
-                </Button>
-              </div>
+            <Button disabled={isLoading} type="submit">
+              Create your Tour
+            </Button>
+          </div>
         </div>
       </Card>
     </div>

@@ -64,9 +64,9 @@ export const toursRouter = createRouter()
           viewers: true,
           tourPeaks: {
             include: {
-              peak: true
-            }
-          }
+              peak: true,
+            },
+          },
         },
       });
       if (myTour) return { viewer: false, ...myTour };
@@ -81,10 +81,10 @@ export const toursRouter = createRouter()
             include: {
               tourPeaks: {
                 include: {
-                  peak: true
-                }
-              }
-            }
+                  peak: true,
+                },
+              },
+            },
           },
         },
       });
@@ -204,16 +204,19 @@ export const toursRouter = createRouter()
   .mutation("create-tour", {
     input: z.object({
       tour: createTourValidationSchema,
-      tracks: z
+      points: z
         .object({
-          file_url: z.string(),
-          name: z.string(),
-          color: z.string(),
+          latitude: z.number(),
+          longitude: z.number(),
+          elevation: z.number(),
+          time: z.date(),
         })
         .array(),
-      peaks: z.object({
-        id: z.string()
-      }).array()
+      peaks: z
+        .object({
+          id: z.string(),
+        })
+        .array(),
     }),
     async resolve({ input, ctx }) {
       const userId = ctx.session?.user?.email;
@@ -228,31 +231,40 @@ export const toursRouter = createRouter()
         data: tour,
       });
 
-      for (let i = 0; i < input.tracks.length; i++) {
-        const inputTrack = input.tracks[i];
-        if (!inputTrack) continue;
-        const track = {
-          ...inputTrack,
-          tourId: insertedTour.id,
-        };
-        await ctx.prisma.track.create({
-          data: track,
-        });
-      }
-
+      const tourPeaks: { tourId: string; peakId: string }[] = [];
       for (let i = 0; i < input.peaks.length; i++) {
         const peak = input.peaks[i];
         if (!peak) continue;
 
         const tourPeak = {
           tourId: insertedTour.id,
-          peakId: peak.id
+          peakId: peak.id,
         };
 
-        await ctx.prisma.tourPeak.create({
-          data: tourPeak
-        });
+        tourPeaks.push(tourPeak);
       }
+
+      await ctx.prisma.tourPeak.createMany({
+        data: tourPeaks,
+      });
+
+      const points: {
+        tourId: string;
+        latitude: number;
+        longitude: number;
+        elevation: number;
+        time: Date;
+      }[] = [];
+      input.points.forEach((p) => {
+        points.push({
+          ...p,
+          tourId: insertedTour.id,
+        });
+      });
+
+      await ctx.prisma.point.createMany({
+        data: points,
+      });
 
       return insertedTour;
     },

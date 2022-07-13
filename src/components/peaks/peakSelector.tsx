@@ -1,8 +1,13 @@
 import { trpc } from "@/utils/trpc";
-import { Peak } from "@prisma/client";
 import { Badge, Checkbox, Spinner, Table } from "flowbite-react";
 import { useState } from "react";
 import Input from "../common/input";
+
+type Peak = {
+  name: string;
+  height: number;
+  id: string
+}
 
 const PeakSelectorTable: React.FC<{
   peaks: Peak[] | undefined;

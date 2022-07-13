@@ -22,12 +22,13 @@ model Tour {
     date DateTime
     startTime String?
     endTime String?
-    tracks Track[]
     creatorId String
     creator User @relation(fields: [creatorId], references: [id])
     viewers TourViewer[]
     invitationLinks InvitationLink[]
     tourPeaks TourPeak[]
+    
+    points Point[]
 }
 
 model TourViewer {
@@ -38,14 +39,16 @@ model TourViewer {
     viewer User @relation(fields: [viewerId], references: [email])
 }
 
-model Track {
+model Point {
     id String @id @default(cuid())
-    name String
-    file_url String
-    color String
+    latitude Float
+    longitude Float
+    elevation Int
+    time DateTime
     tour Tour @relation(fields: [tourId], references: [id])
     tourId String
 }
+
 
 model Peak {
     id String @id @default(cuid())
