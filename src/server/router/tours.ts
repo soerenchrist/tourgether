@@ -184,6 +184,11 @@ export const toursRouter = createRouter()
         },
       });
 
+      await ctx.prisma.tourPeak.deleteMany({
+        where: {
+          tourId: input.id,
+        },
+      });
       await ctx.prisma.invitationLink.deleteMany({
         where: {
           tourId: input.id,

@@ -43,6 +43,23 @@ export const inviteRouter = createRouter()
     return invitation;
   }
 })
+.query("get-my-invitations", {
+  async resolve({ ctx }) {
+    const userId = ctx.session?.user?.email;
+    if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
+    return await ctx.prisma.invitationLink.findMany({
+      where: {
+        issuedBy: userId
+      },
+      orderBy: {
+        validUnit: "desc"
+      },
+      include: {
+        tour: true
+      }
+    })
+  }
+})
 .mutation("decline-invitation", {
   input: z.object({
     invite_token: z.string()
@@ -78,12 +95,6 @@ export const inviteRouter = createRouter()
     await ctx.prisma.tourViewer.create({
       data: viewer
     })
-
-    await ctx.prisma.invitationLink.delete({
-      where: {
-        invite_token: input.invite_token
-      }
-    });
   }
 })
 .mutation("remove-invited-tour", {
