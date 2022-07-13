@@ -53,7 +53,7 @@ const PeaksPageContent: React.FC = () => {
           placeholder="Search..."
           id="searchPeaks"
         />
-        <div className="h-96">
+        <div style={{ height: "60vh"}}>
           <Map searchTerm={searchTerm} />
         </div>
       </Card>

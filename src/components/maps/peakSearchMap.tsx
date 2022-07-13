@@ -1,7 +1,8 @@
 import { trpc } from "@/utils/trpc";
+import { LatLngBounds } from "leaflet";
 import "leaflet-defaulticon-compatibility";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   MapContainer,
   Marker,
@@ -22,18 +23,26 @@ const MapEventHandler: React.FC<{
   onBoundsChanged: (bounds: Bounds) => void;
 }> = ({ onBoundsChanged }) => {
   
+  const raiseBoundsChanged = (bounds: LatLngBounds) => {
+    onBoundsChanged({
+      minLat: bounds.getSouthWest().lat,
+      minLng: bounds.getSouthWest().lng,
+      maxLat: bounds.getNorthEast().lat,
+      maxLng: bounds.getNorthEast().lng,
+    });
+  }
+
   const map = useMapEvents({
-    
     moveend: () => {
       const bounds = map.getBounds();
-      onBoundsChanged({
-        minLat: bounds.getSouthWest().lat,
-        minLng: bounds.getSouthWest().lng,
-        maxLat: bounds.getNorthEast().lat,
-        maxLng: bounds.getNorthEast().lng,
-      });
+      raiseBoundsChanged(bounds);
     },
   });
+
+  useEffect(() => { 
+    const bounds = map.getBounds();
+    raiseBoundsChanged(bounds);
+  }, []);
 
   return <></>;
 };
