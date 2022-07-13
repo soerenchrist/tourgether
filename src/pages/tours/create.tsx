@@ -64,7 +64,7 @@ const CreateTourContent = () => {
     mutate({
       tour: data,
       peaks: selectedPeaks,
-      points,
+      // points,
     });
   };
 
@@ -171,10 +171,12 @@ const CreateTourContent = () => {
           </form>
         </div>
       </Card>
+      
       <Card>
-        <div className="flex flex-col justify-start h-full gap-4">
+       <div className="flex flex-col justify-start h-full gap-4">
           <CardTitle title="Select peaks" />
           <PeakSelector onPeaksChanged={handleSelectedPeaksChanged} />
+          
           <CardTitle title="Add Tracks" />
           <GPXUpload onChange={handleGpxFileUpload} />
 
@@ -185,6 +187,7 @@ const CreateTourContent = () => {
           </div>
         </div>
       </Card>
+
     </div>
   );
 };

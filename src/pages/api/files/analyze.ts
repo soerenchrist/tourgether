@@ -4,6 +4,7 @@ import { authOptions as nextAuthOptions } from "@/pages/api/auth/[...nextauth]";
 import GpxParser, { Point as GPXPoint } from "gpxparser";
 
 const factor = 3;
+/*
 
 const convertPoints = (points: GPXPoint[]) => {
   const results: {
@@ -24,7 +25,7 @@ const convertPoints = (points: GPXPoint[]) => {
   });
   return results;
 };
-
+*/
 const toDate = (date: Date) => {
   const str = date.toISOString();
   return str.substring(0, 10);
@@ -47,6 +48,7 @@ const handler: NextApiHandler = async (req, res) => {
   if (!body) return res.status(400).json({ error: "Missing body " });
 
   var gpx = new GpxParser();
+  /*
   gpx.parse(body);
   const track = gpx.tracks[0];
   if (!track) return res.status(400).json({ error: "Bad GPX file" });
@@ -64,7 +66,8 @@ const handler: NextApiHandler = async (req, res) => {
     date: toDate(points[0]!.time),
     start: toTime(points[0]!.time),
     end: toTime(points[points.length - 1]!.time),
-  };
+  };*/
+  const result = {}
   return res.status(200).json(result);
 };
 

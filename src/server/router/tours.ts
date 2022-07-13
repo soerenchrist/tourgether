@@ -204,14 +204,7 @@ export const toursRouter = createRouter()
   .mutation("create-tour", {
     input: z.object({
       tour: createTourValidationSchema,
-      points: z
-        .object({
-          latitude: z.number(),
-          longitude: z.number(),
-          elevation: z.number(),
-          time: z.date(),
-        })
-        .array(),
+      
       peaks: z
         .object({
           id: z.string(),
@@ -248,7 +241,7 @@ export const toursRouter = createRouter()
         data: tourPeaks,
       });
 
-      const points: {
+      /*const points: {
         tourId: string;
         latitude: number;
         longitude: number;
@@ -264,7 +257,7 @@ export const toursRouter = createRouter()
 
       await ctx.prisma.point.createMany({
         data: points,
-      });
+      });*/
 
       return insertedTour;
     },

@@ -1,5 +1,3 @@
-import { Point } from "@prisma/client";
-import axios, { AxiosResponse } from "axios";
 import { Alert } from "flowbite-react";
 import { ChangeEventHandler, useState } from "react";
 import FileInput from "../common/fileInput";
@@ -12,7 +10,7 @@ export type AnalysisResult = {
   date: Date;
   end: string;
   start: string;
-  points: Point[];
+  points: any[];
 };
 
 const GPXUpload: React.FC<{ onChange: (result: AnalysisResult) => void }> = ({
@@ -21,7 +19,7 @@ const GPXUpload: React.FC<{ onChange: (result: AnalysisResult) => void }> = ({
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<string>();
 
-  const onAnalyzeSuccess = (result: AxiosResponse<any, any>) => {
+  const onAnalyzeSuccess = (result: any) => {
     setLoading(false);
     onChange(result.data);
   };
@@ -42,15 +40,9 @@ const GPXUpload: React.FC<{ onChange: (result: AnalysisResult) => void }> = ({
     const reader = new FileReader();
     reader.onload = async () => {
       const content = reader.result as string;
-      const config = {
-        headers: {
-          "Content-Type": "application/gpx+xml",
-        },
-      };
-      axios
-        .post("/api/files/analyze", content, config)
-        .then(onAnalyzeSuccess)
-        .catch(onAnalyzeError);
+      /*const result = analyze(content);
+      if (result)
+        onChange(result);*/
     };
     reader.readAsText(file!);
   };
@@ -69,5 +61,6 @@ const GPXUpload: React.FC<{ onChange: (result: AnalysisResult) => void }> = ({
     </div>
   );
 };
+
 
 export default GPXUpload;
