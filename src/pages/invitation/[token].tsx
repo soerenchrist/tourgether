@@ -5,7 +5,7 @@ import { BanIcon, CheckIcon } from "@heroicons/react/solid";
 import { InvitationLink, Tour } from "@prisma/client";
 import { Button, Card, Spinner } from "flowbite-react";
 import { Session } from "next-auth";
-import { useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
 import { NextRouter, useRouter } from "next/router";
 import { ReactNode, useRef } from "react";
@@ -119,6 +119,14 @@ const InvalidInvitation: React.FC<{ error: string }> = ({ error }) => {
   );
 };
 
+const Unauthorized = () => {
+  return <Card>
+    <CardTitle title="You are not logged in"></CardTitle>
+    <p>Please sign in or create an account to accept this invitation.</p>
+    <Button onClick={() => signIn()}>Sign in</Button>
+  </Card>
+}
+
 const InvitationPage = () => {
   const { data: session, status } = useSession();
   const { query } = useRouter();
@@ -126,8 +134,8 @@ const InvitationPage = () => {
 
   let content: ReactNode;
   if (status === "loading") content = <Spinner size="xl" />;
-  else if (status === "unauthenticated") content = <p>Unauthorized</p>;
-  if (!token || typeof token !== "string") {
+  else if (status === "unauthenticated") content = <Unauthorized />
+  else if (!token || typeof token !== "string") {
     content = (
       <InvalidInvitation error="This invitation link is not valid. Please request a new one." />
     );
