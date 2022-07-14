@@ -1,4 +1,4 @@
-import { createTourValidationSchema } from "@/pages/tours/create";
+import { createTourValidationSchema } from "@/components/tours/editToursForm";
 import { getDateXDaysBeforeToday } from "@/utils/dateUtils";
 import { Tour } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
@@ -207,6 +207,27 @@ export const toursRouter = createRouter()
           id: input.id,
         },
       });
+    },
+  })
+  .mutation("update-tour", {
+    input: createTourValidationSchema.merge(
+      z.object({
+        id: z.string(),
+      })
+    ),
+    async resolve({ ctx, input }) {
+      const userId = ctx.session?.user?.email;
+      if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
+
+      return await ctx.prisma.tour.update({
+        where: {
+          id: input.id
+        },
+        data: {
+          ...input,
+          date: new Date(input.date)
+        }
+      })
     },
   })
   .mutation("create-tour", {

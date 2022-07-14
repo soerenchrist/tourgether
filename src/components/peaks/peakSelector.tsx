@@ -1,13 +1,13 @@
 import { trpc } from "@/utils/trpc";
 import { Badge, Checkbox, Spinner, Table } from "flowbite-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Input from "../common/input";
 
 type Peak = {
   name: string;
   height: number;
-  id: string
-}
+  id: string;
+};
 
 const PeakSelectorTable: React.FC<{
   peaks: Peak[] | undefined;
@@ -20,7 +20,7 @@ const PeakSelectorTable: React.FC<{
       const newPeaks = [...selectedPeaks, peak];
       setSelectedPeaks(newPeaks);
     } else {
-      const newPeaks = selectedPeaks.filter(p => p.id !== peak.id);
+      const newPeaks = selectedPeaks.filter((p) => p.id !== peak.id);
       setSelectedPeaks(newPeaks);
     }
   };
@@ -43,67 +43,92 @@ const PeakSelectorTable: React.FC<{
         {selectedPeaks?.map((peak) => (
           <Table.Row key={peak.id}>
             <Table.Cell>
-              <Checkbox checked={true} onChange={(e) => selectPeak(peak, e.target.checked)} />
+              <Checkbox
+                checked={true}
+                onChange={(e) => selectPeak(peak, e.target.checked)}
+              />
             </Table.Cell>
             <Table.Cell>{peak.name}</Table.Cell>
             <Table.Cell>{peak.height} m</Table.Cell>
           </Table.Row>
         ))}
 
-
-        {peaks?.filter(x => selectedPeaks.findIndex(p => p.id === x.id) < 0).map((peak) => (
-          <Table.Row key={peak.id}>
-            <Table.Cell>
-              <Checkbox onChange={(e) => selectPeak(peak, e.target.checked)} />
-            </Table.Cell>
-            <Table.Cell>{peak.name}</Table.Cell>
-            <Table.Cell>{peak.height} m</Table.Cell>
-          </Table.Row>
-        ))}
+        {peaks
+          ?.filter((x) => selectedPeaks.findIndex((p) => p.id === x.id) < 0)
+          .map((peak) => (
+            <Table.Row key={peak.id}>
+              <Table.Cell>
+                <Checkbox
+                  onChange={(e) => selectPeak(peak, e.target.checked)}
+                />
+              </Table.Cell>
+              <Table.Cell>{peak.name}</Table.Cell>
+              <Table.Cell>{peak.height} m</Table.Cell>
+            </Table.Row>
+          ))}
       </Table.Body>
     </Table>
   );
 };
 
-const PeakSelector: React.FC<{onPeaksChanged: (peaks: Peak[]) => void}> = ({onPeaksChanged}) => {
+const PeakSelector: React.FC<{
+  peaks?: Peak[];
+  disabled?: boolean;
+  onPeaksChanged: (peaks: Peak[]) => void;
+}> = ({ peaks, onPeaksChanged, disabled }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPeaks, setSelectedPeaks] = useState<Peak[]>([]);
+
+  useEffect(() => {
+    if (peaks) {
+      setSelectedPeaks(peaks);
+    }
+  }, [peaks]);
 
   const handlePeaksChanged = (peaks: Peak[]) => {
     setSelectedPeaks(peaks);
     onPeaksChanged(peaks);
-  }
+  };
 
-  const { data, isLoading } = trpc.useQuery([
-    "peaks.get-peaks",
-    {
-      searchTerm,
-      pagination: {
-        page: 1,
-        count: 5,
+  const { data, isLoading } = trpc.useQuery(
+    [
+      "peaks.get-peaks",
+      {
+        searchTerm,
+        pagination: {
+          page: 1,
+          count: 5,
+        },
       },
-    },
-  ]);
+    ],
+    {
+      enabled: !disabled,
+    }
+  );
 
   return (
     <div className="flex flex-col justify-start gap-2">
       <Input
         id="search-peaks"
-        placeholder="Search"
+        disabled={disabled}
+        placeholder={disabled ? "You can't add peaks when editing" : "Search"}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
+
       <div className="flex justify-start py-4 gap-2">
-        {selectedPeaks.map(peak => (
+        {selectedPeaks.map((peak) => (
           <Badge key={peak.id}>{peak.name}</Badge>
         ))}
       </div>
-      <PeakSelectorTable
-        peaks={data?.peaks}
-        isLoading={isLoading}
-        selectedPeaks={selectedPeaks}
-        setSelectedPeaks={handlePeaksChanged}
-      />
+      {!disabled && (
+        <PeakSelectorTable
+          peaks={data?.peaks}
+          isLoading={isLoading}
+          selectedPeaks={selectedPeaks}
+          setSelectedPeaks={handlePeaksChanged}
+        />
+      )}
     </div>
   );
 };
