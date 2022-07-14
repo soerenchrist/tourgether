@@ -58,7 +58,11 @@ export const peaksRouter = createRouter()
       const { count, page } = input.pagination;
       const skip = count * (page - 1);
 
-      let peaks: Peak[];
+      let peaks: (Peak & {
+        _count: {
+            tourPeaks: number;
+        };
+    })[];
       if (input.bounds) {
         peaks = await ctx.prisma.peak.findMany({
           take: count,
@@ -87,6 +91,13 @@ export const peaksRouter = createRouter()
               },
             ],
           },
+          include: {
+            _count: {
+              select:{
+                tourPeaks: true
+              }
+            }
+          }
         });
       } else {
         peaks = await ctx.prisma.peak.findMany({
@@ -108,6 +119,13 @@ export const peaksRouter = createRouter()
               },
             ],
           },
+          include: {
+            _count: {
+              select:{
+                tourPeaks: true
+              }
+            }
+          }
         });
       }
 

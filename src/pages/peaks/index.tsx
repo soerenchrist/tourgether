@@ -3,6 +3,7 @@ import Input from "@/components/common/input";
 import PaginationText from "@/components/common/paginationText";
 import LayoutBase from "@/components/layout/layoutBase";
 import PeaksList from "@/components/peaks/peaksList";
+import useDebounceValue from "@/hooks/useDebounce";
 import { trpc } from "@/utils/trpc";
 import { LocationMarkerIcon, ViewListIcon } from "@heroicons/react/solid";
 import { Button, Card, Pagination, Spinner, Tooltip } from "flowbite-react";
@@ -19,6 +20,7 @@ const Map = dynamic(() => import("../../components/maps/peakSearchMap"), {
 const PeaksPageContent: React.FC = () => {
   const [mapMode, setMapMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounceValue(searchTerm, 500);
   const [page, setPage] = useState(1);
   const count = 10;
   const { data, isLoading } = trpc.useQuery([
@@ -28,7 +30,7 @@ const PeaksPageContent: React.FC = () => {
         page,
         count,
       },
-      searchTerm: searchTerm,
+      searchTerm: debouncedSearchTerm,
     },
   ]);
   const totalPages = Math.ceil((data?.totalCount ?? 1) / count);

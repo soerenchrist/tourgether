@@ -1,9 +1,17 @@
+import { BanIcon, CheckCircleIcon } from "@heroicons/react/solid";
 import { Peak } from "@prisma/client";
-import { Spinner, Table } from "flowbite-react";
+import { Spinner, Table, Tooltip } from "flowbite-react";
 import Link from "next/link";
 
 const PeaksList: React.FC<{
-  peaks: Peak[] | undefined | undefined;
+  peaks:
+    | (Peak & {
+        _count: {
+          tourPeaks: number;
+        };
+      })[]
+    | undefined
+    | undefined;
   isLoading: boolean;
 }> = ({ peaks, isLoading }) => {
   const loader = (
@@ -21,6 +29,9 @@ const PeaksList: React.FC<{
       <Table.Head>
         <Table.HeadCell>Name</Table.HeadCell>
         <Table.HeadCell>Height</Table.HeadCell>
+        <Table.HeadCell className="hidden md:table-cell">
+          Climbed
+        </Table.HeadCell>
         <Table.HeadCell></Table.HeadCell>
       </Table.Head>
       <Table.Body>
@@ -29,6 +40,17 @@ const PeaksList: React.FC<{
           <Table.Row key={peak.id}>
             <Table.Cell>{peak.name}</Table.Cell>
             <Table.Cell>{peak.height} m</Table.Cell>
+            <Table.Cell className="hidden md:table-cell">
+              {peak._count.tourPeaks > 0 ? (
+                <Tooltip
+                  content={`You climbed ${peak.name} ${peak._count.tourPeaks} times!`}
+                >
+                  <CheckCircleIcon className="ml-4 w-5 h-5 text-green-500" />
+                </Tooltip>
+              ) : (
+                <BanIcon className="ml-4 w-5 h-5 text-red-500" />
+              )}
+            </Table.Cell>
             <Table.Cell className="flex justify-end">
               <Link href={`/peaks/${peak.id}`}>
                 <span className="font-medium text-blue-500 cursor-pointer dark:text-blue-500 hover:underline">
