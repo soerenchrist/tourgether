@@ -175,8 +175,10 @@ const CreateTourContent = () => {
           <CardTitle title="Select peaks" />
           <PeakSelector onPeaksChanged={handleSelectedPeaksChanged} />
 
-          <CardTitle title="Add Tracks" />
-          <GPXUpload onChange={handleGpxFileUpload} />
+          <div className="mt-4">
+            <CardTitle title="Add Tracks" />
+            <GPXUpload onChange={handleGpxFileUpload} />
+          </div>
         </div>
       </Card>
     </div>

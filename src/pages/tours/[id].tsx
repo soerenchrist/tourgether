@@ -13,6 +13,7 @@ import { DotsVerticalIcon } from "@heroicons/react/solid";
 import ConfirmDeleteModal from "@/components/common/confirmDeleteModal";
 import NotFound from "@/components/common/notFound";
 import Link from "next/link";
+import HeightProfile from "@/components/tours/heightProfile";
 
 const Map = dynamic(() => import("../../components/maps/tourMap"), {
   ssr: false,
@@ -125,7 +126,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
       <Head>
         <title>Tour - {data.name}</title>
       </Head>
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 gap-6 mb-4">
         <Card>
           <div className="flex justify-between">
             <CardTitle title={data.name ?? ""} />
@@ -206,6 +207,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
           />
         </Card>
       </div>
+      {data?.points && <HeightProfile points={data.points} />}
       <ConfirmDeleteModal
         text={
           data.viewer

@@ -8,6 +8,7 @@ const GPXUpload: React.FC<{ onChange: (result: AnalysisResult) => void }> = ({
 }) => {
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<string>();
+  const [message, setMessage] = useState<string>();
 
   const handleTracksChanged: ChangeEventHandler<HTMLInputElement> = (event) => {
     const { files } = event.target;
@@ -27,6 +28,8 @@ const GPXUpload: React.FC<{ onChange: (result: AnalysisResult) => void }> = ({
         setError(e.message)
       }
       setLoading(false);
+      setMessage("GPX file successfully uploaded");
+      setTimeout(() => setMessage(undefined), 2000);
     };
     reader.readAsText(file!);
   };
@@ -35,6 +38,7 @@ const GPXUpload: React.FC<{ onChange: (result: AnalysisResult) => void }> = ({
     <div className="flex flex-col gap-2">
       <div className="p-2"></div>
       {error && <Alert color="failure">{error}</Alert>}
+      {message && <Alert color="success">{message}</Alert>}
       <FileInput
         files={[]}
         accept=".gpx"
