@@ -18,6 +18,7 @@ const PositionHandler: React.FC<{
   const map = useMap();
 
   useEffect(() => {
+    console.log("Doing something")
     if (points && points.length > 0) {
       const bounds = calculateBounds(
         points.map((p) => ({ lat: p.latitude, lng: p.longitude }))
@@ -32,7 +33,7 @@ const PositionHandler: React.FC<{
       );
       map.flyToBounds(bounds, { maxZoom: 12, duration: 1 });
     }
-  }, [map, peaks, points]);
+  }, [peaks, points, map]);
 
   return <></>;
 };

@@ -75,6 +75,7 @@ const SpeedProfile: React.FC<{
             `${Math.round((value ?? 0) * 100) / 100} m/s`,
         },
         elementType: "area",
+        shouldNice: false
       },
     ],
     []

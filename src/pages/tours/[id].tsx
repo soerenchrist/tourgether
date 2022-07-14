@@ -8,7 +8,7 @@ import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { ReactNode, useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
 import {
   DotsVerticalIcon,
   PencilIcon,
@@ -99,6 +99,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
   );
 
   const [showDelete, setShowDelete] = useState(false);
+  const peaks = useMemo(() => data?.tourPeaks?.map((t) => t.peak), [data])
 
   if (isLoading) return <Spinner size="xl" />;
   else if (!data) return <NotFound message="Tour not found!" />;
@@ -117,6 +118,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
       deleteTourOnServer({ id });
     }
   };
+
 
   return (
     <>
@@ -165,10 +167,10 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
 
               {data.tourPeaks.length > 0 && (
                 <ListItem
-                  title={data.tourPeaks.map((tp) => (
-                    <Link href={`/peaks/${tp.peak.id}`} key={tp.id}>
+                  title={peaks?.map((tp) => (
+                    <Link href={`/peaks/${tp.id}`} key={tp.id}>
                       <span className="cursor-pointer mr-2 text-blue-500 font-medium hover:underline w-auto">
-                        {tp.peak.name}
+                        {tp.name}
                       </span>
                     </Link>
                   ))}
@@ -215,7 +217,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
         <Card>
           <Map
             hoverPoint={hoverPoint}
-            peaks={data?.tourPeaks?.map((t) => t.peak)}
+            peaks={peaks}
             points={data?.points}
           />
         </Card>
