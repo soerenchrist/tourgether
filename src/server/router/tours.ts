@@ -67,6 +67,7 @@ export const toursRouter = createRouter()
               peak: true,
             },
           },
+          points: true,
         },
       });
       if (myTour) return { viewer: false, ...myTour };
@@ -84,6 +85,7 @@ export const toursRouter = createRouter()
                   peak: true,
                 },
               },
+              points: true,
             },
           },
         },
@@ -183,7 +185,7 @@ export const toursRouter = createRouter()
           tourId: input.id,
         },
       });
-      
+
       await ctx.prisma.point.deleteMany({
         where: {
           tourId: input.id,
@@ -210,12 +212,14 @@ export const toursRouter = createRouter()
   .mutation("create-tour", {
     input: z.object({
       tour: createTourValidationSchema,
-      points: z.object({
-        latitude: z.number(),
-        longitude: z.number(),
-        elevation: z.number(),
-        time: z.date()
-      }).array(),
+      points: z
+        .object({
+          latitude: z.number(),
+          longitude: z.number(),
+          elevation: z.number(),
+          time: z.date(),
+        })
+        .array(),
       peaks: z
         .object({
           id: z.string(),
@@ -229,7 +233,7 @@ export const toursRouter = createRouter()
       const tour = {
         creatorId: userId,
         ...input.tour,
-        date: new Date(input.tour.date)
+        date: new Date(input.tour.date),
       };
 
       const insertedTour = await ctx.prisma.tour.create({

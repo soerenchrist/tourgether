@@ -1,28 +1,30 @@
 import {
   MapContainer,
   Marker,
+  Polyline,
   TileLayer,
   Tooltip,
   useMap,
 } from "react-leaflet";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import "leaflet-defaulticon-compatibility";
 import { calculateBounds } from "@/utils/gpxHelpers";
-import { Peak } from "@prisma/client";
-
-type Props = {
-  peaks?: Peak[];
-};
+import { Peak, Point } from "@prisma/client";
 
 const PositionHandler: React.FC<{
-  peaks: Peak[] | undefined;
-}> = ({ peaks }) => {
+  peaks?: Peak[];
+  points?: Point[];
+}> = ({ peaks, points }) => {
   const map = useMap();
 
   useEffect(() => {
-    /*if ((tracks?.length || 0) > 0) {
+    if (points && points.length > 0) {
+      const bounds = calculateBounds(
+        points.map((p) => ({ lat: p.latitude, lng: p.longitude }))
+      );
+      map.flyToBounds(bounds, { padding: [10, 10], duration: 1 });
       return;
-    }*/
+    }
 
     if ((peaks?.length || 0) > 0) {
       const bounds = calculateBounds(
@@ -30,52 +32,44 @@ const PositionHandler: React.FC<{
       );
       map.flyToBounds(bounds, { maxZoom: 12, duration: 1 });
     }
-  }, [map, peaks]);
+  }, [map, peaks, points]);
 
   return <></>;
 };
-/*
-const TrackLine: React.FC<{
-  flyTo: boolean;
-}> = ({ flyTo }) => {
-  const [points, setPoints] = useState<LatLngExpression[]>([]);
-  const map = useMap();
 
-  useMemo(() => {
-    if (data) {
-      const latLngs = getWaypoints(data);
-      setPoints(latLngs);
-      if (flyTo) {
-        const bounds = calculateBounds(latLngs);
-        map.flyToBounds(bounds, { duration: 1, padding: [10, 10] });
-      }
-    }
-  }, [data, map, flyTo]);
+const TrackLine: React.FC<{ points: Point[] }> = ({ points }) => {
+  const poly = useMemo(
+    () => points.map((p) => ({ lat: p.latitude, lng: p.longitude })),
+    [points]
+  );
 
-  if (isLoading) return <></>;
-  return <Polyline positions={points} color={track.color} />;
+  return <Polyline positions={poly} />;
 };
-*/
-const TourMap = (props: Props) => {
+
+const TourMap: React.FC<{ peaks?: Peak[]; points?: Point[] }> = ({
+  peaks,
+  points,
+}) => {
   return (
     <MapContainer
       className="h-full"
       center={[47, 11]}
       zoom={13}
-      style={{zIndex: 0}}
+      style={{ zIndex: 0 }}
       scrollWheelZoom={true}
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      
-      <PositionHandler peaks={props.peaks} />
-      {props.peaks?.map((peak) => (
+
+      <PositionHandler peaks={peaks} points={points} />
+      {peaks?.map((peak) => (
         <Marker key={peak.id} position={[peak.latitude, peak.longitude]}>
           <Tooltip permanent>{peak.name}</Tooltip>
         </Marker>
       ))}
+      {points && <TrackLine points={points} />}
     </MapContainer>
   );
 };

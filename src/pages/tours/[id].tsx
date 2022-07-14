@@ -70,7 +70,9 @@ const ViewerItem: React.FC<{ viewer: string; tourId: string }> = ({
         arrowIcon={false}
         label={<span className="text-blue-500">{viewer}</span>}
       >
-        <Dropdown.Item onClick={() => revokeAccess({ tourId, viewerId: viewer })}>
+        <Dropdown.Item
+          onClick={() => revokeAccess({ tourId, viewerId: viewer })}
+        >
           Revoke access
         </Dropdown.Item>
       </Dropdown>
@@ -150,9 +152,11 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
 
               {data.tourPeaks.length > 0 && (
                 <ListItem
-                  title={data.tourPeaks.map(tp => (
+                  title={data.tourPeaks.map((tp) => (
                     <Link href={`/peaks/${tp.peak.id}`} key={tp.id}>
-                      <span className="cursor-pointer mr-2 text-blue-500 font-medium hover:underline w-auto">{tp.peak.name}</span>
+                      <span className="cursor-pointer mr-2 text-blue-500 font-medium hover:underline w-auto">
+                        {tp.peak.name}
+                      </span>
                     </Link>
                   ))}
                   subtitle="Peaks"
@@ -196,7 +200,10 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
           )}
         </Card>
         <Card>
-          <Map peaks={data?.tourPeaks?.map((t) => t.peak)} />
+          <Map
+            peaks={data?.tourPeaks?.map((t) => t.peak)}
+            points={data?.points}
+          />
         </Card>
       </div>
       <ConfirmDeleteModal
