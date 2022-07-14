@@ -43,7 +43,7 @@ model Point {
     id String @id @default(cuid())
     latitude Float
     longitude Float
-    elevation Int
+    elevation Float
     time DateTime
     tour Tour @relation(fields: [tourId], references: [id])
     tourId String

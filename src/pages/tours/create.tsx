@@ -3,7 +3,8 @@ import Input from "@/components/common/input";
 import TextArea from "@/components/common/textarea";
 import LayoutBase from "@/components/layout/layoutBase";
 import PeakSelector from "@/components/peaks/peakSelector";
-import GPXUpload, { AnalysisResult } from "@/components/tracks/gpxUpload";
+import GPXUpload from "@/components/tracks/gpxUpload";
+import { AnalysisResult } from "@/lib/gpxLib";
 import { useZodForm } from "@/utils/formHelpers";
 import { trpc } from "@/utils/trpc";
 import { Button, Card, Spinner } from "flowbite-react";
@@ -18,7 +19,7 @@ export const createTourValidationSchema = z.object({
   distance: z.number().min(0, "Distance must be greater than 0"),
   elevationUp: z.number().min(0, "Elevation up must be greater than 0"),
   elevationDown: z.number().min(0, "Elevation down must be greater than 0"),
-  date: z.date(),
+  date: z.string(),
   description: z.string(),
   startTime: z.string().nullable(),
   endTime: z.string().nullable(),
@@ -44,7 +45,7 @@ const CreateTourContent = () => {
   } = useZodForm({
     schema: createTourValidationSchema,
     defaultValues: {
-      date: new Date(),
+      date: new Date().toISOString().substring(0, 10),
     },
   });
 
@@ -60,18 +61,17 @@ const CreateTourContent = () => {
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);
-    console.log("test")
     mutate({
       tour: data,
       peaks: selectedPeaks,
-      // points,
+      points,
     });
   };
 
   const handleGpxFileUpload = async (data: AnalysisResult) => {
     setValue("name", data.name);
     setValue("distance", Math.floor(data.distance));
-    setValue("date", data.date);
+    setValue("date", data.date.toISOString().substring(0, 10));
     setValue("elevationDown", Math.floor(data.elevationDown));
     setValue("elevationUp", Math.floor(data.elevationUp));
     setValue("startTime", data.start);
@@ -135,9 +135,7 @@ const CreateTourContent = () => {
                 id="date"
                 error={errors.date?.message}
                 label="Hiking date"
-                {...register("date", {
-                  valueAsDate: true,
-                })}
+                {...register("date")}
                 placeholder="Hiking date"
               />
 
@@ -171,23 +169,16 @@ const CreateTourContent = () => {
           </form>
         </div>
       </Card>
-      
+
       <Card>
-       <div className="flex flex-col justify-start h-full gap-4">
+        <div className="flex flex-col justify-start h-full gap-4">
           <CardTitle title="Select peaks" />
           <PeakSelector onPeaksChanged={handleSelectedPeaksChanged} />
-          
+
           <CardTitle title="Add Tracks" />
           <GPXUpload onChange={handleGpxFileUpload} />
-
-          <div className="flex justify-end lg:hidden">
-            <Button disabled={isLoading} type="submit">
-              Create your Tour
-            </Button>
-          </div>
         </div>
       </Card>
-
     </div>
   );
 };

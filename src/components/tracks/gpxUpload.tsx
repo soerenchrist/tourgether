@@ -1,33 +1,13 @@
+import { AnalysisResult, parseGpx } from "@/lib/gpxLib";
 import { Alert } from "flowbite-react";
 import { ChangeEventHandler, useState } from "react";
 import FileInput from "../common/fileInput";
-
-export type AnalysisResult = {
-  distance: number;
-  name: string;
-  elevationDown: number;
-  elevationUp: number;
-  date: Date;
-  end: string;
-  start: string;
-  points: any[];
-};
 
 const GPXUpload: React.FC<{ onChange: (result: AnalysisResult) => void }> = ({
   onChange,
 }) => {
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<string>();
-
-  const onAnalyzeSuccess = (result: any) => {
-    setLoading(false);
-    onChange(result.data);
-  };
-
-  const onAnalyzeError = (err: any) => {
-    setLoading(false);
-    setError(err as string);
-  };
 
   const handleTracksChanged: ChangeEventHandler<HTMLInputElement> = (event) => {
     const { files } = event.target;
@@ -40,9 +20,13 @@ const GPXUpload: React.FC<{ onChange: (result: AnalysisResult) => void }> = ({
     const reader = new FileReader();
     reader.onload = async () => {
       const content = reader.result as string;
-      /*const result = analyze(content);
-      if (result)
-        onChange(result);*/
+      try {
+        const result = parseGpx(content);
+        onChange(result);
+      } catch(e: any) {
+        setError(e.message)
+      }
+      setLoading(false);
     };
     reader.readAsText(file!);
   };
