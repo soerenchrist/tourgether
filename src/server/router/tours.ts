@@ -7,11 +7,11 @@ import { createRouter } from "./context";
 
 export const toursRouter = createRouter()
   .middleware(async ({ ctx, next }) => {
-    if (!ctx.session) {
+    const userId = ctx.session?.user?.email;
+    if (!userId) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
-
-    return next();
+    return next({ ctx: { ...ctx, userId } });
   })
   .query("get-tours", {
     input: z.object({
@@ -19,27 +19,24 @@ export const toursRouter = createRouter()
       count: z.number(),
     }),
     async resolve({ ctx, input }) {
-      const userId = ctx.session?.user?.email;
-      if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
-
       const { count, page } = input;
       const skip = count * (page - 1);
       const tours = await ctx.prisma
-        .$queryRaw`SELECT * FROM Tour WHERE creatorId = ${userId}
+        .$queryRaw`SELECT * FROM Tour WHERE creatorId = ${ctx.userId}
       UNION (SELECT Tour.* FROM TourViewer as tv
                            INNER JOIN Tour
                            ON Tour.id = tv.tourId
-                           WHERE viewerId = ${userId})
+                           WHERE viewerId = ${ctx.userId})
               ORDER BY date DESC
               LIMIT ${skip}, ${count};`;
 
       const totalCount = await ctx.prisma
         .$queryRaw`SELECT Count(*) as count FROM (
-        SELECT * FROM Tour WHERE creatorId = ${userId}
+        SELECT * FROM Tour WHERE creatorId = ${ctx.userId}
             UNION (SELECT Tour.* FROM TourViewer as tv
                                  INNER JOIN Tour
                                  ON Tour.id = tv.tourId
-                                 WHERE viewerId = ${userId})) as tv`;
+                                 WHERE viewerId = ${ctx.userId})) as tv`;
       const countResult: any = totalCount;
       return {
         tours: tours as Tour[],
@@ -52,12 +49,9 @@ export const toursRouter = createRouter()
       id: z.string(),
     }),
     async resolve({ input, ctx }) {
-      const userId = ctx.session?.user?.email;
-      if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
-
       const myTour = await ctx.prisma.tour.findFirst({
         where: {
-          creatorId: userId,
+          creatorId: ctx.userId,
           id: input.id,
         },
         include: {
@@ -74,7 +68,7 @@ export const toursRouter = createRouter()
 
       const viewerTour = await ctx.prisma.tourViewer.findFirst({
         where: {
-          viewerId: userId,
+          viewerId: ctx.userId,
           tourId: input.id,
         },
         include: {
@@ -98,9 +92,6 @@ export const toursRouter = createRouter()
   })
   .query("get-totals", {
     async resolve({ ctx }) {
-      const userId = ctx.session?.user?.email;
-      if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
-
       const aggregate = await ctx.prisma.tour.aggregate({
         _sum: {
           distance: true,
@@ -111,7 +102,7 @@ export const toursRouter = createRouter()
           _all: true,
         },
         where: {
-          creatorId: userId,
+          creatorId: ctx.userId,
         },
       });
       return {
@@ -216,18 +207,15 @@ export const toursRouter = createRouter()
       })
     ),
     async resolve({ ctx, input }) {
-      const userId = ctx.session?.user?.email;
-      if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
-
       return await ctx.prisma.tour.update({
         where: {
-          id: input.id
+          id: input.id,
         },
         data: {
           ...input,
-          date: new Date(input.date)
-        }
-      })
+          date: new Date(input.date),
+        },
+      });
     },
   })
   .mutation("create-tour", {
@@ -248,11 +236,8 @@ export const toursRouter = createRouter()
         .array(),
     }),
     async resolve({ input, ctx }) {
-      const userId = ctx.session?.user?.email;
-      if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
-
       const tour = {
-        creatorId: userId,
+        creatorId: ctx.userId,
         ...input.tour,
         date: new Date(input.tour.date),
       };

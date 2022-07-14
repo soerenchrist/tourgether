@@ -6,20 +6,17 @@ import { createRouter } from "./context";
 
 export const peaksRouter = createRouter()
   .middleware(async ({ ctx, next }) => {
-    if (!ctx.session) {
+    const userId = ctx.session?.user?.email;
+    if (!userId) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
-
-    return next();
+    return next({ ctx: { ...ctx, userId } });
   })
   .query("get-peak-by-id", {
     input: z.object({
       id: z.string(),
     }),
     async resolve({ ctx, input }) {
-      const userId = ctx.session?.user?.email;
-      if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
-
       return await ctx.prisma.peak.findFirst({
         where: {
           AND: [
@@ -32,7 +29,7 @@ export const peaksRouter = createRouter()
                   creatorId: null,
                 },
                 {
-                  creatorId: userId,
+                  creatorId: ctx.userId,
                 },
               ],
             },
@@ -58,9 +55,6 @@ export const peaksRouter = createRouter()
         .nullish(),
     }),
     async resolve({ ctx, input }) {
-      const userId = ctx.session?.user?.email;
-      if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
-
       const { count, page } = input.pagination;
       const skip = count * (page - 1);
 
@@ -70,7 +64,7 @@ export const peaksRouter = createRouter()
           take: count,
           skip: skip,
           orderBy: {
-            name: "asc"
+            name: "asc",
           },
           where: {
             latitude: {
@@ -89,7 +83,7 @@ export const peaksRouter = createRouter()
                 creatorId: null,
               },
               {
-                creatorId: userId,
+                creatorId: ctx.userId,
               },
             ],
           },
@@ -99,7 +93,7 @@ export const peaksRouter = createRouter()
           take: count,
           skip: skip,
           orderBy: {
-            name: "asc"
+            name: "asc",
           },
           where: {
             name: {
@@ -110,7 +104,7 @@ export const peaksRouter = createRouter()
                 creatorId: null,
               },
               {
-                creatorId: userId,
+                creatorId: ctx.userId,
               },
             ],
           },
@@ -124,7 +118,7 @@ export const peaksRouter = createRouter()
               creatorId: null,
             },
             {
-              creatorId: userId,
+              creatorId: ctx.userId,
             },
           ],
         },
@@ -141,21 +135,18 @@ export const peaksRouter = createRouter()
       peakId: z.string(),
     }),
     async resolve({ ctx, input }) {
-      const userId = ctx.session?.user?.email;
-      if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
-
       const result = await ctx.prisma.tourPeak.findMany({
         where: {
           peakId: input.peakId,
           tour: {
             OR: [
               {
-                creatorId: userId,
+                creatorId: ctx.userId,
               },
               {
                 viewers: {
                   some: {
-                    viewerId: userId,
+                    viewerId: ctx.userId,
                   },
                 },
               },
@@ -175,13 +166,10 @@ export const peaksRouter = createRouter()
       id: z.string(),
     }),
     async resolve({ ctx, input }) {
-      const userId = ctx.session?.user?.email;
-      if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
-
       const result = await ctx.prisma.peak.deleteMany({
         where: {
           id: input.id,
-          creatorId: userId,
+          creatorId: ctx.userId,
         },
       });
       // You are not allowed to delete peaks that aren't created by you
@@ -195,11 +183,8 @@ export const peaksRouter = createRouter()
       })
     ),
     async resolve({ ctx, input }) {
-      const userId = ctx.session?.user?.email;
-      if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
-
       const peak = {
-        creatorId: userId,
+        creatorId: ctx.userId,
         ...input,
       };
 
@@ -214,11 +199,8 @@ export const peaksRouter = createRouter()
   .mutation("create-peak", {
     input: createPeakValidationSchema,
     async resolve({ ctx, input }) {
-      const userId = ctx.session?.user?.email;
-      if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
-
       const peak = {
-        creatorId: userId,
+        creatorId: ctx.userId,
         ...input,
       };
 
