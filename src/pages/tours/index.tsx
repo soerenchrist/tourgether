@@ -8,15 +8,17 @@ import { Tour } from "@prisma/client";
 import CardTitle from "@/components/common/cardTitle";
 import { useState } from "react";
 import ToursTable from "@/components/tours/toursTable";
-
+import PaginationText from "@/components/common/paginationText";
 
 const PaginatedToursTable: React.FC<{
   isLoading: boolean;
   page: number;
+  count: number;
+  totalCount: number;
   totalPages: number;
   setPage: (page: number) => void;
   data: Tour[] | undefined;
-}> = ({ isLoading, data, setPage, totalPages, page }) => {
+}> = ({ isLoading, data, count, totalCount, setPage, totalPages, page }) => {
   const router = useRouter();
 
   const handleAddClick = () => {
@@ -29,11 +31,18 @@ const PaginatedToursTable: React.FC<{
       <ToursTable tours={data} isLoading={isLoading} />
 
       <div className="flex justify-between p-2 items-center">
-        <Pagination
-          currentPage={page}
-          totalPages={totalPages}
-          onPageChange={(p) => setPage(p)}
-        />
+        <div>
+          <PaginationText
+            from={(page - 1) * count}
+            to={(page - 1) * count + (data?.length ?? 0)}
+            total={totalCount}
+          />
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={(p) => setPage(p)}
+          />
+        </div>
 
         <div className="mt-2">
           <Button size="sm" onClick={handleAddClick}>
@@ -63,6 +72,8 @@ const ToursPage: NextPage = () => {
     <PaginatedToursTable
       isLoading={isLoading}
       page={page}
+      count={count}
+      totalCount={data?.totalCount ?? 0}
       setPage={setPage}
       totalPages={totalPages}
       data={data?.tours}
