@@ -6,10 +6,12 @@ import ToursTable from "@/components/tours/toursTable";
 import { trpc } from "@/utils/trpc";
 import {
   DotsVerticalIcon,
+  HeartIcon,
   PencilIcon,
   TrashIcon,
 } from "@heroicons/react/solid";
-import { Card, Dropdown, Spinner } from "flowbite-react";
+import { HeartIcon as OutlinedHeartIcon } from "@heroicons/react/outline";
+import { Card, Dropdown, Spinner, Tooltip } from "flowbite-react";
 import { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
@@ -20,6 +22,60 @@ import { ReactNode, useState } from "react";
 const Map = dynamic(() => import("../../components/maps/peakMap"), {
   ssr: false,
 });
+
+const WishlistButton: React.FC<{ id: string }> = ({ id }) => {
+  const util = trpc.useContext();
+  const options = {
+    onSuccess: () => {
+      util.invalidateQueries("wishlist.get-wishlist-item");
+    },
+  };
+  const { mutate: addToWishlist } = trpc.useMutation(
+    "wishlist.add-to-wishlist",
+    options
+  );
+  const { mutate: removeFromWishlist } = trpc.useMutation(
+    "wishlist.remove-from-wishlist",
+    options
+  );
+
+  const { data: wishlistItem, isLoading: wishlistLoading } = trpc.useQuery([
+    "wishlist.get-wishlist-item",
+    {
+      peakId: id,
+    },
+  ]);
+
+  if (wishlistLoading) return <Spinner />;
+  if (wishlistItem === undefined) return <></>;
+
+  const classes =
+    wishlistItem === null
+      ? "text-gray-800 w-8 h-8 hover:text-red-500 cursor-pointer"
+      : "text-red-500 w-8 h-8 cursor-pointer";
+
+  const toggle = () => {
+    if (wishlistItem === null) {
+      addToWishlist({ peakId: id });
+    } else {
+      removeFromWishlist({ peakId: id });
+    }
+  };
+
+  let icon: ReactNode;
+  if (wishlistItem === null) icon = <OutlinedHeartIcon onClick={toggle} className={classes} />;
+  else icon = <HeartIcon onClick={toggle} className={classes} />;
+
+  return (
+    <Tooltip
+      content={
+        wishlistItem === null ? "Put on your wishlist" : "Remove from wishlist"
+      }
+    >
+      {icon}
+    </Tooltip>
+  );
+};
 
 const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
   const [showDelete, setShowDelete] = useState(false);
@@ -60,32 +116,35 @@ const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
           <div className="flex flex-col h-full justify-start gap-4">
             <div className="flex justify-between">
               <CardTitle title={`${peak.name} (${peak.height} m)`} />
-              {peak.creatorId && (
-                <Dropdown
-                  inline={true}
-                  arrowIcon={false}
-                  label={
-                    <DotsVerticalIcon className="h-5 w-5 cursor-pointer" />
-                  }
-                >
-                  <div className="bg-white h-full w-full">
-                    <Dropdown.Item onClick={() => setShowDelete(true)}>
-                      <div className="flex">
-                        <TrashIcon className="w-5 h-5 mr-2" />
-                        Delete this Peak
-                      </div>
-                    </Dropdown.Item>
-                    <Dropdown.Item
-                      onClick={() => router.push(`/peaks/edit/${peak.id}`)}
-                    >
-                      <div className="flex">
-                        <PencilIcon className="w-5 h-5 mr-2" />
-                        Edit Peak
-                      </div>
-                    </Dropdown.Item>
-                  </div>
-                </Dropdown>
-              )}
+              <div className="flex justify-end">
+                <WishlistButton id={id} />
+                {peak.creatorId && (
+                  <Dropdown
+                    inline={true}
+                    arrowIcon={false}
+                    label={
+                      <DotsVerticalIcon className="h-5 w-5 cursor-pointer" />
+                    }
+                  >
+                    <div className="bg-white h-full w-full">
+                      <Dropdown.Item onClick={() => setShowDelete(true)}>
+                        <div className="flex">
+                          <TrashIcon className="w-5 h-5 mr-2" />
+                          Delete this Peak
+                        </div>
+                      </Dropdown.Item>
+                      <Dropdown.Item
+                        onClick={() => router.push(`/peaks/edit/${peak.id}`)}
+                      >
+                        <div className="flex">
+                          <PencilIcon className="w-5 h-5 mr-2" />
+                          Edit Peak
+                        </div>
+                      </Dropdown.Item>
+                    </div>
+                  </Dropdown>
+                )}
+              </div>
             </div>
             <Map peak={peak} />
           </div>

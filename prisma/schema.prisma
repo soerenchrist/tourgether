@@ -49,6 +49,15 @@ model Point {
     tourId String
 }
 
+model WishlistItem {
+    id String @id @default(cuid())
+    peakId String
+    peak Peak @relation(fields: [peakId], references: [id])
+    userId String
+    user User @relation(fields: [userId], references: [id])
+    addDate DateTime
+}
+
 
 model Peak {
     id String @id @default(cuid())
@@ -60,6 +69,7 @@ model Peak {
     wikipedia String?
     wikidata String?
     tourPeaks TourPeak[]
+    wishlistItems WishlistItem[]
     creatorId String?
 }
 
@@ -116,6 +126,7 @@ model User {
     sessions      Session[]
     createdTours Tour[]
     tourViews TourViewer[]
+    wishlistItems WishlistItem[]
 }
 
 model VerificationToken {

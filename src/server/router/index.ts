@@ -5,12 +5,14 @@ import superjson from "superjson";
 import { toursRouter } from "./tours";
 import { inviteRouter } from "./invite";
 import { peaksRouter } from "./peaks";
+import { wishlistRouter } from "./wishlist";
 
 export const appRouter = createRouter()
   .transformer(superjson)
   .merge("tours.", toursRouter)
   .merge("invite.", inviteRouter)
-  .merge("peaks.", peaksRouter);
+  .merge("peaks.", peaksRouter)
+  .merge("wishlist.", wishlistRouter)
 
 // export type definition of API
 export type AppRouter = typeof appRouter;
