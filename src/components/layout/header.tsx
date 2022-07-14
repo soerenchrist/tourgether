@@ -44,7 +44,7 @@ const UserDropdown: React.FC<{ session: Session }> = ({ session }) => {
   );
 };
 
-const Header = ({ session }: { session: Session | null }) => {
+const Header = ({ session, isLoading }: { session: Session | null, isLoading: boolean }) => {
   return (
     <Navbar fluid rounded>
       <Navbar.Brand href="/">
@@ -52,13 +52,12 @@ const Header = ({ session }: { session: Session | null }) => {
           Tour<span className="text-blue-500">gether</span>
         </span>
       </Navbar.Brand>
-      {!session?.user && (
+      {!session?.user && !isLoading && (
         <div className="flex md:order-2">
             <Button onClick={() => signIn()}>Sign in</Button>
           <Navbar.Toggle />
         </div>
       )}
-
       {session?.user && (
         <div className="flex md:order-2">
           <UserDropdown session={session} />

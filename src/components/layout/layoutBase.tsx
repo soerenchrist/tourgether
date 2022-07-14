@@ -8,10 +8,10 @@ type Props = {
 };
 
 const LayoutBase = (props: Props) => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   return (
     <div className="flex flex-col min-h-screen justify-between bg-gray-200 text-gray-900 dark:text-white dark:bg-gray-700">
-      <Header session={session} />
+      <Header session={session} isLoading={status === "loading"} />
       <div className="lg:p-8 md:p-4 p-2 xl:p-8 h-full flex-1 flex flex-col justify-start">
         {props.children}
       </div>
