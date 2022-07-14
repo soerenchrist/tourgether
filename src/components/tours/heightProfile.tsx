@@ -12,7 +12,10 @@ const filter = <T,>(points: T[], factor: number) => {
   return results;
 };
 
-const HeightProfile: React.FC<{ points: Point[], onHover: (point?: Point) => void }> = ({ points, onHover }) => {
+const HeightProfile: React.FC<{
+  points: Point[];
+  onHover: (point?: Point) => void;
+}> = ({ points, onHover }) => {
   const data = useMemo(
     () => [
       {
@@ -48,21 +51,16 @@ const HeightProfile: React.FC<{ points: Point[], onHover: (point?: Point) => voi
   );
 
   return (
-    <Card>
-      <div className="flex flex-col">
-        <CardTitle title="Height profile"></CardTitle>
-        <div className="h-96 p-4">
-          <Chart
-            options={{
-              primaryAxis,
-              secondaryAxes,
-              data,
-              onFocusDatum: (e) => onHover(e?.originalDatum),
-            }}
-          />
-        </div>
-      </div>
-    </Card>
+    <div className="h-56 p-4">
+      <Chart
+        options={{
+          primaryAxis,
+          secondaryAxes,
+          data,
+          onFocusDatum: (e) => onHover(e?.originalDatum),
+        }}
+      />
+    </div>
   );
 };
 
