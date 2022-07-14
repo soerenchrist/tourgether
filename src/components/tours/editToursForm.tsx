@@ -15,8 +15,8 @@ import GPXUpload from "../tracks/gpxUpload";
 export const createTourValidationSchema = z.object({
   name: z.string().min(1, "Name is required"),
   distance: z.number().min(0, "Distance must be greater than 0"),
-  elevationUp: z.number().min(0, "Elevation up must be greater than 0"),
-  elevationDown: z.number().min(0, "Elevation down must be greater than 0"),
+  elevationUp: z.number().min(0, "Ascent must be greater than 0"),
+  elevationDown: z.number().min(0, "Descent must be greater than 0"),
   date: z.string(),
   description: z.string(),
   startTime: z.string().nullable(),
@@ -152,22 +152,22 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
               <Input
                 type="number"
                 id="elevationUp"
-                label="Elevation upwards in meters"
+                label="Total ascent in meters"
                 {...register("elevationUp", {
                   valueAsNumber: true,
                 })}
                 error={errors.elevationUp?.message}
-                placeholder="Elevation upwards"
+                placeholder="Ascent"
               />
               <Input
                 type="number"
                 id="elevationDown"
-                label="Elevation downwards in meters"
+                label="Total descent in meters"
                 error={errors.elevationDown?.message}
                 {...register("elevationDown", {
                   valueAsNumber: true,
                 })}
-                placeholder="Elevation downwards"
+                placeholder="Descent"
               />
               <Input
                 type="date"

@@ -7,7 +7,7 @@ const ToursTable: React.FC<{ tours: Tour[] | undefined, isLoading: boolean }> = 
   
   const format = (value: number | null | undefined) => {
     if (!value) return "0 m";
-    if (value < 1000) return `${value} m`;
+    if (value < 10000) return `${value} m`;
     const rounded = Math.round((value / 1000) * 100) / 100;
     return `${rounded} km`;
   };
@@ -17,7 +17,7 @@ const ToursTable: React.FC<{ tours: Tour[] | undefined, isLoading: boolean }> = 
       <Table.HeadCell>Date</Table.HeadCell>
       <Table.HeadCell className="hidden md:table-cell">Distance</Table.HeadCell>
       <Table.HeadCell className="hidden md:table-cell">
-        Elevation
+        Total Ascent
       </Table.HeadCell>
       <Table.HeadCell></Table.HeadCell>
     </Table.Head>

@@ -26,7 +26,7 @@ const TotalsDisplay = () => {
         ) : (
           <CardTitle title={format(data?.elevationUp)} />
         )}
-        Elevation Up
+        Total Ascent
       </Card>
       <Card>
         {isLoading ? (
@@ -34,7 +34,7 @@ const TotalsDisplay = () => {
         ) : (
           <CardTitle title={format(data?.elevationDown)} />
         )}
-        Elevation Down
+        Total Descent
       </Card>
       <Card>
         {isLoading ? <Spinner /> : <CardTitle title={format(data?.distance)} />}

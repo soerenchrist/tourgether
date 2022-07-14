@@ -158,11 +158,11 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
               <ListItem title={`${data.distance} m`} subtitle="Distance" />
               <ListItem
                 title={`${data.elevationUp} m`}
-                subtitle="Elevation Up"
+                subtitle="Total Ascent"
               />
               <ListItem
                 title={`${data.elevationDown} m`}
-                subtitle="Elevation Down"
+                subtitle="Total Descent"
               />
 
               {data.tourPeaks.length > 0 && (

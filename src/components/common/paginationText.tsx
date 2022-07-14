@@ -5,7 +5,7 @@ const PaginationText: React.FC<{ from: number; to: number; total: number }> = ({
 }) => {
   return (
     <span className="text-sm">
-      Showing items <b>{from}</b> to <b>{to}</b> of {total}
+      Showing items <b>{from+1}</b> to <b>{to}</b> of {total}
     </span>
   );
 };
