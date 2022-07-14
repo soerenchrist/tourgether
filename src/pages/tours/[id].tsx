@@ -14,6 +14,7 @@ import ConfirmDeleteModal from "@/components/common/confirmDeleteModal";
 import NotFound from "@/components/common/notFound";
 import Link from "next/link";
 import HeightProfile from "@/components/tours/heightProfile";
+import { Point } from "@prisma/client";
 
 const Map = dynamic(() => import("../../components/maps/tourMap"), {
   ssr: false,
@@ -86,12 +87,12 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
     retry: false,
   });
   const router = useRouter();
+  const [hoverPoint, setHoverPoint] = useState<Point>();
   const { mutate: deleteTourOnServer } = trpc.useMutation("tours.delete-tour", {
     onSuccess: () => {
       router.push("/tours");
     },
   });
-
   const { mutate: removeInvitedTour } = trpc.useMutation(
     "invite.remove-invited-tour",
     {
@@ -202,12 +203,13 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
         </Card>
         <Card>
           <Map
+            hoverPoint={hoverPoint}
             peaks={data?.tourPeaks?.map((t) => t.peak)}
             points={data?.points}
           />
         </Card>
       </div>
-      {data?.points && <HeightProfile points={data.points} />}
+      {data?.points && <HeightProfile points={data.points} onHover={(e) => setHoverPoint(e)} />}
       <ConfirmDeleteModal
         text={
           data.viewer

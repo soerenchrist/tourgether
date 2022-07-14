@@ -4,11 +4,6 @@ import { useMemo } from "react";
 import { AxisOptions, Chart } from "react-charts";
 import CardTitle from "../common/cardTitle";
 
-type HeightValue = {
-  date: Date;
-  value: number;
-};
-
 const filter = <T,>(points: T[], factor: number) => {
   const results: T[] = [];
   points.forEach((p, index) => {
@@ -17,23 +12,20 @@ const filter = <T,>(points: T[], factor: number) => {
   return results;
 };
 
-const HeightProfile: React.FC<{ points: Point[] }> = ({ points }) => {
+const HeightProfile: React.FC<{ points: Point[], onHover: (point?: Point) => void }> = ({ points, onHover }) => {
   const data = useMemo(
     () => [
       {
         label: "Elevation",
-        data: filter(
-          points.map((p) => ({ date: p.time, value: p.elevation })),
-          10
-        ),
+        data: filter(points, 10),
       },
     ],
     [points]
   );
 
   const primaryAxis = useMemo(
-    (): AxisOptions<HeightValue> => ({
-      getValue: (datum) => datum.date,
+    (): AxisOptions<Point> => ({
+      getValue: (datum) => datum.time,
       formatters: {
         tooltip: (value?: Date) => value?.toLocaleTimeString(),
       },
@@ -42,13 +34,14 @@ const HeightProfile: React.FC<{ points: Point[] }> = ({ points }) => {
   );
 
   const secondaryAxes = useMemo(
-    (): AxisOptions<HeightValue>[] => [
+    (): AxisOptions<Point>[] => [
       {
-        getValue: (datum) => datum.value,
+        getValue: (datum) => datum.elevation,
         formatters: {
           scale: (value?: number) => `${Math.round(value ?? 0)} m`,
           tooltip: (value?: number) => `${Math.round(value ?? 0)} m`,
         },
+        elementType: "area",
       },
     ],
     []
@@ -64,6 +57,7 @@ const HeightProfile: React.FC<{ points: Point[] }> = ({ points }) => {
               primaryAxis,
               secondaryAxes,
               data,
+              onFocusDatum: (e) => onHover(e?.originalDatum),
             }}
           />
         </div>

@@ -46,9 +46,10 @@ const TrackLine: React.FC<{ points: Point[] }> = ({ points }) => {
   return <Polyline positions={poly} />;
 };
 
-const TourMap: React.FC<{ peaks?: Peak[]; points?: Point[] }> = ({
+const TourMap: React.FC<{ peaks?: Peak[]; points?: Point[]; hoverPoint?: Point }> = ({
   peaks,
   points,
+  hoverPoint
 }) => {
   return (
     <MapContainer
@@ -70,6 +71,11 @@ const TourMap: React.FC<{ peaks?: Peak[]; points?: Point[] }> = ({
         </Marker>
       ))}
       {points && <TrackLine points={points} />}
+      {hoverPoint && <Marker position={[hoverPoint.latitude, hoverPoint.longitude]}>
+        <Tooltip permanent>
+          <b>{hoverPoint.time.toLocaleTimeString()}</b> ({Math.round(hoverPoint.elevation)} m)
+        </Tooltip>
+      </Marker>}
     </MapContainer>
   );
 };
