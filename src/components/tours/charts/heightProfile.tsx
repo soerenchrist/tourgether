@@ -10,6 +10,15 @@ const filter = <T,>(points: T[], factor: number) => {
   return results;
 };
 
+const findMin = (points: Point[]) => {
+  let min = 10000;
+  points.forEach(x => {
+    if (x.elevation < min)
+      min = x.elevation;
+  })
+  return min;
+}
+
 const HeightProfile: React.FC<{
   points: Point[];
   onHover: (point?: Point) => void;
@@ -34,6 +43,8 @@ const HeightProfile: React.FC<{
     []
   );
 
+  const min = useMemo(() => findMin(points), [points])
+
   const secondaryAxes = useMemo(
     (): AxisOptions<Point>[] => [
       {
@@ -43,6 +54,7 @@ const HeightProfile: React.FC<{
           tooltip: (value?: number) => `${Math.round(value ?? 0)} m`,
         },
         elementType: "area",
+        hardMin: min
       },
     ],
     []

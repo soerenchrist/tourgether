@@ -67,7 +67,7 @@ const TourMap: React.FC<{ peaks?: Peak[]; points?: Point[]; hoverPoint?: Point }
       <PositionHandler peaks={peaks} points={points} />
       {peaks?.map((peak) => (
         <Marker key={peak.id} position={[peak.latitude, peak.longitude]}>
-          <Tooltip permanent>{peak.name}</Tooltip>
+          <Tooltip permanent>{peak.name} ({peak.height} m)</Tooltip>
         </Marker>
       ))}
       {points && <TrackLine points={points} />}

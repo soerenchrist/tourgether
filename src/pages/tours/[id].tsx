@@ -170,7 +170,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
                   title={peaks?.map((tp) => (
                     <Link href={`/peaks/${tp.id}`} key={tp.id}>
                       <span className="cursor-pointer mr-2 text-blue-500 font-medium hover:underline w-auto">
-                        {tp.name}
+                        {tp.name} ({tp.height} m)
                       </span>
                     </Link>
                   ))}

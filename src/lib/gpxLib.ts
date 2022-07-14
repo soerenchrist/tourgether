@@ -1,9 +1,10 @@
 import { XMLParser } from "fast-xml-parser";
 
 const toTime = (date: Date) => {
-  const str = date.toISOString();
-  const parts = str.split("T");
-  return parts[1]!.substring(0, 5);
+  const hours = "" + date.getHours();
+  const minutes = "" + date.getMinutes();
+
+  return `${hours.padStart(2, "0")}:${minutes.padStart(2, "0")}`;
 };
 
 type GpxPoint = {
@@ -34,12 +35,12 @@ const getExtensions = (point: any) => {
 
   const temperature = ns3["ns3:atemp"] as number;
   const heartRate = ns3["ns3:hr"] as number;
-  
+
   return {
     temperature,
-    heartRate
-  }
-}
+    heartRate,
+  };
+};
 
 export const parseGpx = (content: string): AnalysisResult => {
   const parser = new XMLParser({
@@ -76,7 +77,7 @@ export const parseGpx = (content: string): AnalysisResult => {
       latitude: lat,
       longitude: lng,
       time: new Date(point.time),
-      ...ext
+      ...ext,
     });
   });
 
@@ -96,7 +97,8 @@ export const parseGpx = (content: string): AnalysisResult => {
     if (ele > 0) elevationUp += ele;
     else elevationDown += ele * -1;
 
-    if (i % 3 === 0) sparsedPoints.push(current);
+    // Keep the size of the points small
+    if (i % 5 === 0) sparsedPoints.push(current);
   }
 
   return {
