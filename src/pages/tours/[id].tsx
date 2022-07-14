@@ -9,7 +9,11 @@ import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { ReactNode, useState } from "react";
-import { DotsVerticalIcon } from "@heroicons/react/solid";
+import {
+  DotsVerticalIcon,
+  PencilIcon,
+  TrashIcon,
+} from "@heroicons/react/solid";
 import ConfirmDeleteModal from "@/components/common/confirmDeleteModal";
 import NotFound from "@/components/common/notFound";
 import Link from "next/link";
@@ -24,16 +28,12 @@ const ViewerMenu: React.FC<{
   setShowDelete: (value: boolean) => void;
 }> = ({ setShowDelete }) => {
   return (
-    <Dropdown
-      placement="top"
-      inline={true}
-      arrowIcon={false}
-      label={<DotsVerticalIcon className="h-5 w-5 cursor-pointer" />}
-    >
-      <Dropdown.Item onClick={() => setShowDelete(true)}>
-        Remove this Tour
-      </Dropdown.Item>
-    </Dropdown>
+    <Dropdown.Item onClick={() => setShowDelete(true)}>
+      <div className="flex">
+        <TrashIcon className="w-5 h-5 mr-2" />
+        Remove this Peak
+      </div>
+    </Dropdown.Item>
   );
 };
 
@@ -41,16 +41,12 @@ const OwnerMenu: React.FC<{
   setShowDelete: (value: boolean) => void;
 }> = ({ setShowDelete }) => {
   return (
-    <Dropdown
-      placement="top"
-      inline={true}
-      arrowIcon={false}
-      label={<DotsVerticalIcon className="h-5 w-5 cursor-pointer" />}
-    >
-      <Dropdown.Item onClick={() => setShowDelete(true)}>
-        Delete this Tour
-      </Dropdown.Item>
-    </Dropdown>
+    <Dropdown.Item onClick={() => setShowDelete(true)}>
+      <div className="flex">
+        <TrashIcon className="w-5 h-5 mr-2" />
+        Delete this Peak
+      </div>
+    </Dropdown.Item>
   );
 };
 
@@ -131,11 +127,28 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
         <Card>
           <div className="flex justify-between">
             <CardTitle title={data.name ?? ""} />
-            {data.viewer ? (
-              <ViewerMenu setShowDelete={setShowDelete} />
-            ) : (
-              <OwnerMenu setShowDelete={setShowDelete} />
-            )}
+
+            <Dropdown
+              placement="top"
+              inline={true}
+              arrowIcon={false}
+              label={<DotsVerticalIcon className="h-5 w-5 cursor-pointer" />}
+            >
+              {data.viewer ? (
+                <ViewerMenu setShowDelete={setShowDelete} />
+              ) : (
+                <OwnerMenu setShowDelete={setShowDelete} />
+              )}
+
+              <Dropdown.Item
+                onClick={() => router.push(`/tours/edit/${id}`)}
+              >
+                <div className="flex">
+                  <PencilIcon className="w-5 h-5 mr-2" />
+                  Edit Tour
+                </div>
+              </Dropdown.Item>
+            </Dropdown>
           </div>
 
           {isLoading ? (
@@ -209,7 +222,9 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
           />
         </Card>
       </div>
-      {data?.points && <HeightProfile points={data.points} onHover={(e) => setHoverPoint(e)} />}
+      {data?.points && (
+        <HeightProfile points={data.points} onHover={(e) => setHoverPoint(e)} />
+      )}
       <ConfirmDeleteModal
         text={
           data.viewer
