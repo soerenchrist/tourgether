@@ -6,7 +6,15 @@ import PeaksList from "@/components/peaks/peaksList";
 import useDebounceValue from "@/hooks/useDebounce";
 import { trpc } from "@/utils/trpc";
 import { LocationMarkerIcon, ViewListIcon } from "@heroicons/react/solid";
-import { Button, Card, Pagination, Spinner, Tooltip } from "flowbite-react";
+import {
+  Button,
+  Card,
+  Checkbox,
+  Label,
+  Pagination,
+  Spinner,
+  Tooltip,
+} from "flowbite-react";
 import { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
@@ -20,6 +28,7 @@ const Map = dynamic(() => import("../../components/maps/peakSearchMap"), {
 const PeaksPageContent: React.FC = () => {
   const [mapMode, setMapMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [onlyClimbed, setOnlyClimbed] = useState(false);
   const debouncedSearchTerm = useDebounceValue(searchTerm, 500);
   const [page, setPage] = useState(1);
   const count = 10;
@@ -31,10 +40,30 @@ const PeaksPageContent: React.FC = () => {
         count,
       },
       searchTerm: debouncedSearchTerm,
+      onlyClimbed,
     },
   ]);
   const totalPages = Math.ceil((data?.totalCount ?? 1) / count);
   const router = useRouter();
+
+  const filterBar = (
+    <>
+      <Input
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        placeholder="Search..."
+        id="searchPeaks"
+      />
+      <div className="flex gap-2 items-center">
+        <Checkbox
+          id="onlyClimbed"
+          checked={onlyClimbed}
+          onChange={(e) => setOnlyClimbed(e.target.checked)}
+        />
+        <Label htmlFor="onlyClimbed">Show only climbed peaks</Label>
+      </div>
+    </>
+  );
 
   if (mapMode) {
     return (
@@ -48,15 +77,10 @@ const PeaksPageContent: React.FC = () => {
             />
           </Tooltip>
         </div>
+        {filterBar}
 
-        <Input
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search..."
-          id="searchPeaks"
-        />
-        <div style={{ height: "60vh"}}>
-          <Map searchTerm={searchTerm} />
+        <div style={{ height: "60vh" }}>
+          <Map onlyClimbed={onlyClimbed} searchTerm={searchTerm} />
         </div>
       </Card>
     );
@@ -73,12 +97,7 @@ const PeaksPageContent: React.FC = () => {
           />
         </Tooltip>
       </div>
-      <Input
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder="Search..."
-        id="searchPeaks"
-      />
+      {filterBar}
       <PeaksList peaks={data?.peaks} isLoading={isLoading} />
       <div className="flex justify-between p-2 items-center">
         <div>

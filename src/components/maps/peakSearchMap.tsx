@@ -22,7 +22,6 @@ type Bounds = {
 const MapEventHandler: React.FC<{
   onBoundsChanged: (bounds: Bounds) => void;
 }> = ({ onBoundsChanged }) => {
-  
   const raiseBoundsChanged = (bounds: LatLngBounds) => {
     onBoundsChanged({
       minLat: bounds.getSouthWest().lat,
@@ -30,7 +29,7 @@ const MapEventHandler: React.FC<{
       maxLat: bounds.getNorthEast().lat,
       maxLng: bounds.getNorthEast().lng,
     });
-  }
+  };
 
   const map = useMapEvents({
     moveend: () => {
@@ -39,7 +38,7 @@ const MapEventHandler: React.FC<{
     },
   });
 
-  useEffect(() => { 
+  useEffect(() => {
     const bounds = map.getBounds();
     raiseBoundsChanged(bounds);
   }, []);
@@ -47,7 +46,10 @@ const MapEventHandler: React.FC<{
   return <></>;
 };
 
-const PeakSearchMap: React.FC<{searchTerm: string}> = ({searchTerm}) => {
+const PeakSearchMap: React.FC<{ searchTerm: string; onlyClimbed: boolean }> = ({
+  searchTerm,
+  onlyClimbed,
+}) => {
   const [bounds, setBounds] = useState<Bounds>();
   const { data } = trpc.useQuery([
     "peaks.get-peaks",
@@ -58,14 +60,18 @@ const PeakSearchMap: React.FC<{searchTerm: string}> = ({searchTerm}) => {
       },
       searchTerm,
       bounds,
+      onlyClimbed,
     },
   ]);
 
-  const markerEvents = useMemo(() => ({
-    click(marker: any) {
-      console.log(marker)
-    }
-  }), [])
+  const markerEvents = useMemo(
+    () => ({
+      click(marker: any) {
+        console.log(marker);
+      },
+    }),
+    []
+  );
 
   const handleBoundsChanged = (bounds: Bounds) => {
     setBounds(bounds);
@@ -85,14 +91,20 @@ const PeakSearchMap: React.FC<{searchTerm: string}> = ({searchTerm}) => {
 
       <MapEventHandler onBoundsChanged={handleBoundsChanged} />
       {data?.peaks.map((p) => (
-        <Marker key={p.id} eventHandlers={markerEvents} position={[p.latitude, p.longitude]}>
+        <Marker
+          key={p.id}
+          eventHandlers={markerEvents}
+          position={[p.latitude, p.longitude]}
+        >
           <Tooltip>
             {p.name} ({p.height} m)
           </Tooltip>
           <Popup>
             <h2 className="text-xl">{p.name}</h2>
             <Link href={`/peaks/${p.id}`}>
-            <span className="text-blue-500 hover:underline font-medium cursor-pointer">Show details</span>
+              <span className="text-blue-500 hover:underline font-medium cursor-pointer">
+                Show details
+              </span>
             </Link>
           </Popup>
         </Marker>

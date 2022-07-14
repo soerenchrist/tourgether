@@ -45,6 +45,7 @@ export const peaksRouter = createRouter()
         page: z.number().min(1),
         count: z.number(),
       }),
+      onlyClimbed: z.boolean().nullish(),
       bounds: z
         .object({
           minLat: z.number(),
@@ -60,17 +61,12 @@ export const peaksRouter = createRouter()
 
       let peaks: (Peak & {
         _count: {
-            tourPeaks: number;
+          tourPeaks: number;
         };
-    })[];
-      if (input.bounds) {
-        peaks = await ctx.prisma.peak.findMany({
-          take: count,
-          skip: skip,
-          orderBy: {
-            name: "asc",
-          },
-          where: {
+      })[];
+
+      const boundsQuery = input.bounds
+        ? {
             latitude: {
               gte: input.bounds.minLat,
               lte: input.bounds.maxLat,
@@ -79,55 +75,50 @@ export const peaksRouter = createRouter()
               gte: input.bounds.minLng,
               lte: input.bounds.maxLng,
             },
-            name: {
-              contains: input.searchTerm,
-            },
-            OR: [
-              {
-                creatorId: null,
-              },
-              {
-                creatorId: ctx.userId,
-              },
-            ],
-          },
-          include: {
-            _count: {
-              select:{
-                tourPeaks: true
-              }
-            }
           }
-        });
-      } else {
-        peaks = await ctx.prisma.peak.findMany({
-          take: count,
-          skip: skip,
-          orderBy: {
-            name: "asc",
-          },
-          where: {
-            name: {
-              contains: input.searchTerm,
+        : {};
+
+      const onlyClimbedQuery = input.onlyClimbed
+        ? {
+            tourPeaks: {
+              some: {
+                peakId: {
+                  startsWith: "",
+                },
+              },
             },
-            OR: [
-              {
-                creatorId: null,
-              },
-              {
-                creatorId: ctx.userId,
-              },
-            ],
-          },
-          include: {
-            _count: {
-              select:{
-                tourPeaks: true
-              }
-            }
           }
-        });
-      }
+        : {};
+
+      peaks = await ctx.prisma.peak.findMany({
+        take: count,
+        skip: skip,
+        orderBy: {
+          name: "asc",
+        },
+        where: {
+          ...boundsQuery,
+          ...onlyClimbedQuery,
+          name: {
+            contains: input.searchTerm,
+          },
+          OR: [
+            {
+              creatorId: null,
+            },
+            {
+              creatorId: ctx.userId,
+            },
+          ],
+        },
+        include: {
+          _count: {
+            select: {
+              tourPeaks: true,
+            },
+          },
+        },
+      });
 
       const totalCount = await ctx.prisma.peak.count({
         where: {
