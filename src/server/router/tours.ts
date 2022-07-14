@@ -227,6 +227,8 @@ export const toursRouter = createRouter()
           longitude: z.number(),
           elevation: z.number(),
           time: z.date(),
+          heartRate: z.number().optional(),
+          temperature: z.number().optional(),
         })
         .array(),
       peaks: z
@@ -268,6 +270,8 @@ export const toursRouter = createRouter()
         latitude: number;
         longitude: number;
         elevation: number;
+        heartRate?: number;
+        temperature?: number;
         time: Date;
       }[] = [];
       input.points.forEach((p) => {

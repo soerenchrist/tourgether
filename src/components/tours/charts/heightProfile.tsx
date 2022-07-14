@@ -1,8 +1,6 @@
 import { Point } from "@prisma/client";
-import { Card } from "flowbite-react";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { AxisOptions, Chart } from "react-charts";
-import CardTitle from "../common/cardTitle";
 
 const filter = <T,>(points: T[], factor: number) => {
   const results: T[] = [];
@@ -50,6 +48,11 @@ const HeightProfile: React.FC<{
     []
   );
 
+  const getSeriesStyle = useCallback(() => {
+    const color = "#66bb6a"
+    return { fill: color, stroke: color };
+  }, [])
+
   return (
     <div className="h-56 p-4">
       <Chart
@@ -57,6 +60,7 @@ const HeightProfile: React.FC<{
           primaryAxis,
           secondaryAxes,
           data,
+          getSeriesStyle,
           onFocusDatum: (e) => onHover(e?.originalDatum),
         }}
       />

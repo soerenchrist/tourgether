@@ -10,6 +10,8 @@ type GpxPoint = {
   latitude: number;
   longitude: number;
   elevation: number;
+  heartRate?: number;
+  temperature?: number;
   time: Date;
 };
 
@@ -23,6 +25,21 @@ export type AnalysisResult = {
   start: string;
   points: GpxPoint[];
 };
+
+const getExtensions = (point: any) => {
+  const { extensions } = point;
+  if (!extensions) return {};
+  const ns3 = extensions["ns3:TrackPointExtension"];
+  if (!ns3) return {};
+
+  const temperature = ns3["ns3:atemp"] as number;
+  const heartRate = ns3["ns3:hr"] as number;
+  
+  return {
+    temperature,
+    heartRate
+  }
+}
 
 export const parseGpx = (content: string): AnalysisResult => {
   const parser = new XMLParser({
@@ -51,12 +68,15 @@ export const parseGpx = (content: string): AnalysisResult => {
     const lng = parseFloat(point["@_lon"]!);
     const lat = parseFloat(point["@_lat"]!);
 
+    const ext = getExtensions(point);
+
     if (isNaN(lng) || isNaN(lat)) return;
     points.push({
       elevation: point.ele,
       latitude: lat,
       longitude: lng,
       time: new Date(point.time),
+      ...ext
     });
   });
 

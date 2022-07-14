@@ -1,9 +1,7 @@
 import { calculateDistance } from "@/lib/gpxLib";
 import { Point } from "@prisma/client";
-import { Card } from "flowbite-react";
 import { useCallback, useMemo } from "react";
 import { AxisOptions, Chart } from "react-charts";
-import CardTitle from "../common/cardTitle";
 
 const filter = <T,>(points: T[], factor: number) => {
   const results: T[] = [];
@@ -30,9 +28,9 @@ const calculateSpeeds = (points: Point[]) => {
       next.longitude
     );
 
-    const timeDiff = next.time.getTime() - current.time.getTime() / 1000;
+    const timeDiff = (next.time.getTime() - current.time.getTime()) / 1000;
     speeds.push({
-      speed: distance / timeDiff,
+      speed: (distance / timeDiff) * 3.6,
       point: current,
     });
   }
@@ -70,9 +68,9 @@ const SpeedProfile: React.FC<{
         getValue: (datum) => datum.speed,
         formatters: {
           scale: (value?: number) =>
-            `${Math.round((value ?? 0) * 100) / 100} m/s`,
+            `${Math.round((value ?? 0) * 100) / 100} km/h`,
           tooltip: (value?: number) =>
-            `${Math.round((value ?? 0) * 100) / 100} m/s`,
+            `${Math.round((value ?? 0) * 100) / 100} km/h`,
         },
         elementType: "area",
         shouldNice: false
@@ -82,7 +80,7 @@ const SpeedProfile: React.FC<{
   );
 
   const getSeriesStyle = useCallback(() => {
-    const color = "#e53935"
+    const color = "#1e88e5"
     return { fill: color, stroke: color };
   }, [])
 

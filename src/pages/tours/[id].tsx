@@ -18,7 +18,7 @@ import ConfirmDeleteModal from "@/components/common/confirmDeleteModal";
 import NotFound from "@/components/common/notFound";
 import Link from "next/link";
 import { Point } from "@prisma/client";
-import ChartArea from "@/components/tours/chartArea";
+import ChartArea from "@/components/tours/charts/chartArea";
 
 const Map = dynamic(() => import("../../components/maps/tourMap"), {
   ssr: false,
@@ -31,7 +31,7 @@ const ViewerMenu: React.FC<{
     <Dropdown.Item onClick={() => setShowDelete(true)}>
       <div className="flex">
         <TrashIcon className="w-5 h-5 mr-2" />
-        Remove this Peak
+        Remove this Tour
       </div>
     </Dropdown.Item>
   );
@@ -44,7 +44,7 @@ const OwnerMenu: React.FC<{
     <Dropdown.Item onClick={() => setShowDelete(true)}>
       <div className="flex">
         <TrashIcon className="w-5 h-5 mr-2" />
-        Delete this Peak
+        Delete this Tour
       </div>
     </Dropdown.Item>
   );
@@ -222,7 +222,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
           />
         </Card>
       </div>
-      {data?.points && (
+      {data?.points && data.points.length > 0 && (
         <ChartArea points={data.points} onHover={(e) => setHoverPoint(e)} />
       )}
       <ConfirmDeleteModal

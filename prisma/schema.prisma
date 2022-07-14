@@ -45,6 +45,8 @@ model Point {
     longitude Float
     elevation Float
     time DateTime
+    heartRate Int?
+    temperature Float?
     tour Tour @relation(fields: [tourId], references: [id])
     tourId String
 }
