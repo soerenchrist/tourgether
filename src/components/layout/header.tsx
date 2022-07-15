@@ -38,7 +38,7 @@ const UserDropdown: React.FC<{ session: Session }> = ({ session }) => {
       <Dropdown.Item onClick={() => goTo("/tours")}>My Tours</Dropdown.Item>
       <Dropdown.Item onClick={() => goTo("/peaks")}>Peaks</Dropdown.Item>
       <Dropdown.Item onClick={() => goTo("/wishlist")}>Wishlist</Dropdown.Item>
-      <Dropdown.Item onClick={() => goTo("/my-invitations")}>My Invitations</Dropdown.Item>
+      <Dropdown.Item onClick={() => goTo("/my-friend-requests")}>My Friend Requests</Dropdown.Item>
       <Dropdown.Divider />
       <Dropdown.Item onClick={handleSignOut}>Sign out</Dropdown.Item>
     </Dropdown>

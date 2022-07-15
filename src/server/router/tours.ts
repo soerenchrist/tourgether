@@ -21,26 +21,22 @@ export const toursRouter = createRouter()
     async resolve({ ctx, input }) {
       const { count, page } = input;
       const skip = count * (page - 1);
-      const tours = await ctx.prisma
-        .$queryRaw`SELECT * FROM Tour WHERE creatorId = ${ctx.userId}
-      UNION (SELECT Tour.* FROM TourViewer as tv
-                           INNER JOIN Tour
-                           ON Tour.id = tv.tourId
-                           WHERE viewerId = ${ctx.userId})
-              ORDER BY date DESC
-              LIMIT ${skip}, ${count};`;
 
-      const totalCount = await ctx.prisma
-        .$queryRaw`SELECT Count(*) as count FROM (
-        SELECT * FROM Tour WHERE creatorId = ${ctx.userId}
-            UNION (SELECT Tour.* FROM TourViewer as tv
-                                 INNER JOIN Tour
-                                 ON Tour.id = tv.tourId
-                                 WHERE viewerId = ${ctx.userId})) as tv`;
-      const countResult: any = totalCount;
+      const tours = await ctx.prisma.tour.findMany({
+        skip: skip,
+        take: count,
+        where: {
+          creatorId: ctx.userId,
+        },
+      });
+      const totalCount = await ctx.prisma.tour.count({
+        where: {
+          creatorId: ctx.userId,
+        },
+      });
       return {
-        tours: tours as Tour[],
-        totalCount: Number(countResult[0].count),
+        tours: tours,
+        totalCount: totalCount,
       };
     },
   })
@@ -49,13 +45,12 @@ export const toursRouter = createRouter()
       id: z.string(),
     }),
     async resolve({ input, ctx }) {
-      const myTour = await ctx.prisma.tour.findFirst({
+      const tour = await ctx.prisma.tour.findFirst({
         where: {
           creatorId: ctx.userId,
           id: input.id,
         },
         include: {
-          viewers: true,
           tourPeaks: {
             include: {
               peak: true,
@@ -64,30 +59,9 @@ export const toursRouter = createRouter()
           points: true,
         },
       });
-      if (myTour) return { viewer: false, ...myTour };
+      if (!tour) throw new TRPCError({ code: "NOT_FOUND" });
 
-      const viewerTour = await ctx.prisma.tourViewer.findFirst({
-        where: {
-          viewerId: ctx.userId,
-          tourId: input.id,
-        },
-        include: {
-          tour: {
-            include: {
-              tourPeaks: {
-                include: {
-                  peak: true,
-                },
-              },
-              points: true,
-            },
-          },
-        },
-      });
-
-      if (!viewerTour) throw new TRPCError({ code: "NOT_FOUND" });
-
-      return { viewer: true, viewers: [], ...viewerTour.tour };
+      return { viewer: false, ...tour };
     },
   })
   .query("get-totals", {
@@ -171,12 +145,6 @@ export const toursRouter = createRouter()
       id: z.string(),
     }),
     async resolve({ ctx, input }) {
-      await ctx.prisma.tourViewer.deleteMany({
-        where: {
-          tourId: input.id,
-        },
-      });
-
       await ctx.prisma.point.deleteMany({
         where: {
           tourId: input.id,
@@ -184,11 +152,6 @@ export const toursRouter = createRouter()
       });
 
       await ctx.prisma.tourPeak.deleteMany({
-        where: {
-          tourId: input.id,
-        },
-      });
-      await ctx.prisma.invitationLink.deleteMany({
         where: {
           tourId: input.id,
         },

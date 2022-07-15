@@ -24,19 +24,6 @@ const Map = dynamic(() => import("../../components/maps/tourMap"), {
   ssr: false,
 });
 
-const ViewerMenu: React.FC<{
-  setShowDelete: (value: boolean) => void;
-}> = ({ setShowDelete }) => {
-  return (
-    <Dropdown.Item onClick={() => setShowDelete(true)}>
-      <div className="flex">
-        <TrashIcon className="w-5 h-5 mr-2" />
-        Remove this Tour
-      </div>
-    </Dropdown.Item>
-  );
-};
-
 const OwnerMenu: React.FC<{
   setShowDelete: (value: boolean) => void;
 }> = ({ setShowDelete }) => {
@@ -47,34 +34,6 @@ const OwnerMenu: React.FC<{
         Delete this Tour
       </div>
     </Dropdown.Item>
-  );
-};
-
-const ViewerItem: React.FC<{ viewer: string; tourId: string }> = ({
-  viewer,
-  tourId,
-}) => {
-  const utils = trpc.useContext();
-  const { mutate: revokeAccess } = trpc.useMutation("invite.revoke-access", {
-    onSuccess: () => {
-      utils.invalidateQueries(["tours.get-tour-by-id"]);
-    },
-  });
-
-  return (
-    <div className="mr-2">
-      <Dropdown
-        inline
-        arrowIcon={false}
-        label={<span className="text-blue-500">{viewer}</span>}
-      >
-        <Dropdown.Item
-          onClick={() => revokeAccess({ tourId, viewerId: viewer })}
-        >
-          Revoke access
-        </Dropdown.Item>
-      </Dropdown>
-    </div>
   );
 };
 
@@ -89,14 +48,6 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
       router.push("/tours");
     },
   });
-  const { mutate: removeInvitedTour } = trpc.useMutation(
-    "invite.remove-invited-tour",
-    {
-      onSuccess: () => {
-        router.push("/tours");
-      },
-    }
-  );
 
   const [showDelete, setShowDelete] = useState(false);
   const peaks = useMemo(() => data?.tourPeaks?.map((t) => t.peak), [data])
@@ -112,11 +63,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
 
   const deleteTour = () => {
     if (!data) return;
-    if (data.viewer) {
-      removeInvitedTour({ tourId: id });
-    } else {
-      deleteTourOnServer({ id });
-    }
+    deleteTourOnServer({ id });
   };
 
 
@@ -136,9 +83,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
               arrowIcon={false}
               label={<DotsVerticalIcon className="h-5 w-5 cursor-pointer" />}
             >
-              {data.viewer ? (
-                <ViewerMenu setShowDelete={setShowDelete} />
-              ) : (
+              {!data.viewer && (
                 <OwnerMenu setShowDelete={setShowDelete} />
               )}
 
@@ -188,23 +133,6 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
 
               {data.endTime && (
                 <ListItem title={`${data.endTime}`} subtitle="End time" />
-              )}
-
-              {data.viewers.length > 0 && (
-                <ListItem
-                  title={data.viewers.map((x) => (
-                    <ViewerItem
-                      key={x.id}
-                      viewer={x.viewerId}
-                      tourId={data.id}
-                    />
-                  ))}
-                  subtitle="Shared with"
-                />
-              )}
-
-              {data.viewer && (
-                <ListItem title={data.creatorId} subtitle="Created by" />
               )}
 
               {data.description.length > 0 && (

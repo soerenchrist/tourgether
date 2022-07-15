@@ -2,7 +2,7 @@ import CardTitle from "@/components/common/cardTitle";
 import LayoutBase from "@/components/layout/layoutBase";
 import { trpc } from "@/utils/trpc";
 import { BanIcon, CheckIcon } from "@heroicons/react/solid";
-import { InvitationLink, Tour } from "@prisma/client";
+import { FriendRequest, Tour, User } from "@prisma/client";
 import { Button, Card, Spinner } from "flowbite-react";
 import { Session } from "next-auth";
 import { signIn, useSession } from "next-auth/react";
@@ -14,7 +14,7 @@ const DeclineButton: React.FC<{ token: string; router: NextRouter }> = ({
   token,
   router,
 }) => {
-  const { mutate } = trpc.useMutation("invite.decline-invitation", {
+  const { mutate } = trpc.useMutation("invite.decline-friend-request", {
     onSuccess: () => {
       router.push("/");
     },
@@ -37,7 +37,7 @@ const AcceptButton: React.FC<{ token: string; router: NextRouter }> = ({
   token,
   router,
 }) => {
-  const { mutate } = trpc.useMutation("invite.accept-invitation", {
+  const { mutate } = trpc.useMutation("invite.accept-friend-request", {
     onSuccess: () => {
       router.push("/tours?invation_accepted=true");
     },
@@ -56,7 +56,7 @@ const AcceptButton: React.FC<{ token: string; router: NextRouter }> = ({
 };
 
 const InvitationDisplay: React.FC<{
-  invite: InvitationLink & { tour: Tour };
+  invite: FriendRequest & { issuedBy: User };
   session: Session;
 }> = ({ invite, session }) => {
   const router = useRouter();
@@ -65,14 +65,13 @@ const InvitationDisplay: React.FC<{
       <CardTitle title="You received an Invitation!"></CardTitle>
       <p className="text-xl">Hello {session.user!.name},</p>
       <p className="text-xl">
-        {invite.issuedBy} invited you to join the tour <b>{invite.tour.name}</b>
-        !
+        {invite.issuedBy.name} ({invite.issuedBy.email}) invited you to become his/her friend!
       </p>
       <p className="text-xl">Do you accept the invitation?</p>
 
       <div className="flex justify-start gap-4 mt-4">
-        <AcceptButton router={router} token={invite.invite_token} />
-        <DeclineButton router={router} token={invite.invite_token} />
+        <AcceptButton router={router} token={invite.token} />
+        <DeclineButton router={router} token={invite.token} />
       </div>
     </Card>
   );
@@ -84,7 +83,7 @@ const InvitationPageContent: React.FC<{ token: string; session: Session }> = ({
 }) => {
   const enabled = useRef(true);
   const { data, error, isError, isLoading } = trpc.useQuery(
-    ["invite.get-invitation", { invite_token: token }],
+    ["invite.get-friend-request", { invite_token: token }],
     {
       onError: () => {
         enabled.current = false;

@@ -24,19 +24,16 @@ model Tour {
     endTime String?
     creatorId String
     creator User @relation(fields: [creatorId], references: [id])
-    viewers TourViewer[]
-    invitationLinks InvitationLink[]
     tourPeaks TourPeak[]
-    
     points Point[]
+    visibility Visibility @default(FRIENDS) 
 }
 
-model TourViewer {
-    id String @id @default(cuid())
-    tourId String
-    tour Tour @relation(fields: [tourId], references: [id])
-    viewerId String
-    viewer User @relation(fields: [viewerId], references: [email])
+
+enum Visibility {
+  PUBLIC
+  FRIENDS
+  PRIVATE
 }
 
 model Point {
@@ -83,12 +80,24 @@ model TourPeak {
     tour Tour @relation(fields: [tourId], references: [id])
 }
 
-model InvitationLink {
-    invite_token String @id @default(cuid())
-    tourId String
-    tour Tour @relation(fields: [tourId], references: [id])
-    issuedBy String
-    validUnit DateTime
+model FriendRequest {
+    id String @id @default(cuid())
+    validUntil DateTime
+    issuedById String
+    token String
+    issuedBy User @relation(fields: [issuedById], references: [id])
+}
+
+model Friendship {
+    user1Id String
+    user2Id String
+
+    user1 User @relation(name: "friendship1", fields: [user1Id], references: [id], map: "friendship1")
+    user2 User @relation(name: "friendship2", fields: [user1Id], references: [id], map: "friendship2")
+
+    startDate DateTime @default(now())
+
+    @@id([user1Id, user2Id])
 }
 
 // Necessary for Next auth
@@ -126,9 +135,11 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
+    friendship1 Friendship[] @relation(name: "friendship1")
+    friendship2 Friendship[] @relation(name: "friendship2")
     createdTours Tour[]
-    tourViews TourViewer[]
     wishlistItems WishlistItem[]
+    friendRequests FriendRequest[]
 }
 
 model VerificationToken {

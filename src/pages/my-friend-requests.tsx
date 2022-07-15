@@ -8,14 +8,14 @@ import Link from "next/link";
 import { ReactNode } from "react";
 
 const MyInvitationsPageContent: React.FC = () => {
-  const { data, isLoading } = trpc.useQuery(["invite.get-my-invitations"]);
+  const { data, isLoading } = trpc.useQuery(["invite.get-my-friend-requests"]);
 
   const util = trpc.useContext();
   const { mutate: deleteInvitation } = trpc.useMutation(
-    "invite.decline-invitation",
+    "invite.decline-friend-request",
     {
       onSuccess: () => {
-        util.invalidateQueries("invite.get-my-invitations");
+        util.invalidateQueries("invite.get-my-friend-requests");
       },
     }
   );
@@ -35,10 +35,9 @@ const MyInvitationsPageContent: React.FC = () => {
 
   return (
     <Card>
-      <CardTitle title="My invitations" />
+      <CardTitle title="My friend requests" />
       <Table>
         <Table.Head>
-          <Table.HeadCell>Tour</Table.HeadCell>
           <Table.HeadCell>Expires on</Table.HeadCell>
           <Table.HeadCell>Status</Table.HeadCell>
           <Table.HeadCell></Table.HeadCell>
@@ -50,31 +49,24 @@ const MyInvitationsPageContent: React.FC = () => {
             </Table.Row>
           )}
           {data.map((link) => (
-            <Table.Row key={link.invite_token}>
+            <Table.Row key={link.id}>
               <Table.Cell>
-                <Link href={`/tours/${link.tour.id}`}>
-                  <span className="text-blue-500 hover:underline cursor-pointer font-medium">
-                    {link.tour.name}
-                  </span>
-                </Link>
-              </Table.Cell>
-              <Table.Cell>
-                {link.validUnit.toLocaleDateString()}{" "}
-                {link.validUnit.toLocaleTimeString()}
+                {link.validUntil.toLocaleDateString()}{" "}
+                {link.validUntil.toLocaleTimeString()}
               </Table.Cell>
               <Table.Cell>
                 <span
-                  className={isExpired(link.validUnit) ? "text-red-600" : "text-green-500"}
+                  className={isExpired(link.validUntil) ? "text-red-600" : "text-green-500"}
                 >
-                  {isExpired(link.validUnit) ? "Expired" : "Active"}
+                  {isExpired(link.validUntil) ? "Expired" : "Active"}
                 </span>
               </Table.Cell>
               <Table.Cell className="flex justify-end">
                 <span
-                  onClick={() => revoke(link.invite_token)}
+                  onClick={() => revoke(link.token)}
                   className="text-blue-500 hover:underline cursor-pointer font-medium"
                 >
-                  {isExpired(link.validUnit) ? "Delete" : "Revoke"}
+                  {isExpired(link.validUntil) ? "Delete" : "Revoke"}
                 </span>
               </Table.Cell>
             </Table.Row>
