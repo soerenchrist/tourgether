@@ -8,14 +8,14 @@ import Link from "next/link";
 import { ReactNode } from "react";
 
 const MyInvitationsPageContent: React.FC = () => {
-  const { data, isLoading } = trpc.useQuery(["invite.get-my-friend-requests"]);
+  const { data, isLoading } = trpc.useQuery(["friends.get-my-friend-requests"]);
 
   const util = trpc.useContext();
   const { mutate: deleteInvitation } = trpc.useMutation(
-    "invite.decline-friend-request",
+    "friends.decline-friend-request",
     {
       onSuccess: () => {
-        util.invalidateQueries("invite.get-my-friend-requests");
+        util.invalidateQueries("friends.get-my-friend-requests");
       },
     }
   );

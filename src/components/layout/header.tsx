@@ -38,6 +38,7 @@ const UserDropdown: React.FC<{ session: Session }> = ({ session }) => {
       <Dropdown.Item onClick={() => goTo("/tours")}>My Tours</Dropdown.Item>
       <Dropdown.Item onClick={() => goTo("/peaks")}>Peaks</Dropdown.Item>
       <Dropdown.Item onClick={() => goTo("/wishlist")}>Wishlist</Dropdown.Item>
+      <Dropdown.Item onClick={() => goTo("/friends")}>Friends</Dropdown.Item>
       <Dropdown.Item onClick={() => goTo("/my-friend-requests")}>My Friend Requests</Dropdown.Item>
       <Dropdown.Divider />
       <Dropdown.Item onClick={handleSignOut}>Sign out</Dropdown.Item>
@@ -79,6 +80,9 @@ const Header = ({ session, isLoading }: { session: Session | null, isLoading: bo
             </Link>
             <Link href="/wishlist">
               <span className="cursor-pointer">Wishlist</span>
+            </Link>
+            <Link href="/friends">
+              <span className="cursor-pointer">Friends</span>
             </Link>
           </>
         )}

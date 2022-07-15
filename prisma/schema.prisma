@@ -23,7 +23,7 @@ model Tour {
     startTime String?
     endTime String?
     creatorId String
-    creator User @relation(fields: [creatorId], references: [id])
+    creator User @relation(fields: [creatorId], references: [email])
     tourPeaks TourPeak[]
     points Point[]
     visibility Visibility @default(FRIENDS) 
@@ -53,7 +53,7 @@ model WishlistItem {
     peakId String
     peak Peak @relation(fields: [peakId], references: [id])
     userId String
-    user User @relation(fields: [userId], references: [id])
+    user User @relation(fields: [userId], references: [email])
     addDate DateTime
 }
 
@@ -85,15 +85,15 @@ model FriendRequest {
     validUntil DateTime
     issuedById String
     token String
-    issuedBy User @relation(fields: [issuedById], references: [id])
+    issuedBy User @relation(fields: [issuedById], references: [email])
 }
 
 model Friendship {
     user1Id String
     user2Id String
 
-    user1 User @relation(name: "friendship1", fields: [user1Id], references: [id], map: "friendship1")
-    user2 User @relation(name: "friendship2", fields: [user1Id], references: [id], map: "friendship2")
+    user1 User @relation(name: "friendship1", fields: [user1Id], references: [email], map: "friendship1")
+    user2 User @relation(name: "friendship2", fields: [user1Id], references: [email], map: "friendship2")
 
     startDate DateTime @default(now())
 

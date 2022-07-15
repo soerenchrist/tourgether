@@ -3,14 +3,14 @@ import { createRouter } from "./context";
 import superjson from "superjson";
 
 import { toursRouter } from "./tours";
-import { inviteRouter } from "./invite";
+import { friendsRouter } from "./friends";
 import { peaksRouter } from "./peaks";
 import { wishlistRouter } from "./wishlist";
 
 export const appRouter = createRouter()
   .transformer(superjson)
   .merge("tours.", toursRouter)
-  .merge("invite.", inviteRouter)
+  .merge("friends.", friendsRouter)
   .merge("peaks.", peaksRouter)
   .merge("wishlist.", wishlistRouter)
 

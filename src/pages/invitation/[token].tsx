@@ -14,7 +14,7 @@ const DeclineButton: React.FC<{ token: string; router: NextRouter }> = ({
   token,
   router,
 }) => {
-  const { mutate } = trpc.useMutation("invite.decline-friend-request", {
+  const { mutate } = trpc.useMutation("friends.decline-friend-request", {
     onSuccess: () => {
       router.push("/");
     },
@@ -37,7 +37,7 @@ const AcceptButton: React.FC<{ token: string; router: NextRouter }> = ({
   token,
   router,
 }) => {
-  const { mutate } = trpc.useMutation("invite.accept-friend-request", {
+  const { mutate } = trpc.useMutation("friends.accept-friend-request", {
     onSuccess: () => {
       router.push("/tours?invation_accepted=true");
     },
@@ -62,7 +62,7 @@ const InvitationDisplay: React.FC<{
   const router = useRouter();
   return (
     <Card>
-      <CardTitle title="You received an Invitation!"></CardTitle>
+      <CardTitle title="You received an invitation!"></CardTitle>
       <p className="text-xl">Hello {session.user!.name},</p>
       <p className="text-xl">
         {invite.issuedBy.name} ({invite.issuedBy.email}) invited you to become his/her friend!
@@ -83,7 +83,7 @@ const InvitationPageContent: React.FC<{ token: string; session: Session }> = ({
 }) => {
   const enabled = useRef(true);
   const { data, error, isError, isLoading } = trpc.useQuery(
-    ["invite.get-friend-request", { invite_token: token }],
+    ["friends.get-friend-request", { invite_token: token }],
     {
       onError: () => {
         enabled.current = false;

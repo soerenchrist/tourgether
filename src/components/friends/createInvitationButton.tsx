@@ -1,11 +1,6 @@
 import { trpc } from "@/utils/trpc";
-import { Tour } from "@prisma/client";
 import { Button } from "flowbite-react";
 import { useState } from "react";
-
-type Props = {
-  tour: Tour;
-};
 
 const CopyInputField: React.FC<{ url: string }> = ({ url }) => {
   return (
@@ -45,12 +40,11 @@ const CopyInputField: React.FC<{ url: string }> = ({ url }) => {
   );
 };
 
-const CreateInvitationButton: React.FC<Props> = ({ tour }) => {
+const CreateInvitationButton: React.FC = () => {
   const [url, setUrl] = useState<string | undefined>();
 
-  const { mutate } = trpc.useMutation("invite.create-invitation-link", {
+  const { mutate } = trpc.useMutation("friends.create-friendship-request", {
     onSuccess: (data) => {
-      console.log(data);
       setUrl(data.url);
     },
     onError: (error) => {
@@ -59,11 +53,11 @@ const CreateInvitationButton: React.FC<Props> = ({ tour }) => {
   });
 
   const handleClick = () => {
-    mutate({ tourId: tour.id });
+    mutate();
   };
   return (
     <div className="pt-2">
-      <Button onClick={handleClick}>Share with your friends!</Button>
+      <Button onClick={handleClick}>Create an invitation!</Button>
       {url && <CopyInputField url={url} />}
     </div>
   );

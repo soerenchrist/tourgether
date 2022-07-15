@@ -1,7 +1,7 @@
 import CardTitle from "@/components/common/cardTitle";
 import { List, ListItem } from "@/components/common/list";
 import LayoutBase from "@/components/layout/layoutBase";
-import CreateInvitationButton from "@/components/tours/createInvitationButton";
+import CreateInvitationButton from "@/components/friends/createInvitationButton";
 import { trpc } from "@/utils/trpc";
 import { Card, Dropdown, Spinner } from "flowbite-react";
 import { useSession } from "next-auth/react";
