@@ -1,13 +1,14 @@
 import { Button, Modal } from "flowbite-react";
 
-const ConfirmDeleteModal: React.FC<{
+const ConfirmationModal: React.FC<{
   show: boolean;
   text: string;
+  acceptColor?: "success" | "failure" | "dark" | "light" | "warning" | "purple";
   acceptButton?: string;
   cancelButton?: string;
   accept: () => void;
   decline: () => void;
-}> = ({ show, acceptButton, cancelButton, accept, decline, text }) => {
+}> = ({ show, acceptButton, cancelButton, accept, decline, text, acceptColor }) => {
   return (
     <Modal show={show} onClose={decline}>
       <Modal.Header>Are you sure?</Modal.Header>
@@ -17,7 +18,7 @@ const ConfirmDeleteModal: React.FC<{
         </p>
       </Modal.Body>
       <Modal.Footer>
-        <Button onClick={accept} color="failure">
+        <Button onClick={accept} color={acceptColor}>
           {acceptButton || "Delete"}
         </Button>
         <Button onClick={decline} outline color="light">
@@ -28,4 +29,4 @@ const ConfirmDeleteModal: React.FC<{
   );
 };
 
-export default ConfirmDeleteModal;
+export default ConfirmationModal;

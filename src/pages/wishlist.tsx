@@ -1,5 +1,5 @@
 import CardTitle from "@/components/common/cardTitle";
-import ConfirmDeleteModal from "@/components/common/confirmDeleteModal";
+import ConfirmationModal from "@/components/common/confirmationDialog";
 import LayoutBase from "@/components/layout/layoutBase";
 import { trpc } from "@/utils/trpc";
 import { Card, Checkbox, Spinner, Table } from "flowbite-react";
@@ -76,7 +76,7 @@ const WishlistContent = () => {
           ))}
         </Table.Body>
       </Table>
-      <ConfirmDeleteModal
+      <ConfirmationModal
         show={showModalItem !== undefined}
         text="Do you want to create a tour to the peak?"
         accept={createTour}

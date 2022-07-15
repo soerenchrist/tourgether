@@ -9,6 +9,7 @@ const GPXUpload: React.FC<{ onChange: (result: AnalysisResult) => void }> = ({
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<string>();
   const [message, setMessage] = useState<string>();
+  const [file, setFile] = useState<File>();
 
   const handleTracksChanged: ChangeEventHandler<HTMLInputElement> = (event) => {
     const { files } = event.target;
@@ -18,6 +19,7 @@ const GPXUpload: React.FC<{ onChange: (result: AnalysisResult) => void }> = ({
 
     setLoading(true);
     const file = files[0];
+    setFile(file);
     const reader = new FileReader();
     reader.onload = async () => {
       const content = reader.result as string;
@@ -40,7 +42,7 @@ const GPXUpload: React.FC<{ onChange: (result: AnalysisResult) => void }> = ({
       {error && <Alert color="failure">{error}</Alert>}
       {message && <Alert color="success">{message}</Alert>}
       <FileInput
-        files={[]}
+        files={file ? [file] : []}
         accept=".gpx"
         isLoading={isLoading}
         onChange={handleTracksChanged}

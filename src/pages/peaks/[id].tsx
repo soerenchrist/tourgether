@@ -1,5 +1,5 @@
 import CardTitle from "@/components/common/cardTitle";
-import ConfirmDeleteModal from "@/components/common/confirmDeleteModal";
+import ConfirmationModal from "@/components/common/confirmationDialog";
 import NotFound from "@/components/common/notFound";
 import LayoutBase from "@/components/layout/layoutBase";
 import ToursTable from "@/components/tours/toursTable";
@@ -156,9 +156,10 @@ const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
           </div>
         </Card>
       </div>
-      <ConfirmDeleteModal
+      <ConfirmationModal
         text="Do you really want to delete this peak? All data will be lost?"
         show={showDelete}
+        acceptColor="failure"
         accept={onDeletePeak}
         decline={() => setShowDelete(false)}
       />

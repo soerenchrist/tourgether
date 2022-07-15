@@ -14,7 +14,7 @@ import {
   PencilIcon,
   TrashIcon,
 } from "@heroicons/react/solid";
-import ConfirmDeleteModal from "@/components/common/confirmDeleteModal";
+import ConfirmationModal from "@/components/common/confirmationDialog";
 import NotFound from "@/components/common/notFound";
 import Link from "next/link";
 import { Point } from "@prisma/client";
@@ -225,7 +225,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
       {data?.points && data.points.length > 0 && (
         <ChartArea points={data.points} onHover={(e) => setHoverPoint(e)} />
       )}
-      <ConfirmDeleteModal
+      <ConfirmationModal
         text={
           data.viewer
             ? "Do you really want to remove the tour? You will lose access to the data!"
@@ -233,6 +233,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
         }
         show={showDelete}
         accept={deleteTour}
+        acceptColor="failure"
         acceptButton={data.viewer ? "Remove" : "Delete"}
         decline={() => setShowDelete(false)}
       />

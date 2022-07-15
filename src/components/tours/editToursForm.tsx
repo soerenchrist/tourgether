@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import CardTitle from "../common/cardTitle";
+import ConfirmationModal from "../common/confirmationDialog";
 import Input from "../common/input";
 import TextArea from "../common/textarea";
 import PeakSelector from "../peaks/peakSelector";
@@ -36,6 +37,7 @@ type ExtendedTour = Tour & {
 const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
   const navigate = useRouter();
 
+  const [confirmData, setConfirmData] = useState<AnalysisResult>();
   const [points, setPoints] = useState<
     { latitude: number; longitude: number; elevation: number; time: Date }[]
   >([]);
@@ -48,6 +50,7 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
     register,
     handleSubmit,
     setValue,
+    getValues,
     formState: { errors },
   } = useZodForm({
     schema: createTourValidationSchema,
@@ -105,7 +108,7 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
     }
   };
 
-  const handleGpxFileUpload = async (data: AnalysisResult) => {
+  const setAnalysisResult = (data: AnalysisResult) => {
     setValue("name", data.name);
     setValue("distance", Math.floor(data.distance));
     setValue("date", data.date.toISOString().substring(0, 10));
@@ -115,6 +118,16 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
     setValue("endTime", data.end);
 
     setPoints(data.points);
+    setConfirmData(undefined);
+  }
+
+  const handleGpxFileUpload = async (data: AnalysisResult) => {
+    const values = getValues();
+    if (values.name || values.distance || values.elevationDown || values.elevationUp || values.date) {
+      setConfirmData(data);
+      return;
+    }
+    setAnalysisResult(data);
   };
 
   const handleSelectedPeaksChanged = (
@@ -224,6 +237,14 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
           </div>
         </div>
       </Card>
+      <ConfirmationModal
+        accept={() => setAnalysisResult(confirmData!)}
+        decline={() => { setConfirmData(undefined) }}
+        show={confirmData !== undefined}
+        text="There have been changes in the form. Should the data from the GPX file override them?"
+        acceptButton="Override"
+        cancelButton="Do nothing"
+      />
     </div>
   );
 };
