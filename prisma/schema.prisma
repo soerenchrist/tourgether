@@ -93,7 +93,7 @@ model Friendship {
     user2Id String
 
     user1 User @relation(name: "friendship1", fields: [user1Id], references: [email], map: "friendship1")
-    user2 User @relation(name: "friendship2", fields: [user1Id], references: [email], map: "friendship2")
+    user2 User @relation(name: "friendship2", fields: [user2Id], references: [email], map: "friendship2")
 
     startDate DateTime @default(now())
 

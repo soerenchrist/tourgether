@@ -1,17 +1,32 @@
 import CardTitle from "@/components/common/cardTitle";
+import ConfirmationModal from "@/components/common/confirmationDialog";
 import CreateInvitationButton from "@/components/friends/createInvitationButton";
 import LayoutBase from "@/components/layout/layoutBase";
 import { trpc } from "@/utils/trpc";
 import { Card, Spinner, Table } from "flowbite-react";
 import { NextPage } from "next";
 import { useSession } from "next-auth/react";
+import { useState } from "react";
 
 const FriendsPageContent = () => {
+  const [quitUserId, setQuitUserId] = useState<string>();
   const { data: friends, isLoading } = trpc.useQuery(["friends.get-my-friends"])
+  const util = trpc.useContext();
+  const { mutate: quit } = trpc.useMutation("friends.quit-friendship", {
+    onSuccess: () => {
+      util.invalidateQueries("friends.get-my-friends")
+      setQuitUserId(undefined);
+    }
+  })
 
   if (isLoading) return <Spinner size="xl" />
   if (!friends) return <></>
 
+  const quitFriendship = () => {
+    if (!quitUserId) return;
+
+    quit({ userId: quitUserId })
+  }
 
   return <Card>
     <CardTitle title="Your friends" />
@@ -23,6 +38,7 @@ const FriendsPageContent = () => {
         <Table.HeadCell>
           Email
         </Table.HeadCell>
+        <Table.HeadCell></Table.HeadCell>
       </Table.Head>
       <Table.Body>
         {friends.length === 0 && <Table.Row><Table.Cell>{"Start making connections with your friends!"}</Table.Cell></Table.Row>}
@@ -34,11 +50,20 @@ const FriendsPageContent = () => {
             <Table.Cell>
               {f.email}
             </Table.Cell>
+            <Table.Cell className="flex justify-end">
+              <span className="text-blue-500 hover:underline font-medium cursor-pointer" onClick={() => setQuitUserId(f.email!)}>Quit</span>
+            </Table.Cell>
           </Table.Row>
         ))}
       </Table.Body>
     </Table>
     <CreateInvitationButton />
+    <ConfirmationModal accept={quitFriendship}
+      decline={() => setQuitUserId(undefined)}
+      show={quitUserId !== undefined}
+      text="Do you really want to quit your friendship?"
+      acceptButton="Quit"
+      acceptColor="failure" />
   </Card>
 }
 

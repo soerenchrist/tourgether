@@ -140,6 +140,7 @@ export const friendsRouter = createRouter()
       userId: z.string(),
     }),
     async resolve({ ctx, input }) {
+      console.log(ctx.userId, input.userId);
       const friendship = await ctx.prisma.friendship.findFirst({
         where: {
           OR: [
