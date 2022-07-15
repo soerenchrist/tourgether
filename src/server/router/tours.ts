@@ -4,6 +4,7 @@ import { Tour } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createRouter } from "./context";
+import { getFriends } from "./friends";
 
 export const toursRouter = createRouter()
   .middleware(async ({ ctx, next }) => {
@@ -140,6 +141,41 @@ export const toursRouter = createRouter()
       ];
     },
   })
+  .query("get-friends-tours", {
+    input: z.object({
+      count: z.number(),
+      page: z.number().min(1),
+    }),
+    async resolve({ ctx, input }) {
+      const friends = await getFriends(ctx.prisma, ctx.userId);
+
+      const userIds = [...friends.map((x) => x.email!), ctx.userId];
+
+      const { count, page } = input;
+      const skip = count * (page - 1);
+
+      const tours = ctx.prisma.tour.findMany({
+        take: input.count ?? 10,
+        skip: skip,
+        where: {
+          creatorId: {
+            in: userIds,
+          },
+          visibility: {
+            in: ["FRIENDS", "PUBLIC"],
+          },
+        },
+        include: {
+          creator: true,
+        },
+        orderBy: {
+          date: "desc",
+        },
+      });
+
+      return tours;
+    },
+  })
   .mutation("delete-tour", {
     input: z.object({
       id: z.string(),
@@ -167,7 +203,7 @@ export const toursRouter = createRouter()
     input: createTourValidationSchema.merge(
       z.object({
         id: z.string(),
-        visibility: z.enum(["PRIVATE", "PUBLIC", "FRIENDS"])
+        visibility: z.enum(["PRIVATE", "PUBLIC", "FRIENDS"]),
       })
     ),
     async resolve({ ctx, input }) {
@@ -184,9 +220,11 @@ export const toursRouter = createRouter()
   })
   .mutation("create-tour", {
     input: z.object({
-      tour: createTourValidationSchema.merge(z.object({
-        visibility: z.enum(["PRIVATE", "PUBLIC", "FRIENDS"])
-      })),
+      tour: createTourValidationSchema.merge(
+        z.object({
+          visibility: z.enum(["PRIVATE", "PUBLIC", "FRIENDS"]),
+        })
+      ),
       points: z
         .object({
           latitude: z.number(),

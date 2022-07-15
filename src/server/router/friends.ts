@@ -2,7 +2,34 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createRouter } from "./context";
 import * as uuid from "uuid";
-import { User } from "@prisma/client";
+import { PrismaClient, User } from "@prisma/client";
+
+export const getFriends = async (prisma: PrismaClient, userId: string) => {
+  const friendships = await prisma.friendship.findMany({
+    where: {
+      OR: [
+        {
+          user1Id: userId,
+        },
+        {
+          user2Id: userId,
+        },
+      ],
+    },
+    include: {
+      user1: true,
+      user2: true,
+    },
+  });
+
+  const friends: User[] = [];
+  friendships.forEach((f) => {
+    if (f.user1Id === userId) friends.push(f.user2);
+    else friends.push(f.user1);
+  });
+
+  return friends;
+};
 
 export const friendsRouter = createRouter()
   .middleware(async ({ ctx, next }) => {
@@ -64,30 +91,7 @@ export const friendsRouter = createRouter()
   })
   .query("get-my-friends", {
     async resolve({ ctx }) {
-      const friendships = await ctx.prisma.friendship.findMany({
-        where: {
-          OR: [
-            {
-              user1Id: ctx.userId,
-            },
-            {
-              user2Id: ctx.userId,
-            },
-          ],
-        },
-        include: {
-          user1: true,
-          user2: true,
-        },
-      });
-
-      const friends: User[] = [];
-      friendships.forEach((f) => {
-        if (f.user1Id === ctx.userId) friends.push(f.user2);
-        else friends.push(f.user1);
-      });
-
-      return friends;
+      return await getFriends(ctx.prisma, ctx.userId);
     },
   })
   .mutation("decline-friend-request", {

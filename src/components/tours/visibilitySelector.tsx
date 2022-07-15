@@ -18,7 +18,6 @@ const VisibilitySelector: React.FC<{
         return "Everyone who uses Tourgether can see this tour";
     }
 
-
     const text = useMemo(() => getText(visibility), [visibility])
     const infoText = useMemo(() => getInfoText(visibility), [visibility])
     const selectedClass = "text-blue-600 font-medium";

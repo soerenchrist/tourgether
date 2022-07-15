@@ -24,7 +24,7 @@ const monthNames = [
   "December",
 ];
 
-const HistoryChart = () => {
+const HistoryChart: React.FC<{ className?: string }> = ({ className }) => {
   const { data } = trpc.useQuery(["tours.get-history", {}]);
 
   const primaryAxis = useMemo(
@@ -50,23 +50,26 @@ const HistoryChart = () => {
     []
   );
   return (
-    <Card>
-      <div className="flex flex-col">
-        <CardTitle title="History" />
-        <div className="h-96 p-4">
-          {data && (
-            <Chart
-              className="h-96"
-              options={{
-                data,
-                primaryAxis,
-                secondaryAxes,
-              }}
-            />
-          )}
+    <div className={className}>
+
+      <Card>
+        <div className="flex flex-col">
+          <CardTitle title="History" />
+          <div className="h-96 p-4">
+            {data && (
+              <Chart
+                className="h-96"
+                options={{
+                  data,
+                  primaryAxis,
+                  secondaryAxes,
+                }}
+              />
+            )}
+          </div>
         </div>
-      </div>
-    </Card>
+      </Card>
+    </div>
   );
 };
 
