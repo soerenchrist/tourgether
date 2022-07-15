@@ -1,7 +1,7 @@
 import { AnalysisResult } from "@/lib/gpxLib";
 import { useZodForm } from "@/utils/formHelpers";
 import { trpc } from "@/utils/trpc";
-import { Peak, Point, Tour, TourPeak } from "@prisma/client";
+import { Peak, Point, Tour, TourPeak, Visibility } from "@prisma/client";
 import { Button, Card } from "flowbite-react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -12,6 +12,7 @@ import Input from "../common/input";
 import TextArea from "../common/textarea";
 import PeakSelector from "../peaks/peakSelector";
 import GPXUpload from "../tracks/gpxUpload";
+import VisibilitySelector from "./visibilitySelector";
 
 export const createTourValidationSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -36,7 +37,7 @@ type ExtendedTour = Tour & {
 
 const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
   const navigate = useRouter();
-
+  const [visibility, setVisibility] = useState<Visibility>("FRIENDS");
   const [confirmData, setConfirmData] = useState<AnalysisResult>();
   const [points, setPoints] = useState<
     { latitude: number; longitude: number; elevation: number; time: Date }[]
@@ -69,8 +70,11 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
   });
 
   useEffect(() => {
-    setSelectedPeaks(editTour?.tourPeaks.map((p) => p.peak) || []);
-    setPoints(editTour?.points || []);
+    if (editTour) {
+      setSelectedPeaks(editTour.tourPeaks.map((p) => p.peak) || []);
+      setPoints(editTour.points || []);
+      setVisibility(editTour.visibility);
+    }
   }, [editTour]);
 
   const { mutate: create } = trpc.useMutation("tours.create-tour", {
@@ -98,10 +102,14 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
       update({
         id: editTour.id,
         ...data,
+        visibility
       });
     } else {
       create({
-        tour: data,
+        tour: {
+          ...data,
+          visibility
+        },
         peaks: selectedPeaks,
         points,
       });
@@ -212,6 +220,7 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
                 {...register("description")}
                 placeholder="Hiking trip to the zugspitze over the Höllentalklamm"
               />
+              <VisibilitySelector visibility={visibility} onChange={(v) => setVisibility(v)} />
               <div className="lg:flex justify-end hidden">
                 <Button disabled={isLoading} type="submit">
                   {editTour ? "Update your tour" : "Create your tour"}

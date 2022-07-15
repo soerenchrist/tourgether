@@ -1,7 +1,6 @@
 import CardTitle from "@/components/common/cardTitle";
 import { List, ListItem } from "@/components/common/list";
 import LayoutBase from "@/components/layout/layoutBase";
-import CreateInvitationButton from "@/components/friends/createInvitationButton";
 import { trpc } from "@/utils/trpc";
 import { Card, Dropdown, Spinner } from "flowbite-react";
 import { useSession } from "next-auth/react";
@@ -17,7 +16,7 @@ import {
 import ConfirmationModal from "@/components/common/confirmationDialog";
 import NotFound from "@/components/common/notFound";
 import Link from "next/link";
-import { Point } from "@prisma/client";
+import { Point, Visibility } from "@prisma/client";
 import ChartArea from "@/components/tours/charts/chartArea";
 
 const Map = dynamic(() => import("../../components/maps/tourMap"), {
@@ -66,6 +65,11 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
     deleteTourOnServer({ id });
   };
 
+  const getVisibilityText = (visibility: Visibility) => {
+      if (visibility === "FRIENDS") return "Friends only";
+      else if (visibility === "PRIVATE") return "Only you";
+      return "Everyone";
+  }
 
   return (
     <>
@@ -138,7 +142,8 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
               {data.description.length > 0 && (
                 <ListItem subtitle={data.description} />
               )}
-              {!data.viewer && <CreateInvitationButton tour={data} />}
+
+              <ListItem title={getVisibilityText(data.visibility)} subtitle="Visibility"></ListItem>
             </List>
           )}
         </Card>

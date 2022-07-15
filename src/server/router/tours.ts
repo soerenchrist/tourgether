@@ -167,6 +167,7 @@ export const toursRouter = createRouter()
     input: createTourValidationSchema.merge(
       z.object({
         id: z.string(),
+        visibility: z.enum(["PRIVATE", "PUBLIC", "FRIENDS"])
       })
     ),
     async resolve({ ctx, input }) {
@@ -183,7 +184,9 @@ export const toursRouter = createRouter()
   })
   .mutation("create-tour", {
     input: z.object({
-      tour: createTourValidationSchema,
+      tour: createTourValidationSchema.merge(z.object({
+        visibility: z.enum(["PRIVATE", "PUBLIC", "FRIENDS"])
+      })),
       points: z
         .object({
           latitude: z.number(),
