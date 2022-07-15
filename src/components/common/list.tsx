@@ -9,9 +9,9 @@ export const ListItem: React.FC<{ title?: string | ReactNode; subtitle?: string 
       <div className="flex items-center space-x-4">
         <div className="flex-1 min-w-0">
           {title && (
-            <p className="text-sm font-medium text-gray-900 dark:text-white">
+            <div className="text-sm font-medium text-gray-900 dark:text-white">
               {title}
-            </p>
+            </div>
           )}
           {subtitle && (
             <p className="text-sm text-gray-500 truncat dark:text-gray-400">
