@@ -33,7 +33,7 @@ export const getFriends = async (prisma: PrismaClient, userId: string) => {
 
 export const friendsRouter = createRouter()
   .middleware(async ({ ctx, next }) => {
-    const userId = ctx.session?.user?.email;
+    const userId = ctx.session?.userId;
     if (!userId) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }

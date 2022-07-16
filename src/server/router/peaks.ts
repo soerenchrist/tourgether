@@ -6,7 +6,7 @@ import { createRouter } from "./context";
 
 export const peaksRouter = createRouter()
   .middleware(async ({ ctx, next }) => {
-    const userId = ctx.session?.user?.email;
+    const userId = ctx.session?.userId;
     if (!userId) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }

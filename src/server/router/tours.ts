@@ -8,7 +8,7 @@ import { getFriends } from "./friends";
 
 export const toursRouter = createRouter()
   .middleware(async ({ ctx, next }) => {
-    const userId = ctx.session?.user?.email;
+    const userId = ctx.session?.userId;
     if (!userId) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
@@ -110,6 +110,9 @@ export const toursRouter = createRouter()
                   lte: endOfRange,
                 },
               },
+              {
+                creatorId: ctx.userId
+              }
             ],
           },
           _sum: {
@@ -149,13 +152,13 @@ export const toursRouter = createRouter()
     async resolve({ ctx, input }) {
       const friends = await getFriends(ctx.prisma, ctx.userId);
 
-      const userIds = [...friends.map((x) => x.email!), ctx.userId];
+      const userIds = [...friends.map((x) => x.id), ctx.userId];
 
       const { count, page } = input;
       const skip = count * (page - 1);
 
-      const tours = ctx.prisma.tour.findMany({
-        take: input.count ?? 10,
+      const tours = await ctx.prisma.tour.findMany({
+        take: input.count,
         skip: skip,
         where: {
           creatorId: {
