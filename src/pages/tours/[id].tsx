@@ -19,6 +19,7 @@ import Link from "next/link";
 import { Point, Visibility } from "@prisma/client";
 import ChartArea from "@/components/tours/charts/chartArea";
 import LikeButton from "@/components/tours/likeButton";
+import CommentButton from "@/components/tours/commentButton";
 
 const Map = dynamic(() => import("../../components/maps/tourMap"), {
   ssr: false,
@@ -26,7 +27,7 @@ const Map = dynamic(() => import("../../components/maps/tourMap"), {
 
 const OwnerMenu: React.FC<{
   setShowDelete: (value: boolean) => void;
-  onEdit: () => void
+  onEdit: () => void;
 }> = ({ setShowDelete, onEdit }) => {
   return (
     <Dropdown
@@ -97,8 +98,14 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
         <Card>
           <div className="flex justify-between">
             <CardTitle title={data.name ?? ""} />
-            {!data.viewer && <OwnerMenu onEdit={onEdit} setShowDelete={setShowDelete} />}
-            {data.viewer && <LikeButton tour={data} />}
+            <div className="flex justify-end gap-2">
+              <CommentButton tour={data} />
+              {!data.viewer && (
+                <OwnerMenu onEdit={onEdit} setShowDelete={setShowDelete} />
+              )}
+
+              {data.viewer && <LikeButton tour={data} />}
+            </div>
           </div>
 
           {isLoading ? (
