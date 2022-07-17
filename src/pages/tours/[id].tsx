@@ -18,6 +18,7 @@ import NotFound from "@/components/common/notFound";
 import Link from "next/link";
 import { Point, Visibility } from "@prisma/client";
 import ChartArea from "@/components/tours/charts/chartArea";
+import LikeButton from "@/components/tours/likeButton";
 
 const Map = dynamic(() => import("../../components/maps/tourMap"), {
   ssr: false,
@@ -97,6 +98,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
           <div className="flex justify-between">
             <CardTitle title={data.name ?? ""} />
             {!data.viewer && <OwnerMenu onEdit={onEdit} setShowDelete={setShowDelete} />}
+            {data.viewer && <LikeButton tour={data} />}
           </div>
 
           {isLoading ? (

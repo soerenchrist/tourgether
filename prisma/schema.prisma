@@ -27,8 +27,28 @@ model Tour {
     tourPeaks TourPeak[]
     points Point[]
     visibility Visibility @default(FRIENDS) 
+    likes Like[]
+    comments Comment[]
 }
 
+model Like {
+    id String @id @default(cuid())
+    userId String
+    user User @relation(fields: [userId], references: [id])
+    tourId String
+    tour Tour @relation(fields: [tourId], references: [id])
+    date DateTime @default(now())
+}
+
+model Comment {
+    id String @id @default(cuid())
+    userId String
+    user User @relation(fields: [userId], references: [id])
+    tourId String
+    tour Tour @relation(fields: [tourId], references: [id])
+    date DateTime @default(now())
+    content String @db.VarChar(200)
+}
 
 enum Visibility {
   PUBLIC
@@ -140,6 +160,8 @@ model User {
     createdTours Tour[]
     wishlistItems WishlistItem[]
     friendRequests FriendRequest[]
+    likes Like[]
+    comments Comment[]
 }
 
 model VerificationToken {

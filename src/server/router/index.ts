@@ -1,3 +1,4 @@
+import { likesRouter } from "./likes";
 // src/server/router/index.ts
 import { createRouter } from "./context";
 import superjson from "superjson";
@@ -13,6 +14,7 @@ export const appRouter = createRouter()
   .merge("friends.", friendsRouter)
   .merge("peaks.", peaksRouter)
   .merge("wishlist.", wishlistRouter)
+  .merge("likes.", likesRouter);
 
 // export type definition of API
 export type AppRouter = typeof appRouter;

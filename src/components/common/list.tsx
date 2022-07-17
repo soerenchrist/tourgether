@@ -5,7 +5,7 @@ export const ListItem: React.FC<{ title?: string | ReactNode; subtitle?: string 
   subtitle,
 }) => {
   return (
-    <li className="py-3 sm:py-4">
+    <li className="py-2">
       <div className="flex items-center space-x-4">
         <div className="flex-1 min-w-0">
           {title && (
