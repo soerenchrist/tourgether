@@ -6,7 +6,7 @@ import { Card, Dropdown, Spinner } from "flowbite-react";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
-import { useRouter } from "next/router";
+import { Router, useRouter } from "next/router";
 import { ReactNode, useMemo, useState } from "react";
 import {
   DotsVerticalIcon,
@@ -25,14 +25,28 @@ const Map = dynamic(() => import("../../components/maps/tourMap"), {
 
 const OwnerMenu: React.FC<{
   setShowDelete: (value: boolean) => void;
-}> = ({ setShowDelete }) => {
+  onEdit: () => void
+}> = ({ setShowDelete, onEdit }) => {
   return (
-    <Dropdown.Item onClick={() => setShowDelete(true)}>
-      <div className="flex">
-        <TrashIcon className="w-5 h-5 mr-2" />
-        Delete this Tour
-      </div>
-    </Dropdown.Item>
+    <Dropdown
+      placement="top"
+      inline={true}
+      arrowIcon={false}
+      label={<DotsVerticalIcon className="h-5 w-5 cursor-pointer" />}
+    >
+      <Dropdown.Item onClick={() => setShowDelete(true)}>
+        <div className="flex">
+          <TrashIcon className="w-5 h-5 mr-2" />
+          Delete this Tour
+        </div>
+      </Dropdown.Item>
+      <Dropdown.Item onClick={onEdit}>
+        <div className="flex">
+          <PencilIcon className="w-5 h-5 mr-2" />
+          Edit Tour
+        </div>
+      </Dropdown.Item>
+    </Dropdown>
   );
 };
 
@@ -49,7 +63,9 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
   });
 
   const [showDelete, setShowDelete] = useState(false);
-  const peaks = useMemo(() => data?.tourPeaks?.map((t) => t.peak), [data])
+  const peaks = useMemo(() => data?.tourPeaks?.map((t) => t.peak), [data]);
+
+  const onEdit = () => router.push(`/tours/edit/${id}`);
 
   if (isLoading) return <Spinner size="xl" />;
   else if (!data) return <NotFound message="Tour not found!" />;
@@ -66,10 +82,10 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
   };
 
   const getVisibilityText = (visibility: Visibility) => {
-      if (visibility === "FRIENDS") return "Friends only";
-      else if (visibility === "PRIVATE") return "Only you";
-      return "Everyone";
-  }
+    if (visibility === "FRIENDS") return "Friends only";
+    else if (visibility === "PRIVATE") return "Only you";
+    return "Everyone";
+  };
 
   return (
     <>
@@ -80,24 +96,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
         <Card>
           <div className="flex justify-between">
             <CardTitle title={data.name ?? ""} />
-
-            <Dropdown
-              placement="top"
-              inline={true}
-              arrowIcon={false}
-              label={<DotsVerticalIcon className="h-5 w-5 cursor-pointer" />}
-            >
-              {!data.viewer && (
-                <OwnerMenu setShowDelete={setShowDelete} />
-              )}
-
-              <Dropdown.Item onClick={() => router.push(`/tours/edit/${id}`)}>
-                <div className="flex">
-                  <PencilIcon className="w-5 h-5 mr-2" />
-                  Edit Tour
-                </div>
-              </Dropdown.Item>
-            </Dropdown>
+            {!data.viewer && <OwnerMenu onEdit={onEdit} setShowDelete={setShowDelete} />}
           </div>
 
           {isLoading ? (
@@ -139,20 +138,26 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
                 <ListItem title={`${data.endTime}`} subtitle="End time" />
               )}
 
+              {data.viewer && (
+                <ListItem
+                  title={`${data.creator.name} (${data.creator.email})`}
+                  subtitle="Created by"
+                ></ListItem>
+              )}
+
               {data.description.length > 0 && (
                 <ListItem subtitle={data.description} />
               )}
 
-              <ListItem title={getVisibilityText(data.visibility)} subtitle="Visibility"></ListItem>
+              <ListItem
+                title={getVisibilityText(data.visibility)}
+                subtitle="Visibility"
+              ></ListItem>
             </List>
           )}
         </Card>
         <Card>
-          <Map
-            hoverPoint={hoverPoint}
-            peaks={peaks}
-            points={data?.points}
-          />
+          <Map hoverPoint={hoverPoint} peaks={peaks} points={data?.points} />
         </Card>
       </div>
       {data?.points && data.points.length > 0 && (

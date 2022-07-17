@@ -46,23 +46,39 @@ export const toursRouter = createRouter()
       id: z.string(),
     }),
     async resolve({ input, ctx }) {
+      const include = {
+        tourPeaks: {
+          include: {
+            peak: true,
+          },
+        },
+        points: true,
+        creator: true,
+      };
       const tour = await ctx.prisma.tour.findFirst({
         where: {
           creatorId: ctx.userId,
           id: input.id,
         },
-        include: {
-          tourPeaks: {
-            include: {
-              peak: true,
-            },
-          },
-          points: true,
-        },
+        include
       });
-      if (!tour) throw new TRPCError({ code: "NOT_FOUND" });
+      if (tour)
+        return { viewer: false, ...tour };
 
-      return { viewer: false, ...tour };
+      const friends = await getFriends(ctx.prisma, ctx.userId);
+      const friendsIds = friends.map(f => f.id);
+      const friendsTour = await ctx.prisma.tour.findFirst({
+        where: {
+          creatorId: {
+            in: friendsIds
+          },
+          id: input.id
+        },
+        include
+      });
+
+      if (!friendsTour) throw new TRPCError({ code: "NOT_FOUND" });
+      return { viewer: true, ...friendsTour };
     },
   })
   .query("get-totals", {
