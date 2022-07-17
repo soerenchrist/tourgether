@@ -17,13 +17,21 @@ const LikeButton: React.FC<{ tour: Tour }> = ({ tour }) => {
       util.invalidateQueries("likes.get-like");
     },
   });
+  const { mutate: removeLike } = trpc.useMutation("likes.remove-like", {
+    onSuccess: () => {
+      util.invalidateQueries("likes.get-like");
+    },
+  });
 
   if (isLoading) return <Spinner />;
 
   if (like)
     return (
       <Tooltip content="You already like this tour!">
-        <SolidHeartIcon className="w-7 h-7 text-red-600 cursor-pointer"></SolidHeartIcon>
+        <SolidHeartIcon
+          onClick={() => removeLike({ likeId: like.id })}
+          className="w-7 h-7 text-red-600 cursor-pointer"
+        ></SolidHeartIcon>
       </Tooltip>
     );
 

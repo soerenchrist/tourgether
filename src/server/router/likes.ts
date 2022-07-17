@@ -37,4 +37,15 @@ export const likesRouter = createRouter()
         data: like
       });
     }
+  }).mutation("remove-like", {
+    input: z.object({
+      likeId: z.string()
+    }),
+    async resolve({ ctx, input }) {
+      await ctx.prisma.like.delete({
+        where: {
+          id: input.likeId
+        }
+      });
+    }
   })
