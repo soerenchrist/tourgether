@@ -42,6 +42,12 @@ const getExtensions = (point: any) => {
   };
 };
 
+const getFactor = (totalCount: number) => {
+  if (totalCount < 500) return 1;
+  if (totalCount < 1000) return 3;
+  return 5;
+}
+
 export const parseGpx = (content: string): AnalysisResult => {
   const parser = new XMLParser({
     ignoreAttributes: false,
@@ -81,6 +87,7 @@ export const parseGpx = (content: string): AnalysisResult => {
     });
   });
 
+  const factor = getFactor(points.length);
   const sparsedPoints: typeof points = [];
   for (let i = 0; i < points.length - 1; i++) {
     const current = points[i]!;
@@ -98,7 +105,7 @@ export const parseGpx = (content: string): AnalysisResult => {
     else elevationDown += ele * -1;
 
     // Keep the size of the points small
-    if (i % 5 === 0) sparsedPoints.push(current);
+    if (i % factor === 0) sparsedPoints.push(current);
   }
 
   return {

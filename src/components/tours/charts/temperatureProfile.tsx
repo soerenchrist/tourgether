@@ -9,6 +9,13 @@ const filter = <T,>(points: T[], factor: number) => {
   });
   return results;
 };
+const getFactor = (totalCount: number) => {
+  if (totalCount < 100) return 1;
+  if (totalCount < 600) return 3;
+  if (totalCount < 1000) return 5;
+  return 10;
+}
+
 
 const TemperatureProfile: React.FC<{
   points: Point[];
@@ -18,7 +25,7 @@ const TemperatureProfile: React.FC<{
     () => [
       {
         label: "Temperature",
-        data: filter(points, 10),
+        data: filter(points, getFactor(points.length)),
       },
     ],
     [points]

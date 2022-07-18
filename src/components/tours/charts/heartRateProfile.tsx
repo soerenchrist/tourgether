@@ -10,6 +10,13 @@ const filter = <T,>(points: T[], factor: number) => {
   return results;
 };
 
+const getFactor = (totalCount: number) => {
+  if (totalCount < 100) return 1;
+  if (totalCount < 600) return 3;
+  if (totalCount < 1000) return 5;
+  return 10;
+}
+
 const HeartRateProfile: React.FC<{
   points: Point[];
   onHover: (point?: Point) => void;
@@ -18,7 +25,7 @@ const HeartRateProfile: React.FC<{
     () => [
       {
         label: "Heart rates",
-        data: filter(points, 10),
+        data: filter(points, getFactor(points.length)),
       },
     ],
     [points]
