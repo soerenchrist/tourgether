@@ -1,6 +1,7 @@
 import { MapContainer, Marker, TileLayer, useMapEvents } from "react-leaflet";
 import "leaflet-defaulticon-compatibility";
 import { useEffect } from "react";
+import { attribution, layerUrl } from "@/utils/mapConstants";
 
 type Coordinate = {
   lat: number;
@@ -40,8 +41,8 @@ const PeakSelectionMap: React.FC<{
       scrollWheelZoom={true}
     >
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution={attribution}
+        url={layerUrl}
       />
       <Marker position={{ lat: latitude, lng: longitude }} />
       <MapEventHandler

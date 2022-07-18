@@ -1,3 +1,4 @@
+import { attribution, layerUrl } from "@/utils/mapConstants";
 import { Peak } from "@prisma/client";
 import { LatLngExpression } from "leaflet";
 import "leaflet-defaulticon-compatibility";
@@ -15,8 +16,8 @@ const PeakMap: React.FC<{ peak: Peak, dominance?: number | null }> = ({ peak, do
       scrollWheelZoom={true}
     >
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://a.tile.opentopomap.org/{z}/{x}/{y}.png"
+        attribution={attribution}
+        url={layerUrl}
       />
 
       <Marker position={position}>

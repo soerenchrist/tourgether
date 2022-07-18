@@ -1,3 +1,4 @@
+import { attribution, layerUrl } from "@/utils/mapConstants";
 import { trpc } from "@/utils/trpc";
 import { LatLngBounds } from "leaflet";
 import "leaflet-defaulticon-compatibility";
@@ -85,8 +86,8 @@ const PeakSearchMap: React.FC<{ searchTerm: string; onlyClimbed: boolean }> = ({
       scrollWheelZoom={true}
     >
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution={attribution}
+        url={layerUrl}
       />
 
       <MapEventHandler onBoundsChanged={handleBoundsChanged} />

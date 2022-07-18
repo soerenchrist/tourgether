@@ -10,6 +10,7 @@ import { useEffect, useMemo } from "react";
 import "leaflet-defaulticon-compatibility";
 import { calculateBounds } from "@/utils/gpxHelpers";
 import { Peak, Point } from "@prisma/client";
+import { attribution, layerUrl } from "@/utils/mapConstants";
 
 const PositionHandler: React.FC<{
   peaks?: Peak[];
@@ -46,11 +47,11 @@ const TrackLine: React.FC<{ points: Point[] }> = ({ points }) => {
   return <Polyline positions={poly} />;
 };
 
-const TourMap: React.FC<{ peaks?: Peak[]; points?: Point[]; hoverPoint?: Point }> = ({
-  peaks,
-  points,
-  hoverPoint
-}) => {
+const TourMap: React.FC<{
+  peaks?: Peak[];
+  points?: Point[];
+  hoverPoint?: Point;
+}> = ({ peaks, points, hoverPoint }) => {
   return (
     <MapContainer
       className="h-full"
@@ -59,23 +60,25 @@ const TourMap: React.FC<{ peaks?: Peak[]; points?: Point[]; hoverPoint?: Point }
       style={{ zIndex: 0 }}
       scrollWheelZoom={true}
     >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
+      <TileLayer attribution={attribution} url={layerUrl} />
 
       <PositionHandler peaks={peaks} points={points} />
       {peaks?.map((peak) => (
         <Marker key={peak.id} position={[peak.latitude, peak.longitude]}>
-          <Tooltip permanent>{peak.name} ({peak.height} m)</Tooltip>
+          <Tooltip permanent>
+            {peak.name} ({peak.height} m)
+          </Tooltip>
         </Marker>
       ))}
       {points && <TrackLine points={points} />}
-      {hoverPoint && <Marker position={[hoverPoint.latitude, hoverPoint.longitude]}>
-        <Tooltip permanent>
-          <b>{hoverPoint.time.toLocaleTimeString()}</b> ({Math.round(hoverPoint.elevation)} m)
-        </Tooltip>
-      </Marker>}
+      {hoverPoint && (
+        <Marker position={[hoverPoint.latitude, hoverPoint.longitude]}>
+          <Tooltip permanent>
+            <b>{hoverPoint.time.toLocaleTimeString()}</b> (
+            {Math.round(hoverPoint.elevation)} m)
+          </Tooltip>
+        </Marker>
+      )}
     </MapContainer>
   );
 };
