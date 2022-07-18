@@ -18,6 +18,7 @@ import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { ReactNode, useState } from "react";
+import PeakDetailCard from "@/components/peaks/peakDetailCard";
 
 const Map = dynamic(() => import("../../components/maps/peakMap"), {
   ssr: false,
@@ -63,7 +64,8 @@ const WishlistButton: React.FC<{ id: string }> = ({ id }) => {
   };
 
   let icon: ReactNode;
-  if (wishlistItem === null) icon = <OutlinedHeartIcon onClick={toggle} className={classes} />;
+  if (wishlistItem === null)
+    icon = <OutlinedHeartIcon onClick={toggle} className={classes} />;
   else icon = <HeartIcon onClick={toggle} className={classes} />;
 
   return (
@@ -97,6 +99,17 @@ const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
       peakId: id,
     },
   ]);
+  const { data: wikidata } = trpc.useQuery(
+    [
+      "wikidata.get-wikidata",
+      {
+        wikidataId: peak?.wikidata ?? "",
+      },
+    ],
+    {
+      enabled: peak?.wikidata !== undefined && peak?.wikidata !== null,
+    }
+  );
 
   if (isLoading) {
     return <Spinner size="xl" />;
@@ -111,50 +124,51 @@ const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
       <Head>
         <title>Peak - {peak.name}</title>
       </Head>
-      <div className="grid xl:grid-cols-2 grid-cols-1 gap-4">
+      <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
+        <PeakDetailCard peak={peak} wikidata={wikidata} />
         <Card>
           <div className="flex flex-col h-full justify-start gap-4">
-            <div className="flex justify-between">
-              <CardTitle title={`${peak.name} (${peak.height} m)`} />
-              <div className="flex justify-end">
-                <WishlistButton id={id} />
-                {peak.creatorId && (
-                  <Dropdown
-                    inline={true}
-                    arrowIcon={false}
-                    label={
-                      <DotsVerticalIcon className="h-5 w-5 cursor-pointer" />
-                    }
-                  >
-                    <div className="bg-white h-full w-full">
-                      <Dropdown.Item onClick={() => setShowDelete(true)}>
-                        <div className="flex">
-                          <TrashIcon className="w-5 h-5 mr-2" />
-                          Delete this Peak
-                        </div>
-                      </Dropdown.Item>
-                      <Dropdown.Item
-                        onClick={() => router.push(`/peaks/edit/${peak.id}`)}
-                      >
-                        <div className="flex">
-                          <PencilIcon className="w-5 h-5 mr-2" />
-                          Edit Peak
-                        </div>
-                      </Dropdown.Item>
-                    </div>
-                  </Dropdown>
-                )}
-              </div>
+            <div className="flex justify-end">
+              <WishlistButton id={id} />
+              {peak.creatorId && (
+                <Dropdown
+                  inline={true}
+                  arrowIcon={false}
+                  label={
+                    <DotsVerticalIcon className="h-5 w-5 cursor-pointer" />
+                  }
+                >
+                  <div className="bg-white h-full w-full">
+                    <Dropdown.Item onClick={() => setShowDelete(true)}>
+                      <div className="flex">
+                        <TrashIcon className="w-5 h-5 mr-2" />
+                        Delete this Peak
+                      </div>
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      onClick={() => router.push(`/peaks/edit/${peak.id}`)}
+                    >
+                      <div className="flex">
+                        <PencilIcon className="w-5 h-5 mr-2" />
+                        Edit Peak
+                      </div>
+                    </Dropdown.Item>
+                  </div>
+                </Dropdown>
+              )}
             </div>
-            <Map peak={peak} />
+            <Map peak={peak} dominance={wikidata?.dominance} />
           </div>
         </Card>
+        <div className="lg:col-span-2 col-span-1">
+
         <Card>
           <div className="flex flex-col justify-start h-full gap-4">
             <CardTitle title={`Your Tours to ${peak.name}`} />
             <ToursTable tours={tours} isLoading={toursLoading} />
           </div>
         </Card>
+        </div>
       </div>
       <ConfirmationModal
         text="Do you really want to delete this peak? All data will be lost?"

@@ -2,16 +2,16 @@ import { Peak } from "@prisma/client";
 import { LatLngExpression } from "leaflet";
 import "leaflet-defaulticon-compatibility";
 import { useMemo } from "react";
-import { MapContainer, Marker, TileLayer, Tooltip } from "react-leaflet";
+import { Circle, MapContainer, Marker, TileLayer, Tooltip } from "react-leaflet";
 
-const PeakMap: React.FC<{ peak: Peak }> = ({ peak }) => {
+const PeakMap: React.FC<{ peak: Peak, dominance?: number | null }> = ({ peak, dominance }) => {
 
   const position: LatLngExpression = useMemo(() => [peak.latitude, peak.longitude], [peak]);
   return (
     <MapContainer
       className="h-96 z-0"
       center={position}
-      zoom={12}
+      zoom={10}
       scrollWheelZoom={true}
     >
       <TileLayer
@@ -20,10 +20,12 @@ const PeakMap: React.FC<{ peak: Peak }> = ({ peak }) => {
       />
 
       <Marker position={position}>
-        <Tooltip permanent>
+        <Tooltip>
           <span className="text-xl">{peak.name}</span>
         </Tooltip>
       </Marker>
+      {dominance && <Circle center={position} radius={dominance*1000} color="#e53935" fillOpacity={0.1}>
+        <Tooltip>Dominance: {dominance} km</Tooltip></Circle>}
     </MapContainer>
   );
 };
