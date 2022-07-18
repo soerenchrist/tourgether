@@ -4,6 +4,7 @@ import { trpc } from "@/utils/trpc";
 import { Badge, Card } from "flowbite-react";
 import { NextPage } from "next";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 
 const ExplorePageContent = () => {
   const { data: tours } = trpc.useQuery([
@@ -12,12 +13,14 @@ const ExplorePageContent = () => {
       sortMode: "RECENT",
     },
   ]);
+  const router = useRouter();
+
   return (
     <div className="grid lg:grid-cols-4 grid-cols-2 gap-4">
       {tours?.map((tour) => (
         <Card key={tour.id}>
           <div className="flex flex-col gap-2 justify-start">
-            <CardTitle title={tour.name} />
+            <CardTitle className="cursor-pointer" onClick={() => router.push(`/tours/${tour.id}`)} title={tour.name} />
             <span className="text-sm text-gray-600 -mt-2">
               Created by {tour.creator.name}
             </span>
