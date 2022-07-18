@@ -52,7 +52,7 @@ const TourCard: React.FC<{
         )}
         {peaks.length > 0 && (
           <div className="h-52">
-            <Map peaks={peaks} />
+            <Map peaks={peaks} allowScrolling={false} />
           </div>
         )}
       </div>

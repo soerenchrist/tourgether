@@ -51,14 +51,15 @@ const TourMap: React.FC<{
   peaks?: Peak[];
   points?: Point[];
   hoverPoint?: Point;
-}> = ({ peaks, points, hoverPoint }) => {
+  allowScrolling?: boolean
+}> = ({ peaks, points, hoverPoint, allowScrolling }) => {
   return (
     <MapContainer
       className="h-96 lg:h-full"
       center={[47, 11]}
       zoom={13}
       style={{ zIndex: 0 }}
-      scrollWheelZoom={true}
+      scrollWheelZoom={allowScrolling === undefined ? true : allowScrolling}
     >
       <TileLayer attribution={attribution} url={layerUrl} />
 

@@ -91,8 +91,8 @@ const Header = ({
               <Link href="/wishlist">
                 <span className="cursor-pointer">Wishlist</span>
               </Link>
-              <Link href="/friends">
-                <span className="cursor-pointer">Friends</span>
+              <Link href="/explore">
+                <span className="cursor-pointer">Explore</span>
               </Link>
             </>
           </Navbar.Collapse>
