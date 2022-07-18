@@ -2,7 +2,6 @@ import RecentActivities from "@/components/dashboard/recentActivities";
 import HistoryChart from "@/components/dashboard/historyChart";
 import TotalsDisplay from "@/components/dashboard/totalsDisplay";
 import LayoutBase from "@/components/layout/layoutBase";
-import { Spinner } from "flowbite-react";
 import { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import Head from "next/head";

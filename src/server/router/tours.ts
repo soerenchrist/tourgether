@@ -4,6 +4,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createRouter } from "./context";
 import { getFriends } from "./friends";
+import {  } from "prisma/prisma-client";
 
 export const toursRouter = createRouter()
   .middleware(async ({ ctx, next }) => {
@@ -102,6 +103,57 @@ export const toursRouter = createRouter()
 
       if (!friendsTour) throw new TRPCError({ code: "NOT_FOUND" });
       return { viewer: true, ...friendsTour };
+    },
+  })
+  .query("get-explore-tours", {
+    input: z.object({
+      peakId: z.string().optional(),
+      sortMode: z.enum(["RECENT", "LIKES"]),
+    }),
+    async resolve({ ctx, input }) {
+      const peakFilter = input.peakId
+        ? {
+            tourPeaks: {
+              some: {
+                peak: {
+                  id: input.peakId,
+                },
+              },
+            },
+          }
+        : {};
+
+      const dateOrder = {
+        date: "desc"
+      } as any; // type does not get inferred correctly ---> any
+      const likeOrder = {
+        likes: {
+          _count: "desc"
+        }
+      };
+      const results = await ctx.prisma.tour.findMany({
+        take: 5,
+        where: {
+          visibility: "PUBLIC",
+          ...peakFilter,
+        },
+        include: {
+          _count: {
+            select: {
+              likes: true,
+            },
+          },
+          creator: true,
+          tourPeaks: {
+            include: {
+              peak: true
+            }
+          }
+        },
+        orderBy: input.sortMode === "RECENT" ? dateOrder : likeOrder
+      });
+
+      return results;
     },
   })
   .query("get-totals", {
@@ -231,13 +283,13 @@ export const toursRouter = createRouter()
 
       await ctx.prisma.like.deleteMany({
         where: {
-          tourId: input.id
-        }
+          tourId: input.id,
+        },
       });
       await ctx.prisma.comment.deleteMany({
         where: {
-          tourId: input.id
-        }
+          tourId: input.id,
+        },
       });
 
       await ctx.prisma.tourPeak.deleteMany({
