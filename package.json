@@ -22,8 +22,6 @@
     "@trpc/next": "^9.25.3",
     "@trpc/react": "^9.25.3",
     "@trpc/server": "^9.25.3",
-    "aws-sdk": "^2.1168.0",
-    "axios": "^0.27.2",
     "cookies-next": "^2.1.1",
     "fast-xml-parser": "^4.0.9",
     "flowbite": "^1.4.7",

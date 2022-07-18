@@ -1,4 +1,4 @@
-import FriendsTours from "@/components/dashboard/friendsTours";
+import RecentActivities from "@/components/dashboard/recentActivities";
 import HistoryChart from "@/components/dashboard/historyChart";
 import TotalsDisplay from "@/components/dashboard/totalsDisplay";
 import LayoutBase from "@/components/layout/layoutBase";
@@ -12,7 +12,7 @@ const DashboardContent = () => {
       <TotalsDisplay />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <HistoryChart className="lg:col-span-2"  />
-        <FriendsTours />
+        <RecentActivities />
       </div>
     </div>
   )

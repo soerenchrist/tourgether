@@ -2,8 +2,16 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createRouter } from "./context";
 import * as uuid from "uuid";
-import { PrismaClient, User } from "@prisma/client";
+import { PrismaClient, Tour, User } from "@prisma/client";
 
+export type Interaction = {
+  id: string,
+  date: Date,
+  content?: string,
+  tour: Tour,
+  user: User,
+  type: "like" | "comment"
+}
 export const getFriends = async (prisma: PrismaClient, userId: string) => {
   const friendships = await prisma.friendship.findMany({
     where: {
@@ -93,6 +101,65 @@ export const friendsRouter = createRouter()
     async resolve({ ctx }) {
       return await getFriends(ctx.prisma, ctx.userId);
     },
+  })
+  .query("get-recent-interactions", {
+    async resolve({ ctx }) {
+      const likes = await ctx.prisma.like.findMany({
+        take: 5,
+        where: {
+          tour: {
+            creatorId: ctx.userId
+          }
+        },
+        include: {
+          user: true,
+          tour: true,
+        },
+        orderBy: {
+          date: "desc"
+        }
+      })
+      const comments = await ctx.prisma.comment.findMany({
+        take: 5,
+        where: {
+          tour: {
+            creatorId: ctx.userId
+          }
+        },
+        include: {
+          user: true,
+          tour: true,
+        },
+        orderBy: {
+          date: "desc"
+        }
+      })
+
+
+      const interactions: Interaction[] = [];
+      likes.forEach(like => {
+        interactions.push({
+          date: like.date,
+          id: like.id,
+          tour: like.tour,
+          user: like.user,
+          content: undefined,
+          type: "like"
+        });
+      })
+      comments.forEach(comment => {
+        interactions.push({
+          date: comment.date,
+          id: comment.id,
+          tour: comment.tour,
+          user: comment.user,
+          content: comment.content,
+          type: "comment"
+        });
+      })
+
+      return interactions.sort((a, b) => b.date.getDate() - a.date.getDate())
+    }
   })
   .mutation("decline-friend-request", {
     input: z.object({
