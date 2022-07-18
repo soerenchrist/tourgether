@@ -5,14 +5,22 @@ import { getCookie } from "cookies-next";
 import { prisma } from "../db/client";
 
 export const createContext = async (
-  opts?: trpcNext.CreateNextContextOptions,
+  opts?: trpcNext.CreateNextContextOptions
 ) => {
   const req = opts?.req;
   const res = opts?.res;
-  
-  const token = getCookie('next-auth.session-token', {req, res}) as string 
-  const session = await prisma.session.findUnique({where: {sessionToken: token}})
-  
+
+  let token = getCookie("next-auth.session-token", { req, res }) as string;
+  if (!token) {
+    token = getCookie("__Secure-next-auth.session-token", {
+      req,
+      res,
+    }) as string;
+  }
+  const session = await prisma.session.findUnique({
+    where: { sessionToken: token },
+  });
+
   return {
     req,
     res,

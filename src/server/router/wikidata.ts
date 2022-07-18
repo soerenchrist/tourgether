@@ -70,7 +70,7 @@ export const wikidataRouter = createRouter()
       const claims = entity.claims;
       const dominance = getDominance(claims);
       const image = getImage(claims);
-      console.log(image);
+      
       return {
         description: description["value"],
         dominance,
