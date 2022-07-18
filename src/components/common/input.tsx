@@ -12,6 +12,7 @@ type Props = {
   onFocus?: FocusEventHandler<HTMLInputElement>;
   onBlur?: FocusEventHandler<HTMLInputElement>;
   error?: string;
+  autoComplete?: string;
   type?: "text" | "date" | "datetime" | "time" | "number"
 };
 

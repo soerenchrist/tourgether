@@ -20,7 +20,7 @@ import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Map = dynamic(() => import("../../components/maps/peakSearchMap"), {
   ssr: false,
@@ -47,10 +47,15 @@ const PeaksPageContent: React.FC = () => {
   const totalPages = Math.ceil((data?.totalCount ?? 1) / count);
   const router = useRouter();
 
+  useEffect(() => {
+    setPage(1);
+  },[debouncedSearchTerm]);
+
   const filterBar = (
     <>
       <Input
         value={searchTerm}
+        autoComplete="off"
         onChange={(e) => setSearchTerm(e.target.value)}
         placeholder="Search..."
         id="searchPeaks"
@@ -103,8 +108,8 @@ const PeaksPageContent: React.FC = () => {
       <div className="flex justify-between p-2 items-center">
         <div>
           <PaginationText
-            from={page * count}
-            to={page * count + (data?.peaks.length ?? 0)}
+            from={(page - 1) * count}
+            to={(page - 1) * count + (data?.peaks.length ?? 0)}
             total={data?.totalCount ?? 0}
           />
           <Pagination

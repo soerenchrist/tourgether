@@ -130,6 +130,11 @@ export const peaksRouter = createRouter()
               creatorId: ctx.userId,
             },
           ],
+          ...onlyClimbedQuery,
+          ...boundsQuery,
+          name: {
+            contains: input.searchTerm,
+          },
         },
       });
 
