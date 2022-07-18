@@ -229,6 +229,17 @@ export const toursRouter = createRouter()
         },
       });
 
+      await ctx.prisma.like.deleteMany({
+        where: {
+          tourId: input.id
+        }
+      });
+      await ctx.prisma.comment.deleteMany({
+        where: {
+          tourId: input.id
+        }
+      });
+
       await ctx.prisma.tourPeak.deleteMany({
         where: {
           tourId: input.id,
