@@ -74,12 +74,19 @@ export const toursRouter = createRouter()
       };
       const tour = await ctx.prisma.tour.findFirst({
         where: {
-          creatorId: ctx.userId,
           id: input.id,
+          OR: [
+            {
+              creatorId: ctx.userId,
+            },
+            {
+              visibility: "PUBLIC",
+            },
+          ],
         },
         include,
       });
-      if (tour) return { viewer: false, ...tour };
+      if (tour) return { viewer: tour.creatorId !== ctx.userId, ...tour };
 
       const friends = await getFriends(ctx.prisma, ctx.userId);
       const friendsIds = friends.map((f) => f.id);

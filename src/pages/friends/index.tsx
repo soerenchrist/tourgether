@@ -55,7 +55,7 @@ const FriendsPageContent = () => {
               <Table.Cell className="flex justify-end">
                 <span
                   className="text-blue-500 hover:underline font-medium cursor-pointer"
-                  onClick={() => setQuitUserId(f.email!)}
+                  onClick={() => setQuitUserId(f.id)}
                 >
                   Quit
                 </span>
