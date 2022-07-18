@@ -17,21 +17,39 @@ export const toursRouter = createRouter()
     input: z.object({
       page: z.number().min(1),
       count: z.number(),
+      searchTerm: z.string(),
     }),
     async resolve({ ctx, input }) {
       const { count, page } = input;
       const skip = count * (page - 1);
+
+      const searchFilter = {
+        OR: [
+          {
+            name: {
+              contains: input.searchTerm,
+            },
+          },
+          {
+            description: {
+              contains: input.searchTerm,
+            },
+          },
+        ],
+      };
 
       const tours = await ctx.prisma.tour.findMany({
         skip: skip,
         take: count,
         where: {
           creatorId: ctx.userId,
+          ...searchFilter,
         },
       });
       const totalCount = await ctx.prisma.tour.count({
         where: {
           creatorId: ctx.userId,
+          ...searchFilter,
         },
       });
       return {
@@ -59,21 +77,20 @@ export const toursRouter = createRouter()
           creatorId: ctx.userId,
           id: input.id,
         },
-        include
+        include,
       });
-      if (tour)
-        return { viewer: false, ...tour };
+      if (tour) return { viewer: false, ...tour };
 
       const friends = await getFriends(ctx.prisma, ctx.userId);
-      const friendsIds = friends.map(f => f.id);
+      const friendsIds = friends.map((f) => f.id);
       const friendsTour = await ctx.prisma.tour.findFirst({
         where: {
           creatorId: {
-            in: friendsIds
+            in: friendsIds,
           },
-          id: input.id
+          id: input.id,
         },
-        include
+        include,
       });
 
       if (!friendsTour) throw new TRPCError({ code: "NOT_FOUND" });
@@ -126,8 +143,8 @@ export const toursRouter = createRouter()
                 },
               },
               {
-                creatorId: ctx.userId
-              }
+                creatorId: ctx.userId,
+              },
             ],
           },
           _sum: {

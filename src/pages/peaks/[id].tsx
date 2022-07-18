@@ -161,13 +161,16 @@ const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
           </div>
         </Card>
         <div className="lg:col-span-2 col-span-1">
-
-        <Card>
-          <div className="flex flex-col justify-start h-full gap-4">
-            <CardTitle title={`Your Tours to ${peak.name}`} />
-            <ToursTable tours={tours} isLoading={toursLoading} />
-          </div>
-        </Card>
+          <Card>
+            <div className="flex flex-col justify-start h-full gap-4">
+              <CardTitle title={`Your Tours to ${peak.name}`} />
+              <ToursTable
+                tours={tours}
+                isLoading={toursLoading}
+                noResultsText={`You don't have any tours to ${peak.name} yet.`}
+              />
+            </div>
+          </Card>
         </div>
       </div>
       <ConfirmationModal
