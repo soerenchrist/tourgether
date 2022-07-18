@@ -54,7 +54,7 @@ const TourMap: React.FC<{
 }> = ({ peaks, points, hoverPoint }) => {
   return (
     <MapContainer
-      className="h-full"
+      className="h-96 lg:h-full"
       center={[47, 11]}
       zoom={13}
       style={{ zIndex: 0 }}

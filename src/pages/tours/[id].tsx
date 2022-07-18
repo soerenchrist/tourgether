@@ -95,7 +95,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
       <Head>
         <title>Tour - {data.name}</title>
       </Head>
-      <div className="grid grid-cols-2 gap-6 mb-4">
+      <div className="grid lg:grid-cols-2 grid-cols-1 gap-6 mb-4">
         <Card>
           <div className="flex justify-between">
             <CardTitle title={data.name ?? ""} />
