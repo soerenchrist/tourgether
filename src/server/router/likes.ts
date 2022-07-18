@@ -9,7 +9,20 @@ export const likesRouter = createRouter()
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
     return next({ ctx: { ...ctx, userId } });
-  }).query("get-like", {
+  })
+  .query("like-count", {
+    input: z.object({
+      tourId: z.string()
+    }),
+    async resolve({ ctx, input }) {
+      return await ctx.prisma.like.count({
+        where: {
+          tourId: input.tourId
+        }
+      });
+    }
+  })
+  .query("get-like", {
     input: z.object({
         tourId: z.string() 
     }),

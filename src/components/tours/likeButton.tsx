@@ -4,7 +4,7 @@ import { HeartIcon as OutlinedHeartIcon } from "@heroicons/react/outline";
 import { Tour } from "@prisma/client";
 import { Spinner, Tooltip } from "flowbite-react";
 
-const LikeButton: React.FC<{ tour: Tour }> = ({ tour }) => {
+const LikeButton: React.FC<{ tour: Tour, onLiked?: () => void, onRemovedLike?: () => void }> = ({ tour, onLiked, onRemovedLike }) => {
   const { data: like, isLoading } = trpc.useQuery([
     "likes.get-like",
     {
@@ -15,11 +15,15 @@ const LikeButton: React.FC<{ tour: Tour }> = ({ tour }) => {
   const { mutate: addLike } = trpc.useMutation("likes.add-like", {
     onSuccess: () => {
       util.invalidateQueries("likes.get-like");
+      if (onLiked)
+        onLiked();
     },
   });
   const { mutate: removeLike } = trpc.useMutation("likes.remove-like", {
     onSuccess: () => {
       util.invalidateQueries("likes.get-like");
+      if (onRemovedLike)
+        onRemovedLike();
     },
   });
 
@@ -40,7 +44,9 @@ const LikeButton: React.FC<{ tour: Tour }> = ({ tour }) => {
       <OutlinedHeartIcon
         onClick={() => addLike({ tourId: tour.id })}
         className="w-7 h-7 text-red-600 cursor-pointer"
-      ></OutlinedHeartIcon>
+      >
+      </OutlinedHeartIcon>
+
     </Tooltip>
   );
 };
