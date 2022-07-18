@@ -6,75 +6,92 @@ import { trpc } from "@/utils/trpc";
 import { Card, Spinner, Table } from "flowbite-react";
 import { NextPage } from "next";
 import { useSession } from "next-auth/react";
+import Head from "next/head";
 import { useState } from "react";
 
 const FriendsPageContent = () => {
   const [quitUserId, setQuitUserId] = useState<string>();
-  const { data: friends, isLoading } = trpc.useQuery(["friends.get-my-friends"])
+  const { data: friends, isLoading } = trpc.useQuery([
+    "friends.get-my-friends",
+  ]);
   const util = trpc.useContext();
   const { mutate: quit } = trpc.useMutation("friends.quit-friendship", {
     onSuccess: () => {
-      util.invalidateQueries("friends.get-my-friends")
+      util.invalidateQueries("friends.get-my-friends");
       setQuitUserId(undefined);
-    }
-  })
+    },
+  });
 
-  if (isLoading) return <Spinner size="xl" />
-  if (!friends) return <></>
+  if (isLoading) return <Spinner size="xl" />;
+  if (!friends) return <></>;
 
   const quitFriendship = () => {
     if (!quitUserId) return;
 
-    quit({ userId: quitUserId })
-  }
+    quit({ userId: quitUserId });
+  };
 
-  return <Card>
-    <CardTitle title="Your friends" />
-    <Table>
-      <Table.Head>
-        <Table.HeadCell>
-          Name
-        </Table.HeadCell>
-        <Table.HeadCell>
-          Email
-        </Table.HeadCell>
-        <Table.HeadCell></Table.HeadCell>
-      </Table.Head>
-      <Table.Body>
-        {friends.length === 0 && <Table.Row><Table.Cell>{"Start making connections with your friends!"}</Table.Cell></Table.Row>}
-        {friends.map(f => (
-          <Table.Row key={f.id}>
-            <Table.Cell>
-              {f.name}
-            </Table.Cell>
-            <Table.Cell>
-              {f.email}
-            </Table.Cell>
-            <Table.Cell className="flex justify-end">
-              <span className="text-blue-500 hover:underline font-medium cursor-pointer" onClick={() => setQuitUserId(f.email!)}>Quit</span>
-            </Table.Cell>
-          </Table.Row>
-        ))}
-      </Table.Body>
-    </Table>
-    <CreateInvitationButton />
-    <ConfirmationModal accept={quitFriendship}
-      decline={() => setQuitUserId(undefined)}
-      show={quitUserId !== undefined}
-      text="Do you really want to quit your friendship?"
-      acceptButton="Quit"
-      acceptColor="failure" />
-  </Card>
-}
+  return (
+    <Card>
+      <CardTitle title="Your friends" />
+      <Table>
+        <Table.Head>
+          <Table.HeadCell>Name</Table.HeadCell>
+          <Table.HeadCell>Email</Table.HeadCell>
+          <Table.HeadCell></Table.HeadCell>
+        </Table.Head>
+        <Table.Body>
+          {friends.length === 0 && (
+            <Table.Row>
+              <Table.Cell>
+                {"Start making connections with your friends!"}
+              </Table.Cell>
+            </Table.Row>
+          )}
+          {friends.map((f) => (
+            <Table.Row key={f.id}>
+              <Table.Cell>{f.name}</Table.Cell>
+              <Table.Cell>{f.email}</Table.Cell>
+              <Table.Cell className="flex justify-end">
+                <span
+                  className="text-blue-500 hover:underline font-medium cursor-pointer"
+                  onClick={() => setQuitUserId(f.email!)}
+                >
+                  Quit
+                </span>
+              </Table.Cell>
+            </Table.Row>
+          ))}
+        </Table.Body>
+      </Table>
+      <CreateInvitationButton />
+      <ConfirmationModal
+        accept={quitFriendship}
+        decline={() => setQuitUserId(undefined)}
+        show={quitUserId !== undefined}
+        text="Do you really want to quit your friendship?"
+        acceptButton="Quit"
+        acceptColor="failure"
+      />
+    </Card>
+  );
+};
 
 const FriendsPage: NextPage = () => {
   const { status } = useSession();
 
   let content = <FriendsPageContent></FriendsPageContent>;
-  if (status === "unauthenticated") content = <p>Access denied</p>
-  else if (status === "loading") content = <Spinner size="xl"></Spinner>
+  if (status === "unauthenticated") content = <p>Access denied</p>;
+  else if (status === "loading") content = <Spinner size="xl"></Spinner>;
 
-  return <LayoutBase>{content}</LayoutBase>
-}
+  return (
+    <>
+      <Head>
+        <title>My Friends</title>
+      </Head>
+      <LayoutBase>{content}</LayoutBase>
+    </>
+  );
+};
 
 export default FriendsPage;

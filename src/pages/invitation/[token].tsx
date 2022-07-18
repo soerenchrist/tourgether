@@ -6,6 +6,7 @@ import { FriendRequest, Tour, User } from "@prisma/client";
 import { Button, Card, Spinner } from "flowbite-react";
 import { Session } from "next-auth";
 import { signIn, useSession } from "next-auth/react";
+import Head from "next/head";
 import Link from "next/link";
 import { NextRouter, useRouter } from "next/router";
 import { ReactNode, useRef } from "react";
@@ -142,7 +143,14 @@ const InvitationPage = () => {
     content = <InvitationPageContent token={token} session={session!} />;
   }
 
-  return <LayoutBase>{content}</LayoutBase>;
+  return (
+    <>
+      <Head>
+        <title>Friend Requests!</title>
+      </Head>
+      <LayoutBase>{content}</LayoutBase>
+    </>
+  );
 };
 
 export default InvitationPage;

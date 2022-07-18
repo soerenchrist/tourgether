@@ -9,6 +9,7 @@ import CardTitle from "@/components/common/cardTitle";
 import { useState } from "react";
 import ToursTable from "@/components/tours/toursTable";
 import PaginationText from "@/components/common/paginationText";
+import Head from "next/head";
 
 const PaginatedToursTable: React.FC<{
   isLoading: boolean;
@@ -82,7 +83,14 @@ const ToursPage: NextPage = () => {
   if (status === "unauthenticated") content = <p>Access denied</p>;
   else if (status === "loading") content = <Spinner size="xl" />;
 
-  return <LayoutBase>{content}</LayoutBase>;
+  return (
+    <>
+      <Head>
+        <title>My Tours</title>
+      </Head>
+      <LayoutBase>{content}</LayoutBase>
+    </>
+  );
 };
 
 export default ToursPage;

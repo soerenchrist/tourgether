@@ -5,6 +5,7 @@ import { trpc } from "@/utils/trpc";
 import { Card, Checkbox, Spinner, Table } from "flowbite-react";
 import { NextPage } from "next";
 import { useSession } from "next-auth/react";
+import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
@@ -95,7 +96,14 @@ const WishlistPage: NextPage = () => {
   if (status === "unauthenticated") content = <p>Access denied</p>;
   else if (status === "loading") content = <Spinner size="xl"></Spinner>;
 
-  return <LayoutBase>{content}</LayoutBase>;
+  return (
+    <>
+      <Head>
+        <title>My Wishlist</title>
+      </Head>
+      <LayoutBase>{content}</LayoutBase>
+    </>
+  );
 };
 
 export default WishlistPage;

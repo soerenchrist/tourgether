@@ -6,7 +6,7 @@ import { Card, Dropdown, Spinner } from "flowbite-react";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
-import { Router, useRouter } from "next/router";
+import { useRouter } from "next/router";
 import { ReactNode, useMemo, useState } from "react";
 import {
   DotsVerticalIcon,

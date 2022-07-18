@@ -18,6 +18,7 @@ import {
 import { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { useState } from "react";
 
@@ -131,7 +132,14 @@ const PeaksPage: NextPage = () => {
   if (status === "unauthenticated") content = <p>Access denied</p>;
   else if (status === "loading") content = <Spinner size="xl" />;
 
-  return <LayoutBase>{content}</LayoutBase>;
+  return (
+    <>
+      <Head>
+        <title>Peaks</title>
+      </Head>
+      <LayoutBase>{content}</LayoutBase>
+    </>
+  );
 };
 
 export default PeaksPage;

@@ -4,7 +4,7 @@ import { trpc } from "@/utils/trpc";
 import { Card, Spinner, Table } from "flowbite-react";
 import { NextPage } from "next";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
+import Head from "next/head";
 import { ReactNode } from "react";
 
 const MyInvitationsPageContent: React.FC = () => {
@@ -85,7 +85,14 @@ const MyInvitationsPage: NextPage = () => {
   else if (status === "unauthenticated") content = <p>Access denied</p>;
   else content = <MyInvitationsPageContent />;
 
-  return <LayoutBase>{content}</LayoutBase>;
+  return (
+    <>
+      <Head>
+        <title>My friend requests</title>
+      </Head>
+      <LayoutBase>{content}</LayoutBase>
+    </>
+  );
 };
 
 export default MyInvitationsPage;

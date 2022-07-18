@@ -3,6 +3,7 @@ import EditToursForm from "@/components/tours/editToursForm";
 import { Spinner } from "flowbite-react";
 import { NextPage } from "next";
 import { useSession } from "next-auth/react";
+import Head from "next/head";
 
 
 const CreateTourContent = () => {
@@ -16,7 +17,14 @@ const CreateTourPage: NextPage = () => {
   if (status === "unauthenticated") content = <p>Access denied</p>;
   else if (status === "loading") content = <Spinner size="xl" />;
 
-  return <LayoutBase>{content}</LayoutBase>;
+  return (
+    <>
+      <Head>
+        <title>Create a new tour</title>
+      </Head>
+      <LayoutBase>{content}</LayoutBase>
+    </>
+  );
 };
 
 export default CreateTourPage;
