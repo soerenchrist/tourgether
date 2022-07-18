@@ -55,6 +55,7 @@ const OwnerMenu: React.FC<{
 const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
   const { data, isLoading } = trpc.useQuery(["tours.get-tour-by-id", { id }], {
     retry: false,
+    refetchOnWindowFocus: false
   });
   const router = useRouter();
   const [hoverPoint, setHoverPoint] = useState<Point>();
