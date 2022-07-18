@@ -85,6 +85,10 @@ model Peak {
     latitude Float
     longitude Float
     height Int
+    prominence Int?
+    cross Boolean?
+    register Boolean?
+    massif String?
     wikipedia String?
     wikidata String?
     tourPeaks TourPeak[]

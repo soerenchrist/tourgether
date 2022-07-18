@@ -10,10 +10,17 @@ const load = async () => {
       return;
     }
 
-    const result = await prisma.peak.createMany({
-      data: peaks
-    });
-    console.log(`Inserted ${result.count} peaks into db`);
+    const chunkSize = 1000;
+    for (let i = 0; i < peaks.length; i += chunkSize) {
+        const chunk = peaks.slice(i, i + chunkSize);
+        
+        const result = await prisma.peak.createMany({
+          data: chunk
+        });
+
+        console.log(`Inserted ${result.count} peaks into db`);
+    }
+
     console.log("Database seed finished")
   } catch(e) {
     console.error(e);

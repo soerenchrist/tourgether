@@ -148,18 +148,7 @@ export const peaksRouter = createRouter()
         where: {
           peakId: input.peakId,
           tour: {
-            OR: [
-              {
-                creatorId: ctx.userId,
-              },
-              {
-                viewers: {
-                  some: {
-                    viewerId: ctx.userId,
-                  },
-                },
-              },
-            ],
+            creatorId: ctx.userId,
           },
         },
         select: {
