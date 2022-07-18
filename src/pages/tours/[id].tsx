@@ -98,7 +98,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
         <Card>
           <div className="flex justify-between">
             <CardTitle title={data.name ?? ""} />
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end items-center gap-3">
               <CommentButton tour={data} />
               {!data.viewer && (
                 <OwnerMenu onEdit={onEdit} setShowDelete={setShowDelete} />

@@ -1,5 +1,5 @@
 import { trpc } from "@/utils/trpc";
-import { ChatIcon } from "@heroicons/react/outline";
+import { AnnotationIcon } from "@heroicons/react/outline";
 import { Comment, Tour, User } from "@prisma/client";
 import {
   Avatar,
@@ -69,10 +69,10 @@ const CommentButton: React.FC<{ tour: Tour }> = ({ tour }) => {
   return (
     <>
       <Tooltip content="Leave a comment">
-        <ChatIcon
+        <AnnotationIcon
           onClick={() => setShowModal(true)}
           className="w-7 h-7 cursor-pointer"
-        ></ChatIcon>
+        ></AnnotationIcon>
       </Tooltip>
 
       <Modal show={showModal} onClose={() => setShowModal(false)}>
@@ -89,8 +89,8 @@ const CommentButton: React.FC<{ tour: Tour }> = ({ tour }) => {
           </List>
         </Modal.Body>
         <Modal.Footer>
-          <div className="flex flex-row">
-            <div className="grow">
+          <div className="flex flex-row justify-between w-full">
+            <div className="grow flex-1 mr-2">
               <TextInput
                 id="content"
                 value={content}

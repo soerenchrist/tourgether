@@ -47,10 +47,18 @@ export const InteractionItem: React.FC<{ interaction: Interaction }> = ({
         <div className="flex-1 min-w-0">
           <Link href={`/tours/${interaction.tour.id}`}>
             <div className="text-sm text-gray-900 dark:text-white cursor-pointer">
-              {interaction.type === "comment" &&
-                `${interaction.user.name} commented on your tour ${interaction.tour.name}`}
-              {interaction.type === "like" &&
-                `${interaction.user.name} liked your tour ${interaction.tour.name}`}
+              {interaction.type === "comment" && (
+                <span>
+                  {interaction.user.name} commented on your tour{" "}
+                  <span className="font-medium">{interaction.tour.name}</span>
+                </span>
+              )}
+              {interaction.type === "like" && (
+                <span>
+                  {interaction.user.name} liked your tour{" "}
+                  <span className="font-medium">{interaction.tour.name}</span>
+                </span>
+              )}
             </div>
           </Link>
           <p className="text-sm text-gray-500 truncate dark:text-gray-400">
