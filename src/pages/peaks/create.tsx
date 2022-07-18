@@ -16,7 +16,7 @@ const CreatePeakPage: NextPage = () => {
 
   let content = <CreatePeakPageContent />;
   if (status === "unauthenticated") content = <p>Access denied</p>;
-  else if (status === "loading") content = <Spinner size="xl" />;
+  else if (status === "loading") content = <></>;
 
   return (
     <>

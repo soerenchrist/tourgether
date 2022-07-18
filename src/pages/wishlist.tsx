@@ -94,7 +94,7 @@ const WishlistPage: NextPage = () => {
 
   let content = <WishlistContent></WishlistContent>;
   if (status === "unauthenticated") content = <p>Access denied</p>;
-  else if (status === "loading") content = <Spinner size="xl"></Spinner>;
+  else if (status === "loading") content = <></>;
 
   return (
     <>

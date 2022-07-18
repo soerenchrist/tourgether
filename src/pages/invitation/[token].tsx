@@ -133,7 +133,7 @@ const InvitationPage = () => {
   const { token } = query;
 
   let content: ReactNode;
-  if (status === "loading") content = <Spinner size="xl" />;
+  if (status === "loading") content = <></>;
   else if (status === "unauthenticated") content = <Unauthorized />
   else if (!token || typeof token !== "string") {
     content = (

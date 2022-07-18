@@ -29,7 +29,7 @@ const Dashboard: NextPage = () => {
 
   let content = <DashboardContent></DashboardContent>;
   if (status === "unauthenticated") content = <p>Access denied</p>;
-  else if (status === "loading") content = <Spinner size="xl"></Spinner>;
+  else if (status === "loading") content = <></>;
 
   return <LayoutBase>{content}</LayoutBase>;
 };

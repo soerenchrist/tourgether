@@ -151,11 +151,12 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
           <CardTitle
             title={editTour ? "Update your tour" : "Create a new tour"}
           />
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onSubmit)} autoComplete="false" autoCorrect="false">
             <div className="pt-4 flex flex-col gap-2">
               <Input
                 id="name"
                 label="Name"
+                autoComplete="false"
                 {...register("name")}
                 error={errors.name?.message}
                 placeholder="Hiking tour to Zugspitze"

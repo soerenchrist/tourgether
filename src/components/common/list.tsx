@@ -1,18 +1,24 @@
 import { ReactNode } from "react";
+import Skeleton from "./skeleton";
 
-export const ListItem: React.FC<{ title?: string | ReactNode; subtitle?: string }> = ({
+export const ListItem: React.FC<{ title?: string | ReactNode; subtitle?: string, isLoading?: boolean }> = ({
   title,
   subtitle,
+  isLoading
 }) => {
   return (
     <li className="py-2">
       <div className="flex items-center space-x-4">
         <div className="flex-1 min-w-0">
-          {title && (
+          {title && !isLoading && (
             <div className="text-sm font-medium text-gray-900 dark:text-white">
               {title}
             </div>
           )}
+          {
+            isLoading &&
+              <Skeleton className="w-52 h-5"></Skeleton>
+          }
           {subtitle && (
             <p className="text-sm text-gray-500 truncat dark:text-gray-400">
               {subtitle}

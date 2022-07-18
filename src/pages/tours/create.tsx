@@ -15,7 +15,7 @@ const CreateTourPage: NextPage = () => {
 
   let content = <CreateTourContent />;
   if (status === "unauthenticated") content = <p>Access denied</p>;
-  else if (status === "loading") content = <Spinner size="xl" />;
+  else if (status === "loading") content = <></>;
 
   return (
     <>

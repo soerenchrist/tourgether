@@ -81,7 +81,7 @@ const MyInvitationsPage: NextPage = () => {
   const { status } = useSession();
 
   let content: ReactNode;
-  if (status === "loading") content = <Spinner size="xl" />;
+  if (status === "loading") content = <></>;
   else if (status === "unauthenticated") content = <p>Access denied</p>;
   else content = <MyInvitationsPageContent />;
 

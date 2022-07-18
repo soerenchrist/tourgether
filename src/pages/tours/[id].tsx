@@ -20,6 +20,7 @@ import { Point, Visibility } from "@prisma/client";
 import ChartArea from "@/components/tours/charts/chartArea";
 import LikeButton from "@/components/tours/likeButton";
 import CommentButton from "@/components/tours/commentButton";
+import Skeleton from "@/components/common/skeleton";
 
 const Map = dynamic(() => import("../../components/maps/tourMap"), {
   ssr: false,
@@ -31,7 +32,6 @@ const OwnerMenu: React.FC<{
 }> = ({ setShowDelete, onEdit }) => {
   return (
     <Dropdown
-      placement="top"
       inline={true}
       arrowIcon={false}
       label={<DotsVerticalIcon className="h-5 w-5 cursor-pointer" />}
@@ -55,7 +55,7 @@ const OwnerMenu: React.FC<{
 const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
   const { data, isLoading } = trpc.useQuery(["tours.get-tour-by-id", { id }], {
     retry: false,
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
   });
   const router = useRouter();
   const [hoverPoint, setHoverPoint] = useState<Point>();
@@ -70,21 +70,14 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
 
   const onEdit = () => router.push(`/tours/edit/${id}`);
 
-  if (isLoading) return <Spinner size="xl" />;
-  else if (!data) return <NotFound message="Tour not found!" />;
-
-  const loadingIndicator = (
-    <div className="w-full flex justify-center p-8">
-      <Spinner size="xl"></Spinner>
-    </div>
-  );
+  if (!isLoading && !data) return <NotFound message="Tour not found!" />;
 
   const deleteTour = () => {
     if (!data) return;
     deleteTourOnServer({ id });
   };
 
-  const getVisibilityText = (visibility: Visibility) => {
+  const getVisibilityText = (visibility?: Visibility) => {
     if (visibility === "FRIENDS") return "Friends only";
     else if (visibility === "PRIVATE") return "Only you";
     return "Everyone";
@@ -93,78 +86,99 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
   return (
     <>
       <Head>
-        <title>Tour - {data.name}</title>
+        <title>Tour - {data?.name ?? ""}</title>
       </Head>
       <div className="grid lg:grid-cols-2 grid-cols-1 gap-6 mb-4">
         <Card>
           <div className="flex justify-between">
-            <CardTitle title={data.name ?? ""} />
-            <div className="flex justify-end items-center gap-3">
-              <CommentButton tour={data} />
-              {!data.viewer && (
-                <OwnerMenu onEdit={onEdit} setShowDelete={setShowDelete} />
-              )}
+            {isLoading && <Skeleton className="h-8 w-72"></Skeleton>}
+            {!isLoading && <CardTitle title={data?.name ?? ""} />}
 
-              {data.viewer && <LikeButton tour={data} />}
+            <div className="flex justify-end items-center gap-3">
+              {isLoading && <Spinner size="md" />}
+              {!isLoading && (
+                <>
+                  <CommentButton tour={data!} />
+                  {!data?.viewer && (
+                    <OwnerMenu onEdit={onEdit} setShowDelete={setShowDelete} />
+                  )}
+
+                  {data?.viewer && <LikeButton tour={data} />}
+                </>
+              )}
             </div>
           </div>
 
-          {isLoading ? (
-            loadingIndicator
-          ) : (
-            <List className="mt-4">
-              <ListItem title={`${data.distance} m`} subtitle="Distance" />
+          <List className="mt-4">
+            <ListItem
+              title={`${data?.distance} m`}
+              isLoading={isLoading}
+              subtitle="Distance"
+            />
+            <ListItem
+              title={`${data?.elevationUp} m`}
+              subtitle="Total Ascent"
+              isLoading={isLoading}
+            />
+            <ListItem
+              title={`${data?.elevationDown} m`}
+              subtitle="Total Descent"
+              isLoading={isLoading}
+            />
+
+            {(data?.tourPeaks.length ?? 0) > 0 && (
               <ListItem
-                title={`${data.elevationUp} m`}
-                subtitle="Total Ascent"
+                title={peaks?.map((tp) => (
+                  <Link href={`/peaks/${tp.id}`} key={tp.id}>
+                    <span className="cursor-pointer mr-2 text-blue-500 font-medium hover:underline w-auto">
+                      {tp.name} ({tp.height} m)
+                    </span>
+                  </Link>
+                ))}
+                isLoading={isLoading}
+                subtitle="Peaks"
               />
+            )}
+
+            <ListItem
+              title={`${data?.date.toLocaleDateString()}`}
+              isLoading={isLoading}
+              subtitle="Date"
+            />
+            {data?.startTime && (
               <ListItem
-                title={`${data.elevationDown} m`}
-                subtitle="Total Descent"
+                title={`${data!.startTime}`}
+                isLoading={isLoading}
+                subtitle="Start time"
               />
+            )}
 
-              {data.tourPeaks.length > 0 && (
-                <ListItem
-                  title={peaks?.map((tp) => (
-                    <Link href={`/peaks/${tp.id}`} key={tp.id}>
-                      <span className="cursor-pointer mr-2 text-blue-500 font-medium hover:underline w-auto">
-                        {tp.name} ({tp.height} m)
-                      </span>
-                    </Link>
-                  ))}
-                  subtitle="Peaks"
-                />
-              )}
-
+            {data?.endTime && (
               <ListItem
-                title={`${data.date.toLocaleDateString()}`}
-                subtitle="Date"
+                title={`${data!.endTime}`}
+                isLoading={isLoading}
+                subtitle="End time"
               />
-              {data.startTime && (
-                <ListItem title={`${data.startTime}`} subtitle="Start time" />
-              )}
+            )}
 
-              {data.endTime && (
-                <ListItem title={`${data.endTime}`} subtitle="End time" />
-              )}
-
-              {data.viewer && (
-                <ListItem
-                  title={`${data.creator.name} (${data.creator.email})`}
-                  subtitle="Created by"
-                ></ListItem>
-              )}
-
-              {data.description.length > 0 && (
-                <ListItem subtitle={data.description} />
-              )}
-
+            {data?.viewer && (
               <ListItem
-                title={getVisibilityText(data.visibility)}
-                subtitle="Visibility"
+                title={`${data!.creator.name} (${data!.creator.email})`}
+                isLoading={isLoading}
+                subtitle="Created by"
               ></ListItem>
-            </List>
-          )}
+            )}
+
+            {data?.description && (
+              <ListItem isLoading={isLoading} subtitle={data!.description} />
+            )}
+
+            <ListItem
+              title={getVisibilityText(data?.visibility)}
+              isLoading={isLoading}
+              subtitle="Visibility"
+            ></ListItem>
+          </List>
         </Card>
         <Card>
           <Map hoverPoint={hoverPoint} peaks={peaks} points={data?.points} />
@@ -175,14 +189,14 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
       )}
       <ConfirmationModal
         text={
-          data.viewer
+          data?.viewer
             ? "Do you really want to remove the tour? You will lose access to the data!"
             : "Do you really want to delete the tour? All data will be lost!"
         }
         show={showDelete}
         accept={deleteTour}
         acceptColor="failure"
-        acceptButton={data.viewer ? "Remove" : "Delete"}
+        acceptButton={data?.viewer ? "Remove" : "Delete"}
         decline={() => setShowDelete(false)}
       />
     </>
@@ -193,13 +207,12 @@ const TourPage = () => {
   const { status } = useSession();
   const { query } = useRouter();
   const { id } = query;
-
   let content: ReactNode;
   if (!id || typeof id !== "string") {
-    content = <div>No ID</div>;
+    content = <></>;
   } else {
     if (status === "unauthenticated") content = <div>Access denied</div>;
-    else if (status === "loading") content = <Spinner size="xl"></Spinner>;
+    else if (status === "loading") content = <></>;
     else content = <TourPageContent id={id} />;
   }
 

@@ -99,7 +99,7 @@ const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
       peakId: id,
     },
   ]);
-  const { data: wikidata } = trpc.useQuery(
+  const { data: wikidata, isLoading: wikidataLoading } = trpc.useQuery(
     [
       "wikidata.get-wikidata",
       {
@@ -125,7 +125,7 @@ const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
         <title>Peak - {peak.name}</title>
       </Head>
       <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
-        <PeakDetailCard peak={peak} wikidata={wikidata} />
+        <PeakDetailCard peak={peak} wikidata={wikidata} wikidataLoading={wikidataLoading} />
         <Card>
           <div className="flex flex-col h-full justify-start gap-4">
             <div className="flex justify-end">
@@ -191,10 +191,10 @@ const PeakDetailsPage: NextPage = () => {
 
   let content: ReactNode;
   if (!id || typeof id !== "string") {
-    content = <div>No ID</div>;
+    content = <></>
   } else {
     if (status === "unauthenticated") content = <div>Access denied</div>;
-    else if (status === "loading") content = <Spinner size="xl"></Spinner>;
+    else if (status === "loading") content = <></>;
     else content = <PeakDetails id={id} />;
   }
 
