@@ -14,7 +14,7 @@ const PeakDetailCard: React.FC<{
   return (
     <Card>
       <div className="h-full flex flex-col justify-start">
-        <div className="w-full flex justify-between">
+        <div className="w-full flex-1 flex justify-between">
           <div className="flex-1 mr-4">
             <CardTitle title={peak.name} />
             <p>{wikidata?.description}</p>
@@ -39,6 +39,11 @@ const PeakDetailCard: React.FC<{
             </div>
           )}
         </div>
+        {(peak.osmId || wikidata) &&
+        <div className="text-xs">
+          Source: {peak.osmId && <a className="text-blue-600" href={`https://www.openstreetmap.org/node/${peak.osmId}`}>OpenStreetMap Data</a>},{" "}
+          {wikidata && <a className="text-blue-600" href={`https://www.wikidata.org/wiki/${peak.wikidata}`}>Wikidata</a>}
+        </div>}
       </div>
     </Card>
   );
