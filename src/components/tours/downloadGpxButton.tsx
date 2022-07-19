@@ -13,7 +13,6 @@ const DownloadGpxButton: React.FC<{ tour: Tour }> = ({ tour }) => {
     fetch(uri)
       .then(res => res.blob())
       .then(data => {
-        console.log("test");
         const a = document.createElement("a");
         a.href = window.URL.createObjectURL(data)
         a.download = name;
