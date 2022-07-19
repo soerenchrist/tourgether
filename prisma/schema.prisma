@@ -152,6 +152,14 @@ model Session {
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model Profile {
+    id String @id
+    favoritePeak String?
+    status String?
+    location String?
+    user User @relation(fields: [id], references: [id])
+}
+
 model User {
     id            String    @id @default(cuid())
     name          String?
@@ -162,6 +170,7 @@ model User {
     sessions      Session[]
     friendship1 Friendship[] @relation(name: "friendship1")
     friendship2 Friendship[] @relation(name: "friendship2")
+    profile Profile?
     createdTours Tour[]
     wishlistItems WishlistItem[]
     friendRequests FriendRequest[]

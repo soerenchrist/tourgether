@@ -34,12 +34,7 @@ const UserDropdown: React.FC<{ session: Session }> = ({ session }) => {
           {session.user!.email}
         </span>
       </Dropdown.Header>
-      <Dropdown.Item onClick={() => goTo("/dashboard")}>
-        Dashboard
-      </Dropdown.Item>
-      <Dropdown.Item onClick={() => goTo("/tours")}>My Tours</Dropdown.Item>
-      <Dropdown.Item onClick={() => goTo("/peaks")}>Peaks</Dropdown.Item>
-      <Dropdown.Item onClick={() => goTo("/wishlist")}>Wishlist</Dropdown.Item>
+      <Dropdown.Item onClick={() => goTo("/profile")}>Profile</Dropdown.Item>
       <Dropdown.Item onClick={() => goTo("/friends")}>Friends</Dropdown.Item>
       <Dropdown.Item onClick={() => goTo("/my-friend-requests")}>
         My Friend Requests
