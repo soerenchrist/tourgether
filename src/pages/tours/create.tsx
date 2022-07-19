@@ -1,6 +1,5 @@
 import LayoutBase from "@/components/layout/layoutBase";
 import EditToursForm from "@/components/tours/editToursForm";
-import { Spinner } from "flowbite-react";
 import { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import Head from "next/head";

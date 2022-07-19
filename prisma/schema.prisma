@@ -26,6 +26,7 @@ model Tour {
     creator User @relation(fields: [creatorId], references: [id])
     tourPeaks TourPeak[]
     points Point[]
+    gpxUrl String?
     visibility Visibility @default(FRIENDS) 
     likes Like[]
     comments Comment[]

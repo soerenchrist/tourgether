@@ -4,7 +4,9 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createRouter } from "./context";
 import { getFriends } from "./friends";
-import {  } from "prisma/prisma-client";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import * as uuid from "uuid";
 
 export const toursRouter = createRouter()
   .middleware(async ({ ctx, next }) => {
@@ -124,12 +126,12 @@ export const toursRouter = createRouter()
         : {};
 
       const dateOrder = {
-        date: "desc"
+        date: "desc",
       } as any; // type does not get inferred correctly ---> any
       const likeOrder = {
         likes: {
-          _count: "desc"
-        }
+          _count: "desc",
+        },
       };
       const results = await ctx.prisma.tour.findMany({
         take: 5,
@@ -146,11 +148,11 @@ export const toursRouter = createRouter()
           creator: true,
           tourPeaks: {
             include: {
-              peak: true
-            }
-          }
+              peak: true,
+            },
+          },
         },
-        orderBy: input.sortMode === "RECENT" ? dateOrder : likeOrder
+        orderBy: input.sortMode === "RECENT" ? dateOrder : likeOrder,
       });
 
       return results;
@@ -328,6 +330,7 @@ export const toursRouter = createRouter()
       tour: createTourValidationSchema.merge(
         z.object({
           visibility: z.enum(["PRIVATE", "PUBLIC", "FRIENDS"]),
+          gpxUrl: z.string().nullish(),
         })
       ),
       points: z
@@ -395,5 +398,44 @@ export const toursRouter = createRouter()
       });
 
       return insertedTour;
+    },
+  })
+  .mutation("create-upload-url", {
+    input: z.object({
+      tourId: z.string().optional()
+    }),
+    async resolve({ ctx, input }) {
+      const s3 = new S3Client({
+        region: process.env.AWS_BUCKET_REGION,
+        credentials: {
+          accessKeyId: process.env.AWS_BUCKET_ACCESS_KEY_ID || "",
+          secretAccessKey: process.env.AWS_BUCKET_ACCESS_KEY_SECRET || "",
+        },
+      });
+      
+      let file = `${ctx.userId}/${uuid.v4()}.gpx`;
+      if (input.tourId) {
+        const tour = await ctx.prisma.tour.findFirst({
+          where: {
+            id: input.tourId
+          },
+        });
+
+        if (tour && tour.gpxUrl) {
+          file = tour.gpxUrl
+        }
+      }
+
+      const bucketParams = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: file,
+      };
+      const command = new PutObjectCommand(bucketParams);
+      const result = await getSignedUrl(s3, command);
+
+      return {
+        url: result,
+        filename: file,
+      };
     },
   });

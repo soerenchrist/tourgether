@@ -4,7 +4,7 @@ import { trpc } from "@/utils/trpc";
 import { Peak, Point, Tour, TourPeak, Visibility } from "@prisma/client";
 import { Button, Card } from "flowbite-react";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import CardTitle from "../common/cardTitle";
 import ConfirmationModal from "../common/confirmationDialog";
@@ -37,6 +37,8 @@ type ExtendedTour = Tour & {
 
 const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
   const navigate = useRouter();
+  const presignedUrl = useRef<{url: string, filename: string} | undefined>();
+  const contentRef = useRef<string | undefined>();
   const [visibility, setVisibility] = useState<Visibility>("FRIENDS");
   const [confirmData, setConfirmData] = useState<AnalysisResult>();
   const [points, setPoints] = useState<
@@ -96,19 +98,30 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
     },
   });
 
+  const { mutate: createPresignedUrl } = trpc.useMutation("tours.create-upload-url", {
+    onSuccess: async (url) => {
+      console.log(url);
+      presignedUrl.current = url;
+    }
+  });
+
   const onSubmit = async (data: FormData) => {
     setLoading(true);
+    if (presignedUrl.current && contentRef.current) {
+      await fetch(presignedUrl.current.url, {method: 'PUT', body: contentRef.current});
+    }
     if (editTour) {
       update({
         id: editTour.id,
         ...data,
-        visibility
+        visibility,
       });
     } else {
       create({
         tour: {
           ...data,
-          visibility
+          visibility,
+          gpxUrl: presignedUrl.current?.filename
         },
         peaks: selectedPeaks,
         points,
@@ -143,6 +156,15 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
   ) => {
     setSelectedPeaks(peaks);
   };
+
+  const handleFileChange = (file?: string) => {
+    contentRef.current = file;
+    if (!presignedUrl.current) {
+      createPresignedUrl({
+        tourId: editTour?.id
+      });
+    }
+  }
 
   return (
     <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
@@ -243,7 +265,7 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
 
           <div className="mt-4">
             <CardTitle title="Upload a GPX Track" />
-            <GPXUpload onChange={handleGpxFileUpload} />
+            <GPXUpload onChange={handleGpxFileUpload} onFileChange={handleFileChange} />
           </div>
         </div>
       </Card>

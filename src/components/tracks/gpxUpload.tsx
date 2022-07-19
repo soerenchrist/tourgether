@@ -3,8 +3,8 @@ import { Alert } from "flowbite-react";
 import { ChangeEventHandler, useState } from "react";
 import FileInput from "../common/fileInput";
 
-const GPXUpload: React.FC<{ onChange: (result: AnalysisResult) => void }> = ({
-  onChange,
+const GPXUpload: React.FC<{ onChange: (result: AnalysisResult) => void, onFileChange?: (file?: string) => void }> = ({
+  onChange, onFileChange
 }) => {
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<string>();
@@ -26,6 +26,8 @@ const GPXUpload: React.FC<{ onChange: (result: AnalysisResult) => void }> = ({
       try {
         const result = parseGpx(content);
         onChange(result);
+        if (onFileChange)
+          onFileChange(content);
       } catch(e: any) {
         setError(e.message)
       }
