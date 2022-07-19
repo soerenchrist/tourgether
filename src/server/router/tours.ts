@@ -4,9 +4,27 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createRouter } from "./context";
 import { getFriends } from "./friends";
-import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import * as uuid from "uuid";
+
+const deleteS3File = async (url: string) => {
+
+  const s3 = new S3Client({
+    region: process.env.AWS_BUCKET_REGION,
+    credentials: {
+      accessKeyId: process.env.AWS_BUCKET_ACCESS_KEY_ID || "",
+      secretAccessKey: process.env.AWS_BUCKET_ACCESS_KEY_SECRET || "",
+    },
+  });
+  
+  const command = new DeleteObjectCommand({
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Key: url,
+  });
+
+  await s3.send(command);
+}
 
 export const toursRouter = createRouter()
   .middleware(async ({ ctx, next }) => {
@@ -303,6 +321,17 @@ export const toursRouter = createRouter()
       id: z.string(),
     }),
     async resolve({ ctx, input }) {
+      const tour = await ctx.prisma.tour.findFirst({
+        where: {
+          id: input.id
+        },
+      })
+      if (!tour) throw new TRPCError({ code: "NOT_FOUND"});
+
+      if (tour.gpxUrl) {
+        await deleteS3File(tour.gpxUrl)
+      }
+
       await ctx.prisma.point.deleteMany({
         where: {
           tourId: input.id,
