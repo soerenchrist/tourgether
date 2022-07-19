@@ -3,12 +3,14 @@ import { trpc } from "@/utils/trpc";
 import { Tour, User } from "@prisma/client";
 import { Avatar, Card, Dropdown, Pagination, Spinner } from "flowbite-react";
 import Link from "next/link";
+import { NextRouter, useRouter } from "next/router";
 import { useMemo, useState } from "react";
 import CardTitle from "../common/cardTitle";
 
-export const TourItem: React.FC<{ tour: Tour & { creator: User } }> = ({
-  tour,
-}) => {
+export const TourItem: React.FC<{
+  tour: Tour & { creator: User };
+  router: NextRouter;
+}> = ({ tour, router }) => {
   return (
     <li className="py-3 sm:py-4">
       <div className="flex items-center space-x-4">
@@ -16,6 +18,8 @@ export const TourItem: React.FC<{ tour: Tour & { creator: User } }> = ({
           alt="User settings"
           img={tour.creator.image ?? undefined}
           rounded={true}
+          onClick={() => router.push(`/profile/${tour.creatorId}`)}
+          style={{ cursor: "pointer" }}
         />
         <div className="flex-1 min-w-0">
           <Link href={`/tours/${tour.id}`}>
@@ -33,8 +37,9 @@ export const TourItem: React.FC<{ tour: Tour & { creator: User } }> = ({
   );
 };
 
-export const InteractionItem: React.FC<{ interaction: Interaction }> = ({
+export const InteractionItem: React.FC<{ interaction: Interaction, router: NextRouter }> = ({
   interaction,
+  router,
 }) => {
   return (
     <li className="py-3 sm:py-4">
@@ -43,6 +48,8 @@ export const InteractionItem: React.FC<{ interaction: Interaction }> = ({
           alt="User avatar"
           img={interaction.user.image ?? undefined}
           rounded={true}
+          onClick={() => router.push(`/profile/${interaction.user.id}`)}
+          style={{ cursor: "pointer" }}
         />
         <div className="flex-1 min-w-0">
           <Link href={`/tours/${interaction.tour.id}`}>
@@ -73,6 +80,7 @@ export const InteractionItem: React.FC<{ interaction: Interaction }> = ({
 const RecentTours: React.FC = () => {
   const [page, setPage] = useState(1);
   const count = 5;
+  const router = useRouter();
   const { data: tours, isLoading } = trpc.useQuery([
     "tours.get-friends-tours",
     {
@@ -91,7 +99,7 @@ const RecentTours: React.FC = () => {
           className="divide-y divide-gray-200 dark:divide-gray-700"
         >
           {tours.map((tour) => (
-            <TourItem tour={tour} key={tour.id} />
+            <TourItem tour={tour} router={router} key={tour.id} />
           ))}
         </ul>
       </div>
@@ -109,6 +117,7 @@ const RecentInteractions: React.FC = () => {
   const { data, isLoading } = trpc.useQuery([
     "friends.get-recent-interactions",
   ]);
+  const router = useRouter();
 
   if (isLoading) return <Spinner size="xl" />;
   if (!data) return <></>;
@@ -120,7 +129,7 @@ const RecentInteractions: React.FC = () => {
           className="divide-y divide-gray-200 dark:divide-gray-700"
         >
           {data.map((interaction) => (
-            <InteractionItem key={interaction.id} interaction={interaction} />
+            <InteractionItem key={interaction.id} router={router} interaction={interaction} />
           ))}
         </ul>
       </div>
