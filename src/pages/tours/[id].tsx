@@ -21,6 +21,7 @@ import ChartArea from "@/components/tours/charts/chartArea";
 import LikeButton from "@/components/tours/likeButton";
 import CommentButton from "@/components/tours/commentButton";
 import Skeleton from "@/components/common/skeleton";
+import DownloadGpxButton from "@/components/tours/downloadGpxButton";
 
 const Map = dynamic(() => import("../../components/maps/tourMap"), {
   ssr: false,
@@ -99,6 +100,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
               {!isLoading && (
                 <>
                   <CommentButton tour={data!} />
+                  <DownloadGpxButton tour={data!} />
                   {!data?.viewer && (
                     <OwnerMenu onEdit={onEdit} setShowDelete={setShowDelete} />
                   )}

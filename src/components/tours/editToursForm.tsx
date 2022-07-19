@@ -100,7 +100,6 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
 
   const { mutate: createPresignedUrl } = trpc.useMutation("tours.create-upload-url", {
     onSuccess: async (url) => {
-      console.log(url);
       presignedUrl.current = url;
     }
   });

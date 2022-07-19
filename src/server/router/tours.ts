@@ -4,7 +4,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createRouter } from "./context";
 import { getFriends } from "./friends";
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import * as uuid from "uuid";
 
@@ -271,6 +271,32 @@ export const toursRouter = createRouter()
 
       return tours;
     },
+  })
+  .query("get-download-url", {
+    input: z.object({
+      gpxUrl: z.string()
+    }),
+    async resolve({ input }) {
+      const s3 = new S3Client({
+        region: process.env.AWS_BUCKET_REGION,
+        credentials: {
+          accessKeyId: process.env.AWS_BUCKET_ACCESS_KEY_ID || "",
+          secretAccessKey: process.env.AWS_BUCKET_ACCESS_KEY_SECRET || "",
+        },
+      });
+
+      const params = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: input.gpxUrl
+      };
+
+      const command = new GetObjectCommand(params);
+      const url = getSignedUrl(s3, command, {
+        expiresIn: 360
+      });
+
+      return url;
+    }
   })
   .mutation("delete-tour", {
     input: z.object({
