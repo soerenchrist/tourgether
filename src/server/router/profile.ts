@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { createRouter } from "./context";
 import { z } from "zod";
 import { updateProfileValidationSchema } from "@/components/profile/profileForm";
+import { getFriends } from "./friends";
 
 export const profileRouter = createRouter()
   .middleware(async ({ ctx, next }) => {
@@ -20,6 +21,29 @@ export const profileRouter = createRouter()
       });
       return profile;
     },
+  })
+  .query("get-friends-profile", {
+    input: z.object({
+      userId: z.string()
+    }),
+    async resolve({ ctx, input }) {
+      const friends = await getFriends(ctx.prisma, ctx.userId);
+      const userIds = friends.map(x => x.id);
+      if (!userIds.includes(input.userId)) throw new TRPCError({ code: "NOT_FOUND" })
+      
+      const result = await ctx.prisma.user.findFirst({
+        where: {
+          id: input.userId,
+        },
+        select: {
+          name: true,
+          email: true,
+          image: true,
+          profile: true
+        }
+      });
+      return result;
+    }
   })
   .mutation("update-profile", {
     input: updateProfileValidationSchema,

@@ -12,7 +12,10 @@ export type CompleteProfile = {
   favoritePeak?: string | null;
 };
 
-const ProfileOverview: React.FC<{ profile: CompleteProfile }> = ({ profile }) => {
+const ProfileOverview: React.FC<{
+  profile: CompleteProfile;
+  showEdit?: boolean;
+}> = ({ profile, showEdit }) => {
   const router = useRouter();
   return (
     <Card>
@@ -27,10 +30,17 @@ const ProfileOverview: React.FC<{ profile: CompleteProfile }> = ({ profile }) =>
         <List>
           <ListItem subtitle="Location" title={profile.location ?? "-"} />
           <ListItem subtitle="Status" title={profile.status ?? "-"} />
-          <ListItem subtitle="Favorite Peak" title={profile.favoritePeak ?? "-"} />
+          <ListItem
+            subtitle="Favorite Peak"
+            title={profile.favoritePeak ?? "-"}
+          />
         </List>
         <div className="w-full flex justify-end pt-4">
-          <Button onClick={() => router.push("/profile/update")}>Edit profile</Button>
+          {showEdit && (
+            <Button onClick={() => router.push("/profile/update")}>
+              Edit profile
+            </Button>
+          )}
         </div>
       </div>
     </Card>

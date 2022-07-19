@@ -1,3 +1,4 @@
+import { TotalsContainer } from "@/components/dashboard/totalsDisplay";
 import LayoutBase from "@/components/layout/layoutBase";
 import ProfileOverview from "@/components/profile/profileOverview";
 import { trpc } from "@/utils/trpc";
@@ -5,6 +6,7 @@ import { Spinner } from "flowbite-react";
 import { NextPage } from "next";
 import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
+import Head from "next/head";
 import { ReactNode } from "react";
 
 const ProfilePageContent: React.FC<{ session: Session }> = ({ session }) => {
@@ -24,7 +26,12 @@ const ProfilePageContent: React.FC<{ session: Session }> = ({ session }) => {
     location: profileInfo?.location,
   };
 
-  return <ProfileOverview profile={profile} />;
+  return (
+    <div className="flex flex-col gap-4">
+      <ProfileOverview profile={profile} showEdit={true} />
+      <TotalsContainer />
+    </div>
+  );
 };
 
 const ProfilePage: NextPage = () => {
@@ -37,7 +44,14 @@ const ProfilePage: NextPage = () => {
     content = <ProfilePageContent session={data!}></ProfilePageContent>;
   else content = <></>;
 
-  return <LayoutBase>{content}</LayoutBase>;
+  return (
+    <>
+      <Head>
+        <title>Profile</title>
+      </Head>
+      <LayoutBase>{content}</LayoutBase>;
+    </>
+  );
 };
 
 export default ProfilePage;

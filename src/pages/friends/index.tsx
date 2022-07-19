@@ -7,6 +7,7 @@ import { Card, Spinner, Table } from "flowbite-react";
 import { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
+import Link from "next/link";
 import { useState } from "react";
 
 const FriendsPageContent = () => {
@@ -50,7 +51,13 @@ const FriendsPageContent = () => {
           )}
           {friends.map((f) => (
             <Table.Row key={f.id}>
-              <Table.Cell>{f.name}</Table.Cell>
+              <Table.Cell>
+                <Link href={`/profile/${f.id}`}>
+                  <span className="text-blue-500 hover:underline font-medium cursor-pointer">
+                    {f.name}
+                  </span>
+                </Link>
+              </Table.Cell>
               <Table.Cell>{f.email}</Table.Cell>
               <Table.Cell className="flex justify-end">
                 <span

@@ -177,7 +177,18 @@ export const toursRouter = createRouter()
     },
   })
   .query("get-totals", {
-    async resolve({ ctx }) {
+    input: z.object({
+      userId: z.string().optional()
+    }).optional(),
+    async resolve({ ctx, input }) {
+      let userId = ctx.userId;
+      if (input?.userId) {
+        const friends = await getFriends(ctx.prisma, ctx.userId);
+        const userIds = friends.map(x => x.id);
+        if (!userIds.includes(input.userId)) throw new TRPCError({ code: "NOT_FOUND" })
+        userId = input.userId;
+      }
+
       const aggregate = await ctx.prisma.tour.aggregate({
         _sum: {
           distance: true,
@@ -188,7 +199,7 @@ export const toursRouter = createRouter()
           _all: true,
         },
         where: {
-          creatorId: ctx.userId,
+          creatorId: userId,
         },
       });
       return {

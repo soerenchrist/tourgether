@@ -6,6 +6,7 @@ import { Card, Spinner } from "flowbite-react";
 import { NextPage } from "next";
 import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
+import Head from "next/head";
 import { ReactNode } from "react";
 
 const UpdateProfilePageContent: React.FC<{ session: Session }> = ({
@@ -45,7 +46,14 @@ const UpdateProfilePage: NextPage = () => {
     );
   else content = <></>;
 
-  return <LayoutBase>{content}</LayoutBase>;
+  return (
+    <>
+      <Head>
+        <title>Update Profile</title>
+      </Head>
+      <LayoutBase>{content}</LayoutBase>;
+    </>
+  );
 };
 
 export default UpdateProfilePage;

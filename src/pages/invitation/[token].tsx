@@ -40,7 +40,7 @@ const AcceptButton: React.FC<{ token: string; router: NextRouter }> = ({
 }) => {
   const { mutate } = trpc.useMutation("friends.accept-friend-request", {
     onSuccess: () => {
-      router.push("/tours?invation_accepted=true");
+      router.push("/dashboard?invation_accepted=true");
     },
   });
 
