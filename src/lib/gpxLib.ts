@@ -120,7 +120,7 @@ export const parseGpx = (content: string): AnalysisResult => {
   };
 };
 
-export const createGpx = (points: [number, number, number][]): string => {
+export const createGpx = (points: [number, number, number][], avgSpeed: number = 0.85): string => {
   const begin = `<?xml version="1.0" encoding="UTF-8"?><gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" creator="BergtourOnline - https://www.bergtour-online.de" version="1.1">  <metadata>
   <name>montschein</name>
   <time>2013-06-21T16:42:28Z</time>
@@ -132,14 +132,23 @@ export const createGpx = (points: [number, number, number][]): string => {
   </trkseg>
 </trk>
 </gpx>`;
-
   let pointsString = "";
-  const time = new Date();
-  points.forEach(point => {
-    const [lng, lat, ele] = point;
+  let currentTime = new Date();
+  for (let i = 0; i < points.length; i++) {
+    const [lng, lat, ele] = points[i]!;
+    if (i > 0) {
+      const [prevLng, prevLat] = points[i-1]!;
+      const distance = calculateDistance(prevLat, prevLng, lat, lng);
+
+      const seconds = distance / avgSpeed;
+      currentTime.setSeconds(currentTime.getSeconds() + seconds);
+    }
     
-    const str = `<trkpt lat="${lat}" lon="${lng}"><ele>${ele}</ele><time>${time.toISOString()}</time></trkpt>`
+    const str = `<trkpt lat="${lat}" lon="${lng}"><ele>${ele}</ele><time>${currentTime.toISOString()}</time></trkpt>`
     pointsString = pointsString.concat(str);
+  }
+  points.forEach(point => {
+    
   })
 
   return begin + pointsString + end;

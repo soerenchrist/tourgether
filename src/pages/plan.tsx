@@ -112,6 +112,9 @@ const PlanPageContent = () => {
     ],
     {
       retry: false,
+      refetchOnReconnect: false,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
       enabled: currentPos !== undefined && prevPos !== undefined,
       onSuccess: (data) => {
         const feature = data.features[0];
