@@ -1,5 +1,6 @@
 import CardTitle from "@/components/common/cardTitle";
 import LayoutBase from "@/components/layout/layoutBase";
+import HeightDistanceChart from "@/components/plan/heightDistanceChart";
 import { createGpx } from "@/lib/gpxLib";
 import { FeatureProperties } from "@/server/router/routing";
 import { trpc } from "@/utils/trpc";
@@ -10,6 +11,7 @@ import { LatLng } from "leaflet";
 import { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
+import Head from "next/head";
 import { useMemo, useState } from "react";
 
 const Map = dynamic(() => import("../components/maps/planMap"), {
@@ -143,7 +145,6 @@ const PlanPageContent = () => {
     }
   };
 
-
   const download = () => {
     if (line.length === 0) return;
 
@@ -155,14 +156,14 @@ const PlanPageContent = () => {
     a.click();
   };
   return (
-    <>
+    <div className="flex flex-col gap-4">
       <Card>
         <div className="flex gap-2">
           <ReplyIcon className="w-6 h-6 cursor-pointer" onClick={undo} />
           <DownloadIcon className="w-6 h-6 cursor-pointer" onClick={download} />
         </div>
         {error && <Alert color="failure">{error}</Alert>}
-        <div style={{ height: "60vh" }}>
+        <div style={{ height: "40vh" }}>
           <Map
             onClick={handleClick}
             line={line}
@@ -171,7 +172,7 @@ const PlanPageContent = () => {
           />
         </div>
       </Card>
-      <div className="grid grid-cols-4 gap-2 pt-4">
+      <div className="grid grid-cols-4 gap-2">
         <Card>
           <CardTitle title={format(combinedStats.trackLength)}></CardTitle>
           Distance
@@ -190,7 +191,13 @@ const PlanPageContent = () => {
           Estimated time
         </Card>
       </div>
-    </>
+      {line.length > 0 && (
+        <Card>
+          <CardTitle title="Height profile"></CardTitle>
+          <HeightDistanceChart points={line} />
+        </Card>
+      )}
+    </div>
   );
 };
 
@@ -201,7 +208,14 @@ const PlanPage: NextPage = () => {
   if (status === "unauthenticated") content = <p>Access denied</p>;
   else if (status === "loading") content = <></>;
 
-  return <LayoutBase>{content}</LayoutBase>;
+  return (
+    <>
+      <Head>
+        <title>Plan your next Tour</title>
+      </Head>
+      <LayoutBase>{content}</LayoutBase>
+    </>
+  );
 };
 
 export default PlanPage;

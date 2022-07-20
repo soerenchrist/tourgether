@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { string, z } from "zod";
+import { z } from "zod";
 import { createRouter } from "./context";
 
 const routingEndpoint = process.env.BROUTER_ENDPOINT;
