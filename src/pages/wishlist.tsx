@@ -14,7 +14,8 @@ import { useMemo, useState } from "react";
 const WishlistLine: React.FC<{
   item: WishlistItem & { peak: Peak };
   setShowModalItem: (item: string) => void;
-}> = ({ item, setShowModalItem }) => {
+  onRemove: () => void;
+}> = ({ item, setShowModalItem, onRemove }) => {
   return (
     <Table.Row>
       <Table.Cell>
@@ -30,8 +31,20 @@ const WishlistLine: React.FC<{
           </span>
         </Link>
       </Table.Cell>
-      <Table.Cell>{item.addDate.toLocaleDateString()}</Table.Cell>
-      <Table.Cell>{item.finishDate?.toLocaleDateString() ?? "-"}</Table.Cell>
+      <Table.Cell className="hidden md:table-cell">
+        {item.addDate.toLocaleDateString()}
+      </Table.Cell>
+      <Table.Cell className="hidden lg:table-cell">
+        {item.finishDate?.toLocaleDateString() ?? "-"}
+      </Table.Cell>
+      <Table.Cell className="flex justify-end">
+        <span
+          className="text-blue-500 hover:underline cursor-pointer font-medium"
+          onClick={onRemove}
+        >
+          Remove
+        </span>
+      </Table.Cell>
     </Table.Row>
   );
 };
@@ -49,6 +62,12 @@ const WishlistContent = () => {
     },
   });
   const { mutate: complete } = trpc.useMutation("wishlist.complete-items", {
+    onSuccess: () => {
+      util.invalidateQueries("wishlist.get-wishlist");
+    },
+  });
+
+  const { mutate: remove } = trpc.useMutation("wishlist.remove-from-wishlist", {
     onSuccess: () => {
       util.invalidateQueries("wishlist.get-wishlist");
     },
@@ -86,6 +105,12 @@ const WishlistContent = () => {
     setShowModalItem(undefined);
   };
 
+  const handleRemove = (item: WishlistItem) => {
+    remove({
+      id: item.id,
+    });
+  };
+
   const uncompleteItem = (item: string) => {
     const itemToUncomplete = wishlist.find((x) => x.id === item);
     if (itemToUncomplete) {
@@ -103,8 +128,13 @@ const WishlistContent = () => {
         <Table.Head>
           <Table.HeadCell></Table.HeadCell>
           <Table.HeadCell>Peak</Table.HeadCell>
-          <Table.HeadCell>Added on</Table.HeadCell>
-          <Table.HeadCell>Completed on</Table.HeadCell>
+          <Table.HeadCell className="hidden md:table-cell">
+            Added on
+          </Table.HeadCell>
+          <Table.HeadCell className="hidden lg:table-cell">
+            Completed on
+          </Table.HeadCell>
+          <Table.HeadCell></Table.HeadCell>
         </Table.Head>
         <Table.Body>
           {wishlist.length === 0 && (
@@ -119,6 +149,7 @@ const WishlistContent = () => {
             <WishlistLine
               key={item.id}
               item={item}
+              onRemove={() => handleRemove(item)}
               setShowModalItem={setShowModalItem}
             />
           ))}
@@ -127,6 +158,7 @@ const WishlistContent = () => {
             <WishlistLine
               key={item.id}
               item={item}
+              onRemove={() => handleRemove(item)}
               setShowModalItem={uncompleteItem}
             />
           ))}

@@ -113,15 +113,13 @@ export const wishlistRouter = createRouter()
   })
   .mutation("remove-from-wishlist", {
     input: z.object({
-      peakId: z.string(),
+      id: z.string(),
     }),
     async resolve({ ctx, input }) {
-      const result = await ctx.prisma.wishlistItem.deleteMany({
+      await ctx.prisma.wishlistItem.delete({
         where: {
-          peakId: input.peakId,
-          userId: ctx.userId,
+          id: input.id
         },
       });
-      if (result.count !== 1) throw new TRPCError({ code: "NOT_FOUND" });
     },
   });
