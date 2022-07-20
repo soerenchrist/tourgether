@@ -61,6 +61,7 @@ export const routingRouter = createRouter()
       const queryString = `?${lonLat}&profile=${profile}&alternativeidx=0&format=geojson`;
 
       const response = await fetch(routingEndpoint + queryString);
+      if (response.status != 200) throw new TRPCError({code: "NOT_FOUND", message: "Could not find a route for this location"})
       const result = await response.json();
       return result as RoutingResult;
     },

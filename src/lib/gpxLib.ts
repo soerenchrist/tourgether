@@ -46,7 +46,7 @@ const getFactor = (totalCount: number) => {
   if (totalCount < 500) return 1;
   if (totalCount < 1000) return 3;
   return 5;
-}
+};
 
 export const parseGpx = (content: string): AnalysisResult => {
   const parser = new XMLParser({
@@ -118,6 +118,31 @@ export const parseGpx = (content: string): AnalysisResult => {
     end: toTime(points[points.length - 1]!.time),
     date: points[0]!.time,
   };
+};
+
+export const createGpx = (points: [number, number, number][]): string => {
+  const begin = `<?xml version="1.0" encoding="UTF-8"?><gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" creator="BergtourOnline - https://www.bergtour-online.de" version="1.1">  <metadata>
+  <name>montschein</name>
+  <time>2013-06-21T16:42:28Z</time>
+</metadata>
+<trk>
+  <trkseg>`;
+
+  const end = `
+  </trkseg>
+</trk>
+</gpx>`;
+
+  let pointsString = "";
+  const time = new Date();
+  points.forEach(point => {
+    const [lng, lat, ele] = point;
+    
+    const str = `<trkpt lat="${lat}" lon="${lng}"><ele>${ele}</ele><time>${time.toISOString()}</time></trkpt>`
+    pointsString = pointsString.concat(str);
+  })
+
+  return begin + pointsString + end;
 };
 
 export const calculateDistance = (

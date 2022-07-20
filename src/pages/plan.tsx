@@ -1,9 +1,11 @@
 import CardTitle from "@/components/common/cardTitle";
 import LayoutBase from "@/components/layout/layoutBase";
+import { createGpx } from "@/lib/gpxLib";
 import { FeatureProperties } from "@/server/router/routing";
 import { trpc } from "@/utils/trpc";
+import { DownloadIcon } from "@heroicons/react/outline";
 import { ReplyIcon } from "@heroicons/react/solid";
-import { Card } from "flowbite-react";
+import { Alert, Card } from "flowbite-react";
 import { LatLng } from "leaflet";
 import { NextPage } from "next";
 import { useSession } from "next-auth/react";
@@ -31,7 +33,7 @@ const getType = (props: FeatureProperties): string | undefined => {
   const value = messageValues[9];
   if (!value) return undefined;
   return value;
-}
+};
 
 const parseStats = (props: FeatureProperties): Stats => {
   return {
@@ -48,7 +50,9 @@ const parseStats = (props: FeatureProperties): Stats => {
 const combineStats = (props: Stats[]): Stats => {
   return {
     plainAscend: props.map((x) => x.plainAscend).reduce((a, x) => a + x, 0),
-    filteredAscend: props.map((x) => x.filteredAscend).reduce((a, x) => a + x, 0),
+    filteredAscend: props
+      .map((x) => x.filteredAscend)
+      .reduce((a, x) => a + x, 0),
     cost: props.map((x) => x.cost).reduce((a, x) => a + x, 0),
     totalTime: props.map((x) => x.totalTime).reduce((a, x) => a + x, 0),
     trackLength: props.map((x) => x.trackLength).reduce((a, x) => a + x, 0),
@@ -78,7 +82,7 @@ const PlanPageContent = () => {
   const [currentPos, setCurrentPos] = useState<LatLng>();
   const [fragments, setFragments] = useState<[number, number, number][][]>([]);
   const [stats, setStats] = useState<Stats[]>([]);
-
+  const [error, setError] = useState<string>();
   const combinedStats = useMemo(() => combineStats(stats), [stats]);
 
   const line = useMemo(() => fragments.flatMap((x) => x), [fragments]);
@@ -91,6 +95,11 @@ const PlanPageContent = () => {
     [currentPos]
   );
 
+  const undo = () => {
+    setFragments(fragments.slice(0, fragments.length - 1));
+    setStats(stats.slice(0, stats.length - 1));
+    setLastPos(undefined);
+  };
   trpc.useQuery(
     [
       "routing.check-route",
@@ -110,6 +119,13 @@ const PlanPageContent = () => {
         const fragStats = parseStats(feature.properties);
         setStats([...stats, fragStats]);
       },
+      onError: (error) => {
+        setTimeout(() => {
+          setError(undefined);
+        }, 2000);
+        setError(error.message);
+        undo();
+      },
     }
   );
 
@@ -127,18 +143,25 @@ const PlanPageContent = () => {
     }
   };
 
-  const undo = () => {
-    setFragments(fragments.slice(0, fragments.length - 1));
-    setStats(stats.slice(0, stats.length - 1));
-    setLastPos(undefined);
-  };
 
+  const download = () => {
+    if (line.length === 0) return;
+
+    const gpx = createGpx(line);
+
+    const a = document.createElement("a");
+    a.href = window.URL.createObjectURL(new Blob([gpx]));
+    a.download = "planned-tour.gpx";
+    a.click();
+  };
   return (
     <>
       <Card>
-        <div className="flex">
-          <ReplyIcon className="w-6 h-7 cursor-pointer" onClick={undo} />
+        <div className="flex gap-2">
+          <ReplyIcon className="w-6 h-6 cursor-pointer" onClick={undo} />
+          <DownloadIcon className="w-6 h-6 cursor-pointer" onClick={download} />
         </div>
+        {error && <Alert color="failure">{error}</Alert>}
         <div style={{ height: "60vh" }}>
           <Map
             onClick={handleClick}
@@ -155,7 +178,11 @@ const PlanPageContent = () => {
         </Card>
 
         <Card>
-          <CardTitle title={`${format(combinedStats.plainAscend)} / ${format(combinedStats.filteredAscend)}`}></CardTitle>
+          <CardTitle
+            title={`${format(combinedStats.plainAscend)} / ${format(
+              combinedStats.filteredAscend
+            )}`}
+          ></CardTitle>
           Height diff / Ascend
         </Card>
         <Card>
