@@ -12,6 +12,7 @@ import {
   Tooltip,
   useMapEvents,
 } from "react-leaflet";
+import { blueMarker, greenMarker, redMarker } from "./icons";
 
 type Bounds = {
   minLat: number;
@@ -65,15 +66,6 @@ const PeakSearchMap: React.FC<{ searchTerm: string; onlyClimbed: boolean }> = ({
     },
   ]);
 
-  const markerEvents = useMemo(
-    () => ({
-      click(marker: any) {
-        console.log(marker);
-      },
-    }),
-    []
-  );
-
   const handleBoundsChanged = (bounds: Bounds) => {
     setBounds(bounds);
   };
@@ -94,7 +86,7 @@ const PeakSearchMap: React.FC<{ searchTerm: string; onlyClimbed: boolean }> = ({
       {data?.peaks.map((p) => (
         <Marker
           key={p.id}
-          eventHandlers={markerEvents}
+          icon={p.tourCount > 0 ? greenMarker : redMarker}
           position={[p.latitude, p.longitude]}
         >
           <Tooltip>

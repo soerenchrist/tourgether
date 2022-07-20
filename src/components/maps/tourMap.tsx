@@ -11,6 +11,7 @@ import "leaflet-defaulticon-compatibility";
 import { calculateBounds } from "@/utils/gpxHelpers";
 import { Peak, Point } from "@prisma/client";
 import { attribution, layerUrl } from "@/utils/mapConstants";
+import { blueMarker, greenMarker, redMarker } from "./icons";
 
 const PositionHandler: React.FC<{
   peaks?: Peak[];
@@ -51,8 +52,11 @@ const TourMap: React.FC<{
   peaks?: Peak[];
   points?: Point[];
   hoverPoint?: Point;
-  allowScrolling?: boolean
+  allowScrolling?: boolean;
 }> = ({ peaks, points, hoverPoint, allowScrolling }) => {
+  const startPosition = useMemo(() => points?.at(0), [points]);
+  const endPosition = useMemo(() => points?.at(-1), [points]);
+
   return (
     <MapContainer
       className="h-96 lg:h-full"
@@ -65,7 +69,7 @@ const TourMap: React.FC<{
 
       <PositionHandler peaks={peaks} points={points} />
       {peaks?.map((peak) => (
-        <Marker key={peak.id} position={[peak.latitude, peak.longitude]}>
+        <Marker key={peak.id} icon={blueMarker} position={[peak.latitude, peak.longitude]}>
           <Tooltip permanent>
             {peak.name} ({peak.height} m)
           </Tooltip>
@@ -73,10 +77,36 @@ const TourMap: React.FC<{
       ))}
       {points && <TrackLine points={points} />}
       {hoverPoint && (
-        <Marker position={[hoverPoint.latitude, hoverPoint.longitude]}>
+        <Marker
+          position={[hoverPoint.latitude, hoverPoint.longitude]}
+          icon={blueMarker}
+        >
           <Tooltip permanent>
             <b>{hoverPoint.time.toLocaleTimeString()}</b> (
             {Math.round(hoverPoint.elevation)} m)
+          </Tooltip>
+        </Marker>
+      )}
+
+      {startPosition && (
+        <Marker
+          position={[startPosition.latitude, startPosition.longitude]}
+          icon={greenMarker}
+        >
+          <Tooltip>
+            <b>{startPosition.time.toLocaleTimeString()}</b> (
+            {Math.round(startPosition.elevation)} m)
+          </Tooltip>
+        </Marker>
+      )}
+      {endPosition && (
+        <Marker
+          position={[endPosition.latitude, endPosition.longitude]}
+          icon={redMarker}
+        >
+          <Tooltip>
+            <b>{endPosition.time.toLocaleTimeString()}</b> (
+            {Math.round(endPosition.elevation)} m)
           </Tooltip>
         </Marker>
       )}

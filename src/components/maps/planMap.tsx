@@ -9,6 +9,7 @@ import {
   TileLayer,
   useMapEvents,
 } from "react-leaflet";
+import { greenMarker, redMarker } from "./icons";
 
 const EventHandler: React.FC<{ onClick: (latlng: LatLng) => void }> = ({
   onClick,
@@ -42,8 +43,8 @@ const PlanMap: React.FC<{
       <TileLayer attribution={attribution} url={layerUrl} />
       <EventHandler onClick={onClick} />
       <Polyline positions={linePositions}></Polyline>
-      {startPosition && <Marker position={startPosition}></Marker>}
-      {endPosition && <Marker position={endPosition}></Marker>}
+      {startPosition && <Marker icon={greenMarker} position={startPosition}></Marker>}
+      {endPosition && <Marker icon={redMarker} position={endPosition}></Marker>}
     </MapContainer>
   );
 };

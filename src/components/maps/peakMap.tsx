@@ -4,6 +4,7 @@ import { LatLngExpression } from "leaflet";
 import "leaflet-defaulticon-compatibility";
 import { useMemo } from "react";
 import { Circle, MapContainer, Marker, TileLayer, Tooltip } from "react-leaflet";
+import { blueMarker } from "./icons";
 
 const PeakMap: React.FC<{ peak: Peak, dominance?: number | null }> = ({ peak, dominance }) => {
 
@@ -20,7 +21,7 @@ const PeakMap: React.FC<{ peak: Peak, dominance?: number | null }> = ({ peak, do
         url={layerUrl}
       />
 
-      <Marker position={position}>
+      <Marker icon={blueMarker} position={position}>
         <Tooltip>
           <span className="text-xl">{peak.name}</span>
         </Tooltip>

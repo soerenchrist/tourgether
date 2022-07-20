@@ -2,6 +2,7 @@ import { MapContainer, Marker, TileLayer, useMapEvents } from "react-leaflet";
 import "leaflet-defaulticon-compatibility";
 import { useEffect } from "react";
 import { attribution, layerUrl } from "@/utils/mapConstants";
+import { blueMarker } from "./icons";
 
 type Coordinate = {
   lat: number;
@@ -44,7 +45,7 @@ const PeakSelectionMap: React.FC<{
         attribution={attribution}
         url={layerUrl}
       />
-      <Marker position={{ lat: latitude, lng: longitude }} />
+      <Marker icon={blueMarker} position={{ lat: latitude, lng: longitude }} />
       <MapEventHandler
         onClick={onCoordinateChange}
         latitude={latitude}
