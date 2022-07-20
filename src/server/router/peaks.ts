@@ -1,5 +1,5 @@
 import { createPeakValidationSchema } from "@/components/peaks/editPeaksForm";
-import { Peak } from "@prisma/client";
+import { Peak, Tour, TourPeak } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createRouter } from "./context";
@@ -60,9 +60,7 @@ export const peaksRouter = createRouter()
       const skip = count * (page - 1);
 
       let peaks: (Peak & {
-        _count: {
-          tourPeaks: number;
-        };
+        tourPeaks: TourPeak[];
       })[];
 
       const boundsQuery = input.bounds
@@ -112,9 +110,11 @@ export const peaksRouter = createRouter()
           ],
         },
         include: {
-          _count: {
-            select: {
-              tourPeaks: true,
+          tourPeaks: {
+            where: {
+              tour: {
+                creatorId: ctx.userId,
+              },
             },
           },
         },
@@ -138,8 +138,10 @@ export const peaksRouter = createRouter()
         },
       });
 
+      const peaksResult = peaks.map(p => ({ ...p, tourCount: p.tourPeaks.length}));
+
       return {
-        peaks,
+        peaks: peaksResult,
         totalCount,
       };
     },

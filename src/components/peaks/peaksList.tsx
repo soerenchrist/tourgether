@@ -6,9 +6,7 @@ import Link from "next/link";
 const PeaksList: React.FC<{
   peaks:
     | (Peak & {
-        _count: {
-          tourPeaks: number;
-        };
+        tourCount: number;
       })[]
     | undefined
     | undefined;
@@ -41,9 +39,9 @@ const PeaksList: React.FC<{
             <Table.Cell>{peak.name}</Table.Cell>
             <Table.Cell>{peak.height} m</Table.Cell>
             <Table.Cell className="hidden md:table-cell">
-              {peak._count.tourPeaks > 0 ? (
+              {peak.tourCount > 0 ? (
                 <Tooltip
-                  content={`You climbed ${peak.name} ${peak._count.tourPeaks} times!`}
+                  content={`You climbed ${peak.name} ${peak.tourCount} times!`}
                 >
                   <CheckCircleIcon className="ml-4 w-5 h-5 text-green-500" />
                 </Tooltip>
