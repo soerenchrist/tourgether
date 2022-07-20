@@ -59,7 +59,7 @@ const WishlistButton: React.FC<{ id: string }> = ({ id }) => {
     if (wishlistItem === null) {
       addToWishlist({ peakId: id });
     } else {
-      removeFromWishlist({ peakId: id });
+      removeFromWishlist({ id: wishlistItem.id });
     }
   };
 
@@ -107,6 +107,7 @@ const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
       },
     ],
     {
+      refetchOnWindowFocus: false,
       enabled: peak?.wikidata !== undefined && peak?.wikidata !== null,
     }
   );
@@ -125,7 +126,11 @@ const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
         <title>Peak - {peak.name}</title>
       </Head>
       <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
-        <PeakDetailCard peak={peak} wikidata={wikidata} wikidataLoading={wikidataLoading} />
+        <PeakDetailCard
+          peak={peak}
+          wikidata={wikidata}
+          wikidataLoading={wikidataLoading}
+        />
         <Card>
           <div className="flex flex-col h-full justify-start gap-4">
             <div className="flex justify-end">
@@ -160,18 +165,20 @@ const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
             <Map peak={peak} dominance={wikidata?.dominance} />
           </div>
         </Card>
-        <div className="lg:col-span-2 col-span-1">
-          <Card>
-            <div className="flex flex-col justify-start h-full gap-4">
-              <CardTitle title={`Your Tours to ${peak.name}`} />
-              <ToursTable
-                tours={tours}
-                isLoading={toursLoading}
-                noResultsText={`You don't have any tours to ${peak.name} yet.`}
-              />
-            </div>
-          </Card>
-        </div>
+        {(tours?.length ?? 0) > 0 && (
+          <div className="lg:col-span-2 col-span-1">
+            <Card>
+              <div className="flex flex-col justify-start h-full gap-4">
+                <CardTitle title={`Your Tours to ${peak.name}`} />
+                <ToursTable
+                  tours={tours}
+                  isLoading={toursLoading}
+                  noResultsText={`You don't have any tours to ${peak.name} yet.`}
+                />
+              </div>
+            </Card>
+          </div>
+        )}
       </div>
       <ConfirmationModal
         text="Do you really want to delete this peak? All data will be lost?"
@@ -191,7 +198,7 @@ const PeakDetailsPage: NextPage = () => {
 
   let content: ReactNode;
   if (!id || typeof id !== "string") {
-    content = <></>
+    content = <></>;
   } else {
     if (status === "unauthenticated") content = <div>Access denied</div>;
     else if (status === "loading") content = <></>;
