@@ -38,6 +38,63 @@ export const wishlistRouter = createRouter()
       return results[0];
     },
   })
+  .query("check-peaks", {
+    input: z.object({
+      peakIds: z.string().array(),
+    }),
+    async resolve({ ctx, input }) {
+      const results = await ctx.prisma.wishlistItem.findMany({
+        where: {
+          peakId: {
+            in: input.peakIds,
+          },
+          userId: ctx.userId,
+        },
+        include: {
+          peak: true,
+        },
+      });
+
+      return results;
+    },
+  })
+  .mutation("complete-items", {
+    input: z.object({
+      itemIds: z.string().array(),
+    }),
+    async resolve({ ctx, input }) {
+      await ctx.prisma.wishlistItem.updateMany({
+        data: {
+          finishDate: new Date(),
+          finished: true,
+        },
+        where: {
+          id: {
+            in: input.itemIds,
+          },
+        },
+      });
+    },
+  })
+  
+  .mutation("uncomplete-items", {
+    input: z.object({
+      itemIds: z.string().array(),
+    }),
+    async resolve({ ctx, input }) {
+      await ctx.prisma.wishlistItem.updateMany({
+        data: {
+          finishDate: null,
+          finished: false,
+        },
+        where: {
+          id: {
+            in: input.itemIds,
+          },
+        },
+      });
+    },
+  })
   .mutation("add-to-wishlist", {
     input: z.object({
       peakId: z.string(),

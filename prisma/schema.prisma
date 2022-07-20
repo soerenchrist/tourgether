@@ -75,7 +75,9 @@ model WishlistItem {
     peak Peak @relation(fields: [peakId], references: [id])
     userId String
     user User @relation(fields: [userId], references: [id])
-    addDate DateTime
+    addDate DateTime @default(now())
+    finished Boolean @default(false)
+    finishDate DateTime?
 }
 
 

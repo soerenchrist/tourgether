@@ -21,7 +21,6 @@ const getDominance = (claims: any) => {
 };
 
 const getImage = (claims: any) => {
-  
   const imageClaim = claims["P18"];
   if (!imageClaim) return null;
   if (imageClaim.length === 0) return null;
@@ -36,6 +35,22 @@ const getImage = (claims: any) => {
   const replaced = value.replace(" ", "_");
 
   return `https://commons.wikimedia.org/w/thumb.php?width=300&f=${replaced}`;
+};
+
+async function fetchWithTimeout(
+  resource: string,
+  options: RequestInit & { timeout?: number } = {}
+) {
+  const { timeout = 8000 } = options;
+
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  const response = await fetch(resource, {
+    ...options,
+    signal: controller.signal,
+  });
+  clearTimeout(id);
+  return response;
 }
 
 export const wikidataRouter = createRouter()
@@ -52,29 +67,34 @@ export const wikidataRouter = createRouter()
     }),
     async resolve({ input }) {
       if (!input.wikidataId) throw new TRPCError({ code: "NOT_FOUND" });
-      const result = await fetch(
-        `http://www.wikidata.org/entity/${input.wikidataId}`,
-        {
-          headers: {
-            Accept: "application/json",
-          },
-        }
-      );
-      const data = await result.json();
-      const entities = data.entities;
+      try {
+        const result = await fetchWithTimeout(
+          `http://www.wikidata.org/entity/${input.wikidataId}`,
+          {
+            headers: {
+              Accept: "application/json",
+            },
+            timeout: 3000,
+          }
+        );
+        const data = await result.json();
+        const entities = data.entities;
 
-      const entity = entities[input.wikidataId];
-      if (!entity) throw new TRPCError({ code: "NOT_FOUND" });
-      const description = entity.descriptions["en"];
+        const entity = entities[input.wikidataId];
+        if (!entity) throw new TRPCError({ code: "NOT_FOUND" });
+        const description = entity.descriptions["en"];
 
-      const claims = entity.claims;
-      const dominance = getDominance(claims);
-      const image = getImage(claims);
-      
-      return {
-        description: description["value"],
-        dominance,
-        image
+        const claims = entity.claims;
+        const dominance = getDominance(claims);
+        const image = getImage(claims);
+
+        return {
+          description: description["value"],
+          dominance,
+          image,
+        };
+      } catch (ex) {
+        return null;
       }
     },
   });

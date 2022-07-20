@@ -4,7 +4,7 @@ import { trpc } from "@/utils/trpc";
 import { Peak, Point, Tour, TourPeak, Visibility } from "@prisma/client";
 import { Button, Card } from "flowbite-react";
 import { useRouter } from "next/router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import CardTitle from "../common/cardTitle";
 import ConfirmationModal from "../common/confirmationDialog";
@@ -13,6 +13,7 @@ import TextArea from "../common/textarea";
 import PeakSelector from "../peaks/peakSelector";
 import GPXUpload from "../tracks/gpxUpload";
 import VisibilitySelector from "./visibilitySelector";
+import WishlistItemsModal from "./wishlistItemsModal";
 
 export const createTourValidationSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -37,8 +38,9 @@ type ExtendedTour = Tour & {
 
 const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
   const navigate = useRouter();
-  const presignedUrl = useRef<{url: string, filename: string} | undefined>();
+  const presignedUrl = useRef<{ url: string; filename: string } | undefined>();
   const contentRef = useRef<string | undefined>();
+  const [showWishlistModal, setShowWishlistModal] = useState(false);
   const [visibility, setVisibility] = useState<Visibility>("FRIENDS");
   const [confirmData, setConfirmData] = useState<AnalysisResult>();
   const [points, setPoints] = useState<
@@ -71,6 +73,22 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
     },
   });
 
+  const peakIds = useMemo(
+    () => selectedPeaks.map((p) => p.id),
+    [selectedPeaks]
+  );
+  const { data: wishlistItems } = trpc.useQuery(
+    [
+      "wishlist.check-peaks",
+      {
+        peakIds,
+      },
+    ],
+    {
+      enabled: !editTour,
+    }
+  );
+
   useEffect(() => {
     if (editTour) {
       setSelectedPeaks(editTour.tourPeaks.map((p) => p.peak) || []);
@@ -82,7 +100,11 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
   const { mutate: create } = trpc.useMutation("tours.create-tour", {
     onSuccess: () => {
       setLoading(false);
-      navigate.push("/tours");
+      if (wishlistItems && wishlistItems.length > 0) {
+        setShowWishlistModal(true);
+      } else {
+        navigate.push("/tours");
+      }
     },
     onError: () => {
       setLoading(false);
@@ -98,16 +120,22 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
     },
   });
 
-  const { mutate: createPresignedUrl } = trpc.useMutation("tours.create-upload-url", {
-    onSuccess: async (url) => {
-      presignedUrl.current = url;
+  const { mutate: createPresignedUrl } = trpc.useMutation(
+    "tours.create-upload-url",
+    {
+      onSuccess: async (url) => {
+        presignedUrl.current = url;
+      },
     }
-  });
+  );
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);
     if (presignedUrl.current && contentRef.current) {
-      await fetch(presignedUrl.current.url, {method: 'PUT', body: contentRef.current});
+      await fetch(presignedUrl.current.url, {
+        method: "PUT",
+        body: contentRef.current,
+      });
     }
     if (editTour) {
       update({
@@ -120,7 +148,7 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
         tour: {
           ...data,
           visibility,
-          gpxUrl: presignedUrl.current?.filename
+          gpxUrl: presignedUrl.current?.filename,
         },
         peaks: selectedPeaks,
         points,
@@ -139,11 +167,17 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
 
     setPoints(data.points);
     setConfirmData(undefined);
-  }
+  };
 
   const handleGpxFileUpload = async (data: AnalysisResult) => {
     const values = getValues();
-    if (values.name || values.distance || values.elevationDown || values.elevationUp || values.date) {
+    if (
+      values.name ||
+      values.distance ||
+      values.elevationDown ||
+      values.elevationUp ||
+      values.date
+    ) {
       setConfirmData(data);
       return;
     }
@@ -160,10 +194,10 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
     contentRef.current = file;
     if (!presignedUrl.current) {
       createPresignedUrl({
-        tourId: editTour?.id
+        tourId: editTour?.id,
       });
     }
-  }
+  };
 
   return (
     <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
@@ -172,7 +206,11 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
           <CardTitle
             title={editTour ? "Update your tour" : "Create a new tour"}
           />
-          <form onSubmit={handleSubmit(onSubmit)} autoComplete="false" autoCorrect="false">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            autoComplete="false"
+            autoCorrect="false"
+          >
             <div className="pt-4 flex flex-col gap-2">
               <Input
                 id="name"
@@ -242,7 +280,10 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
                 {...register("description")}
                 placeholder="Hiking trip to the zugspitze over the Höllentalklamm"
               />
-              <VisibilitySelector visibility={visibility} onChange={(v) => setVisibility(v)} />
+              <VisibilitySelector
+                visibility={visibility}
+                onChange={(v) => setVisibility(v)}
+              />
               <div className="lg:flex justify-end hidden">
                 <Button disabled={isLoading} type="submit">
                   {editTour ? "Update your tour" : "Create your tour"}
@@ -264,13 +305,26 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
 
           <div className="mt-4">
             <CardTitle title="Upload a GPX Track" />
-            <GPXUpload onChange={handleGpxFileUpload} onFileChange={handleFileChange} />
+            <GPXUpload
+              onChange={handleGpxFileUpload}
+              onFileChange={handleFileChange}
+            />
           </div>
         </div>
       </Card>
+      <WishlistItemsModal
+        onClose={() => {
+          setShowWishlistModal(false);
+          navigate.push("/tours");
+        }}
+        show={showWishlistModal}
+        wishlistItems={wishlistItems}
+      />
       <ConfirmationModal
         accept={() => setAnalysisResult(confirmData!)}
-        decline={() => { setConfirmData(undefined) }}
+        decline={() => {
+          setConfirmData(undefined);
+        }}
         show={confirmData !== undefined}
         text="There have been changes in the form. Should the data from the GPX file override them?"
         acceptButton="Override"
