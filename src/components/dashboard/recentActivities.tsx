@@ -97,7 +97,8 @@ const RecentTours: React.FC = () => {
         <ul
           role="list"
           className="divide-y divide-gray-200 dark:divide-gray-700"
-        >
+          >
+          {tours.length === 0 && <span>No recent tours...</span>}
           {tours.map((tour) => (
             <TourItem tour={tour} router={router} key={tour.id} />
           ))}
@@ -128,6 +129,7 @@ const RecentInteractions: React.FC = () => {
           role="list"
           className="divide-y divide-gray-200 dark:divide-gray-700"
         >
+          {data.length === 0 && <span>No recent interactions...</span>}
           {data.map((interaction) => (
             <InteractionItem key={interaction.id} router={router} interaction={interaction} />
           ))}

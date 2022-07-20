@@ -33,7 +33,7 @@ const Home: NextPage = () => {
             <Card>
               <h2 className="text-lg text-gray-700">Discover Peaks</h2>
               <p className="text-sm text-gray-600">
-                Discover more than 20.000 different peaks and add them to your wishlist.
+                Discover more than 20.000 different peaks and add them to your wish list.
               </p>
             </Card>
             <Card>
@@ -45,7 +45,7 @@ const Home: NextPage = () => {
             <Card>
               <h2 className="text-lg text-gray-700">Get exciting insights</h2>
               <p className="text-sm text-gray-600">
-                Checkout all of your most exciting stats and compete with your friends!
+                Check out all of your most exciting stats and compete with your friends!
               </p>
             </Card>
           </div>

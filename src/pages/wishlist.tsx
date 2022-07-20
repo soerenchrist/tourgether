@@ -89,7 +89,6 @@ const WishlistContent = () => {
   const uncompleteItem = (item: string) => {
     const itemToUncomplete = wishlist.find((x) => x.id === item);
     if (itemToUncomplete) {
-      console.log(item);
       uncomplete({
         itemIds: [item],
       });
@@ -98,7 +97,7 @@ const WishlistContent = () => {
 
   return (
     <Card>
-      <CardTitle title="Your wishlist" />
+      <CardTitle title="Your wish list" />
 
       <Table>
         <Table.Head>
