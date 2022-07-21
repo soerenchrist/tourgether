@@ -185,6 +185,7 @@ export const toursRouter = createRouter()
       if (input?.userId) {
         const friends = await getFriends(ctx.prisma, ctx.userId);
         const userIds = friends.map(x => x.id);
+        userIds.push(ctx.userId);
         if (!userIds.includes(input.userId)) throw new TRPCError({ code: "NOT_FOUND" })
         userId = input.userId;
       }

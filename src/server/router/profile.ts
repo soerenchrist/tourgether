@@ -29,8 +29,8 @@ export const profileRouter = createRouter()
     async resolve({ ctx, input }) {
       const friends = await getFriends(ctx.prisma, ctx.userId);
       const userIds = friends.map(x => x.id);
+      userIds.push(ctx.userId); // include the current user
       if (!userIds.includes(input.userId)) throw new TRPCError({ code: "NOT_FOUND" })
-      
       const result = await ctx.prisma.user.findFirst({
         where: {
           id: input.userId,

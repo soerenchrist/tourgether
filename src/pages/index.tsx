@@ -15,7 +15,7 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <LayoutBase>
-        <main className="flex flex-col items-center justify-center h-full p-10 px-0 mx-auto md:py-20 md:p-10 md:px-0">
+        <main className="flex flex-col items-center justify-center h-full p-10 px-0 mx-auto md:py-10 md:p-10 md:px-0">
           <h1 className="font-extrabold text-center lg:text-7xl text-4xl">
             Tour<span className="text-blue-500">gether</span>
           </h1>
@@ -23,7 +23,7 @@ const Home: NextPage = () => {
           <h3 className="items-center m-5 lg:text-3xl text-xl text-center">
             Plan and manage your hiking tours together
           </h3>
-          <div className="grid grid-cols-1 grid-rows-3 lg:grid-rows-2 md:grid-rows-2 justify-center items-center lg:grid-cols-2 md:grid-cols-2 gap-3 mt-24 pt-3 w-full lg:w-2/3 md:w-full">
+          <div className="grid grid-cols-1 grid-rows-3 lg:grid-rows-2 md:grid-rows-2 justify-center items-center lg:grid-cols-2 md:grid-cols-2 gap-3 pt-3 w-full lg:w-2/3 md:w-full">
             <Card>
               <h2 className="text-lg text-gray-700">Upload your Tracks</h2>
               <p className="text-sm text-gray-600">
