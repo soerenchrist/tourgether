@@ -1,11 +1,14 @@
 import { useZodForm } from "@/utils/formHelpers";
 import { trpc } from "@/utils/trpc";
+import { ProfileVisibility } from "@prisma/client";
 import { Button } from "flowbite-react";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import Input from "../common/input";
 import TextArea from "../common/textarea";
 import { CompleteProfile } from "./profileOverview";
+import ProfileVisibilitySelector from "./profileVisibilitySelector";
 
 export const updateProfileValidationSchema = z.object({
   username: z
@@ -42,7 +45,12 @@ const ProfileForm: React.FC<{
       name: profile.name ?? "",
     },
   });
+  const [visibility, setVisibility] = useState<ProfileVisibility>("PUBLIC");
   const username = watch("username");
+
+  useEffect(() => {
+    setVisibility(profile.visibility);
+  }, [profile]);
 
   trpc.useQuery(
     [
@@ -74,7 +82,7 @@ const ProfileForm: React.FC<{
   );
 
   const onSubmit = (data: UpdateProfile) => {
-    updateProfile(data);
+    updateProfile({ visibility, ...data });
   };
 
   return (
@@ -114,6 +122,10 @@ const ProfileForm: React.FC<{
           {...register("status")}
           error={errors.status?.message}
           placeholder="Write something about you"
+        />
+        <ProfileVisibilitySelector
+          visibility={visibility}
+          onChange={setVisibility}
         />
         <div className="flex justify-end">
           <Button disabled={isLoading} type="submit">

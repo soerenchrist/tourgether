@@ -57,6 +57,11 @@ enum Visibility {
   PRIVATE
 }
 
+enum ProfileVisibility {
+    PUBLIC
+    PRIVATE
+}
+
 model Point {
     id String @id @default(cuid())
     latitude Float
@@ -160,7 +165,9 @@ model Profile {
     favoritePeak String?
     status String?
     location String?
+    visibility ProfileVisibility @default(PUBLIC)
     user User @relation(fields: [id], references: [id])
+
 }
 
 model User {

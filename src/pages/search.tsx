@@ -38,7 +38,7 @@ const SearchPageContent = () => {
           onChange={(e) => setSearchText(e.target.value)}
         />
 
-        {searchText.length === 0 && (
+        {searchText.length < 3 && (
           <span>Start searching for new friends or exciting tours.</span>
         )}
         <List>

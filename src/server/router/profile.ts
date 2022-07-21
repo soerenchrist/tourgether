@@ -4,6 +4,7 @@ import { z } from "zod";
 import { updateProfileValidationSchema } from "@/components/profile/profileForm";
 import { getFriends } from "./friends";
 import { CompleteProfile } from "@/components/profile/profileOverview";
+import { Profile } from "@prisma/client";
 
 export const profileRouter = createRouter()
   .middleware(async ({ ctx, next }) => {
@@ -32,6 +33,7 @@ export const profileRouter = createRouter()
         image: user.image,
         location: user.profile?.location,
         status: user.profile?.status,
+        visibility: user.profile?.visibility ?? "PUBLIC"
       };
       return profile;
     },
@@ -134,12 +136,15 @@ export const profileRouter = createRouter()
         image: user.image,
         location: user.profile?.location,
         status: user.profile?.status,
+        visibility: user.profile?.visibility ?? "PRIVATE"
       };
       return profile;
     },
   })
   .mutation("update-profile", {
-    input: updateProfileValidationSchema,
+    input: updateProfileValidationSchema.merge(z.object({
+      visibility: z.enum(["PUBLIC", "PRIVATE"])
+    })),
     async resolve({ ctx, input }) {
       await ctx.prisma.user.update({
         data: {
@@ -157,11 +162,12 @@ export const profileRouter = createRouter()
         },
       });
 
-      const profileData = {
+      const profileData: Omit<Profile, "id"> = {
         name: input.name,
         favoritePeak: input.favoritePeak,
         status: input.status,
         location: input.location,
+        visibility: input.visibility
       };
 
       if (existing) {

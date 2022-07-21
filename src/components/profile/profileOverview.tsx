@@ -1,3 +1,4 @@
+import { ProfileVisibility } from "@prisma/client";
 import { Avatar, Button, Card } from "flowbite-react";
 import { useRouter } from "next/router";
 import CardTitle from "../common/cardTitle";
@@ -11,6 +12,7 @@ export type CompleteProfile = {
   status?: string | null;
   location?: string | null;
   favoritePeak?: string | null;
+  visibility: ProfileVisibility;
 };
 
 const format = (value?: string | null) => {
@@ -41,6 +43,10 @@ const ProfileOverview: React.FC<{
           <ListItem
             subtitle="Favorite Peak"
             title={format(profile.favoritePeak)}
+          />
+          <ListItem
+            subtitle="Profile visibility"
+            title={profile.visibility === "PUBLIC" ? "Public" : "Private"}
           />
         </List>
         <div className="w-full flex justify-end pt-4">
