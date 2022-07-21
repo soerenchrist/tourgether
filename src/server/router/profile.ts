@@ -20,19 +20,19 @@ export const profileRouter = createRouter()
           id: ctx.userId,
         },
         include: {
-          profile: true
-        }
+          profile: true,
+        },
       });
-      if (!user) throw new TRPCError({code: "NOT_FOUND"});
+      if (!user) throw new TRPCError({ code: "NOT_FOUND" });
       const profile: CompleteProfile = {
         email: user.email || "",
-        name: user.profile?.name ,
+        name: user.profile?.name,
         username: user.name || "",
         favoritePeak: user.profile?.favoritePeak,
         image: user.image,
         location: user.profile?.location,
-        status: user.profile?.status
-      }
+        status: user.profile?.status,
+      };
       return profile;
     },
   })
@@ -51,22 +51,22 @@ export const profileRouter = createRouter()
   })
   .query("check-username", {
     input: z.object({
-      username: z.string()
+      username: z.string(),
     }),
     async resolve({ ctx, input }) {
       const result = await ctx.prisma.user.findFirst({
         where: {
           name: input.username,
           id: {
-            not: ctx.userId
-          }
-        }
+            not: ctx.userId,
+          },
+        },
       });
 
       return {
-        taken: result !== null
-      }
-    }
+        taken: result !== null,
+      };
+    },
   })
   .query("get-friends-profile", {
     input: z.object({
@@ -78,7 +78,7 @@ export const profileRouter = createRouter()
       userIds.push(ctx.userId); // include the current user
       if (!userIds.includes(input.userId))
         throw new TRPCError({ code: "NOT_FOUND" });
-      const result = await ctx.prisma.user.findFirst({
+      const user = await ctx.prisma.user.findFirst({
         where: {
           id: input.userId,
         },
@@ -89,7 +89,17 @@ export const profileRouter = createRouter()
           profile: true,
         },
       });
-      return result;
+      if (!user) throw new TRPCError({ code: "NOT_FOUND" });
+      const profile: CompleteProfile = {
+        email: user.email || "",
+        name: user.profile?.name,
+        username: user.name || "",
+        favoritePeak: user.profile?.favoritePeak,
+        image: user.image,
+        location: user.profile?.location,
+        status: user.profile?.status,
+      };
+      return profile;
     },
   })
   .mutation("update-profile", {
@@ -98,7 +108,7 @@ export const profileRouter = createRouter()
       await ctx.prisma.user.update({
         data: {
           name: input.username,
-          hasOnboarded: true
+          hasOnboarded: true,
         },
         where: {
           id: ctx.userId,
