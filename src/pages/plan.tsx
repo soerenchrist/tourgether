@@ -203,3 +203,22 @@ const PlanPageContent = () => {
     </div>
   );
 };
+
+const PlanPage: NextPage = () => {
+  const { status } = useSession();
+
+  let content = <PlanPageContent></PlanPageContent>;
+  if (status === "unauthenticated") content = <p>Access denied</p>;
+  else if (status === "loading") content = <></>;
+
+  return (
+    <>
+      <Head>
+        <title>Plan your Tour</title>
+      </Head>
+      <LayoutBase>{content}</LayoutBase>
+    </>
+  );
+};
+
+export default PlanPage;
