@@ -1,5 +1,5 @@
 import { calculateDistance } from "@/lib/gpxLib";
-import { Point } from "@prisma/client";
+import { Point } from "@/server/router/tours";
 import { useCallback, useMemo } from "react";
 import { AxisOptions, Chart } from "react-charts";
 

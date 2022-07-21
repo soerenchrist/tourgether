@@ -16,16 +16,32 @@ import {
 import ConfirmationModal from "@/components/common/confirmationDialog";
 import NotFound from "@/components/common/notFound";
 import Link from "next/link";
-import { Point, Visibility } from "@prisma/client";
+import { Visibility } from "@prisma/client";
 import ChartArea from "@/components/tours/charts/chartArea";
 import LikeButton from "@/components/tours/likeButton";
 import CommentButton from "@/components/tours/commentButton";
 import Skeleton from "@/components/common/skeleton";
 import DownloadGpxButton from "@/components/tours/downloadGpxButton";
+import { parseGpx } from "@/lib/gpxLib";
+import { Point } from "@/server/router/tours";
 
 const Map = dynamic(() => import("../../components/maps/tourMap"), {
   ssr: false,
 });
+
+const downloadAndParse = async (fileUrl: string): Promise<Point[]> => {
+  const response = await fetch(fileUrl);
+  const gpx = await response.text();
+  const results = parseGpx(gpx);
+  return results.points.map((x) => ({
+    elevation: x.elevation,
+    latitude: x.latitude,
+    longitude: x.longitude,
+    time: x.time,
+    heartRate: x.heartRate,
+    temperature: x.temperature,
+  }));
+};
 
 const OwnerMenu: React.FC<{
   setShowDelete: (value: boolean) => void;
@@ -53,11 +69,37 @@ const OwnerMenu: React.FC<{
   );
 };
 
+const isSet = (value?: string | null) => {
+  if (!value) return false;
+  return true;
+};
+
 const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
   const { data, isLoading } = trpc.useQuery(["tours.get-tour-by-id", { id }], {
     retry: false,
     refetchOnWindowFocus: false,
   });
+  const [points, setPoints] = useState<Point[]>([]);
+
+  const {data: downloadUrl } = trpc.useQuery(
+    [
+      "tours.get-download-url",
+      {
+        gpxUrl: data?.gpxUrl ?? "",
+      },
+    ],
+    {
+      enabled: isSet(data?.gpxUrl),
+      refetchOnWindowFocus: false,
+      async onSuccess(url) {
+        if (url) {
+          const points = await downloadAndParse(url);
+          setPoints(points);
+        }
+      },
+    }
+  );
+
   const router = useRouter();
   const [hoverPoint, setHoverPoint] = useState<Point>();
   const { mutate: deleteTourOnServer } = trpc.useMutation("tours.delete-tour", {
@@ -100,7 +142,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
               {!isLoading && (
                 <>
                   <CommentButton tour={data!} />
-                  <DownloadGpxButton tour={data!} />
+                  <DownloadGpxButton downloadUrl={downloadUrl} tour={data!} />
                   {!data?.viewer && (
                     <OwnerMenu onEdit={onEdit} setShowDelete={setShowDelete} />
                   )}
@@ -183,11 +225,11 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
           </List>
         </Card>
         <Card>
-          <Map hoverPoint={hoverPoint} peaks={peaks} points={data?.points} />
+          <Map hoverPoint={hoverPoint} peaks={peaks} points={points} />
         </Card>
       </div>
-      {data?.points && data.points.length > 0 && (
-        <ChartArea points={data.points} onHover={(e) => setHoverPoint(e)} />
+      {points && points.length > 0 && (
+        <ChartArea points={points} onHover={(e) => setHoverPoint(e)} />
       )}
       <ConfirmationModal
         text={

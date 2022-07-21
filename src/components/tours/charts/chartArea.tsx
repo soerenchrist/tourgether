@@ -1,4 +1,3 @@
-import { Point } from "@prisma/client";
 import { Card, Dropdown } from "flowbite-react";
 import { ReactNode, useMemo, useState } from "react";
 import CardTitle from "@/components/common/cardTitle";
@@ -6,6 +5,7 @@ import HeightProfile from "./heightProfile";
 import SpeedProfile from "./speedProfile";
 import HeartRateProfile from "./heartRateProfile";
 import TemperatureProfile from "./temperatureProfile";
+import { Point } from "@/server/router/tours";
 const ChartArea: React.FC<{
   points: Point[];
   onHover: (point?: Point) => void;

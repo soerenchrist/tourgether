@@ -9,9 +9,10 @@ import {
 import { useEffect, useMemo } from "react";
 import "leaflet-defaulticon-compatibility";
 import { calculateBounds } from "@/utils/gpxHelpers";
-import { Peak, Point } from "@prisma/client";
+import { Peak } from "@prisma/client";
 import { attribution, layerUrl } from "@/utils/mapConstants";
 import { blueMarker, greenMarker, redMarker } from "./icons";
+import { Point } from "@/server/router/tours";
 
 const PositionHandler: React.FC<{
   peaks?: Peak[];

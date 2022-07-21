@@ -1,12 +1,21 @@
 import { createTourValidationSchema } from "@/components/tours/editToursForm";
 import { getDateXDaysBeforeToday } from "@/utils/dateUtils";
 import { TRPCError } from "@trpc/server";
-import { z } from "zod";
+import { number, z } from "zod";
 import { createRouter } from "./context";
 import { getFriends } from "./friends";
 import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import * as uuid from "uuid";
+
+export type Point = {
+  latitude: number;
+  longitude: number;
+  elevation: number;
+  heartRate?: number;
+  temperature?: number;
+  time: Date;
+}
 
 const deleteS3File = async (url: string) => {
 
@@ -90,7 +99,6 @@ export const toursRouter = createRouter()
             peak: true,
           },
         },
-        points: true,
         creator: true,
       };
       const tour = await ctx.prisma.tour.findFirst({
@@ -344,12 +352,6 @@ export const toursRouter = createRouter()
         await deleteS3File(tour.gpxUrl)
       }
 
-      await ctx.prisma.point.deleteMany({
-        where: {
-          tourId: input.id,
-        },
-      });
-
       await ctx.prisma.like.deleteMany({
         where: {
           tourId: input.id,
@@ -400,16 +402,6 @@ export const toursRouter = createRouter()
           gpxUrl: z.string().nullish(),
         })
       ),
-      points: z
-        .object({
-          latitude: z.number(),
-          longitude: z.number(),
-          elevation: z.number(),
-          time: z.date(),
-          heartRate: z.number().optional(),
-          temperature: z.number().optional(),
-        })
-        .array(),
       peaks: z
         .object({
           id: z.string(),
@@ -442,26 +434,6 @@ export const toursRouter = createRouter()
 
       await ctx.prisma.tourPeak.createMany({
         data: tourPeaks,
-      });
-
-      const points: {
-        tourId: string;
-        latitude: number;
-        longitude: number;
-        elevation: number;
-        heartRate?: number;
-        temperature?: number;
-        time: Date;
-      }[] = [];
-      input.points.forEach((p) => {
-        points.push({
-          ...p,
-          tourId: insertedTour.id,
-        });
-      });
-
-      await ctx.prisma.point.createMany({
-        data: points,
       });
 
       return insertedTour;

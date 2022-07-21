@@ -25,7 +25,6 @@ model Tour {
     creatorId String
     creator User @relation(fields: [creatorId], references: [id])
     tourPeaks TourPeak[]
-    points Point[]
     gpxUrl String?
     visibility Visibility @default(FRIENDS) 
     likes Like[]
@@ -60,18 +59,6 @@ enum Visibility {
 enum ProfileVisibility {
     PUBLIC
     PRIVATE
-}
-
-model Point {
-    id String @id @default(cuid())
-    latitude Float
-    longitude Float
-    elevation Float
-    time DateTime
-    heartRate Int?
-    temperature Float?
-    tour Tour @relation(fields: [tourId], references: [id])
-    tourId String
 }
 
 model WishlistItem {

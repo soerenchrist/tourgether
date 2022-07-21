@@ -7,8 +7,7 @@ import { useRouter } from "next/router";
 const UserDropdown: React.FC<{ session: Session }> = ({ session }) => {
   const router = useRouter();
   const handleSignOut = () => {
-    signOut();
-    router.push("/");
+    signOut({ callbackUrl: "/"});
   };
 
   const goTo = (route: string) => {

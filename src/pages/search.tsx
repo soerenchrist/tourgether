@@ -29,7 +29,7 @@ const SearchPageContent = () => {
   return (
     <Card>
       <div className="flex flex-col gap-2 h-full justify-start">
-        <CardTitle title="Search" />
+        <CardTitle title="Search for members and tours" />
         <Input
           id="search"
           placeholder="Search..."

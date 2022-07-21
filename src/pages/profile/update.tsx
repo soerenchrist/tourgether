@@ -13,18 +13,12 @@ const UpdateProfilePageContent: React.FC<{ session: Session }> = ({
   session,
 }) => {
   if (!session.user) return null;
-  const { data: profileInfo, isLoading } = trpc.useQuery([
+  const { data: profile, isLoading } = trpc.useQuery([
     "profile.get-my-profile",
   ]);
 
-  if (isLoading) return <Spinner />;
+  if (isLoading || !profile) return <Spinner />;
 
-  const profile = {
-    name: session.user.name ?? "",
-    email: session.user.email ?? "",
-    image: session.user.image,
-    ...profileInfo,
-  };
 
   return (
     <Card>

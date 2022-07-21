@@ -1,7 +1,7 @@
 import { AnalysisResult } from "@/lib/gpxLib";
 import { useZodForm } from "@/utils/formHelpers";
 import { trpc } from "@/utils/trpc";
-import { Peak, Point, Tour, TourPeak, Visibility } from "@prisma/client";
+import { Peak, Tour, TourPeak, Visibility } from "@prisma/client";
 import { Button, Card } from "flowbite-react";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -33,7 +33,6 @@ type ExtendedTourPeak = TourPeak & {
 
 type ExtendedTour = Tour & {
   tourPeaks: ExtendedTourPeak[];
-  points: Point[];
 };
 
 const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
@@ -43,9 +42,6 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
   const [showWishlistModal, setShowWishlistModal] = useState(false);
   const [visibility, setVisibility] = useState<Visibility>("FRIENDS");
   const [confirmData, setConfirmData] = useState<AnalysisResult>();
-  const [points, setPoints] = useState<
-    { latitude: number; longitude: number; elevation: number; time: Date }[]
-  >([]);
   const [selectedPeaks, setSelectedPeaks] = useState<
     { name: string; height: number; id: string }[]
   >([]);
@@ -92,7 +88,6 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
   useEffect(() => {
     if (editTour) {
       setSelectedPeaks(editTour.tourPeaks.map((p) => p.peak) || []);
-      setPoints(editTour.points || []);
       setVisibility(editTour.visibility);
     }
   }, [editTour]);
@@ -151,7 +146,6 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
           gpxUrl: presignedUrl.current?.filename,
         },
         peaks: selectedPeaks,
-        points,
       });
     }
   };
@@ -165,7 +159,6 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
     setValue("startTime", data.start);
     setValue("endTime", data.end);
 
-    setPoints(data.points);
     setConfirmData(undefined);
   };
 
