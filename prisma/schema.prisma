@@ -156,6 +156,7 @@ model Session {
 
 model Profile {
     id String @id
+    name String?
     favoritePeak String?
     status String?
     location String?
@@ -168,6 +169,8 @@ model User {
     email         String?   @unique
     emailVerified DateTime?
     image         String?
+    username      String?
+    hasOnboarded  Boolean @default(false)
     accounts      Account[]
     sessions      Session[]
     friendship1 Friendship[] @relation(name: "friendship1")

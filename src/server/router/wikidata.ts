@@ -69,7 +69,7 @@ export const wikidataRouter = createRouter()
       if (!input.wikidataId) throw new TRPCError({ code: "NOT_FOUND" });
       try {
         const result = await fetchWithTimeout(
-          `https://www.wikidata.org/entity/${input.wikidataId}`,
+          `https://www.wikidata.org/wiki/Special:EntityData/${input.wikidataId}.json`,
           {
             headers: {
               Accept: "application/json",

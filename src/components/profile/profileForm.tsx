@@ -8,35 +8,67 @@ import TextArea from "../common/textarea";
 import { CompleteProfile } from "./profileOverview";
 
 export const updateProfileValidationSchema = z.object({
+  username: z
+    .string()
+    .min(3, "Username must be at least 3 characters long")
+    .max(20, "Username must be less than 20 characters long"),
   status: z.string().max(150),
   location: z.string().max(50),
-  name: z.string().min(3).max(50),
+  name: z.string().max(50),
   favoritePeak: z.string(),
 });
 
 type UpdateProfile = z.infer<typeof updateProfileValidationSchema>;
 
-const ProfileForm: React.FC<{ profile: CompleteProfile }> = ({ profile }) => {
+const ProfileForm: React.FC<{
+  profile: CompleteProfile;
+  buttonText?: string;
+  callbackUrl?: string;
+}> = ({ profile, buttonText, callbackUrl }) => {
   const {
     register,
+    watch,
     handleSubmit,
+    setError,
+    clearErrors,
     formState: { errors },
   } = useZodForm({
     schema: updateProfileValidationSchema,
     defaultValues: {
+      username: profile.username,
       status: profile.status ?? "",
       location: profile.location ?? "",
       favoritePeak: profile.favoritePeak ?? "",
-      name: profile.name,
+      name: profile.name ?? "",
     },
   });
+  const username = watch("username");
+
+  trpc.useQuery(
+    [
+      "profile.check-username",
+      {
+        username,
+      },
+    ],
+    {
+      enabled: username.length > 0,
+      onSuccess: (result) => {
+        if (result.taken) {
+          setError("username", { message: "This username is already taken." });
+        } else {
+          clearErrors("username");
+        }
+      },
+    }
+  );
 
   const router = useRouter();
   const { mutate: updateProfile, isLoading } = trpc.useMutation(
     "profile.update-profile",
     {
       onSuccess: () => {
-        router.push("/profile");
+        router.push(callbackUrl || "/profile");
       },
     }
   );
@@ -48,6 +80,13 @@ const ProfileForm: React.FC<{ profile: CompleteProfile }> = ({ profile }) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)} autoComplete="false">
       <div className="pt-4 flex flex-col gap-2">
+        <Input
+          id="username"
+          label="Username"
+          {...register("username")}
+          error={errors.username?.message}
+          placeholder="Username"
+        />
         <Input
           id="name"
           label="Name"
@@ -78,7 +117,7 @@ const ProfileForm: React.FC<{ profile: CompleteProfile }> = ({ profile }) => {
         />
         <div className="flex justify-end">
           <Button disabled={isLoading} type="submit">
-            Update Profile
+            {buttonText || "Update Profile"}
           </Button>
         </div>
       </div>

@@ -61,7 +61,7 @@ const Header = ({
       </Navbar.Brand>
       {!session?.user && !isLoading && (
         <div className="flex md:order-2">
-          <Button onClick={() => signIn("auth0")}>Sign in</Button>
+          <Button onClick={() => signIn("auth0", { callbackUrl: "/onboarding"})}>Sign in</Button>
         </div>
       )}
       {session?.user && (

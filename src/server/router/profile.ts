@@ -3,6 +3,7 @@ import { createRouter } from "./context";
 import { z } from "zod";
 import { updateProfileValidationSchema } from "@/components/profile/profileForm";
 import { getFriends } from "./friends";
+import { CompleteProfile } from "@/components/profile/profileOverview";
 
 export const profileRouter = createRouter()
   .middleware(async ({ ctx, next }) => {
@@ -14,23 +15,69 @@ export const profileRouter = createRouter()
   })
   .query("get-my-profile", {
     async resolve({ ctx }) {
-      const profile = await ctx.prisma.profile.findFirst({
+      const user = await ctx.prisma.user.findFirst({
+        where: {
+          id: ctx.userId,
+        },
+        include: {
+          profile: true
+        }
+      });
+      if (!user) throw new TRPCError({code: "NOT_FOUND"});
+      const profile: CompleteProfile = {
+        email: user.email || "",
+        name: user.profile?.name ,
+        username: user.name || "",
+        favoritePeak: user.profile?.favoritePeak,
+        image: user.image,
+        location: user.profile?.location,
+        status: user.profile?.status
+      }
+      return profile;
+    },
+  })
+  .query("has-onboarded", {
+    async resolve({ ctx }) {
+      const user = await ctx.prisma.user.findUnique({
         where: {
           id: ctx.userId,
         },
       });
-      return profile;
+      if (!user) throw new TRPCError({ code: "NOT_FOUND" });
+      return {
+        hasOnboarded: user.hasOnboarded,
+      };
     },
+  })
+  .query("check-username", {
+    input: z.object({
+      username: z.string()
+    }),
+    async resolve({ ctx, input }) {
+      const result = await ctx.prisma.user.findFirst({
+        where: {
+          name: input.username,
+          id: {
+            not: ctx.userId
+          }
+        }
+      });
+
+      return {
+        taken: result !== null
+      }
+    }
   })
   .query("get-friends-profile", {
     input: z.object({
-      userId: z.string()
+      userId: z.string(),
     }),
     async resolve({ ctx, input }) {
       const friends = await getFriends(ctx.prisma, ctx.userId);
-      const userIds = friends.map(x => x.id);
+      const userIds = friends.map((x) => x.id);
       userIds.push(ctx.userId); // include the current user
-      if (!userIds.includes(input.userId)) throw new TRPCError({ code: "NOT_FOUND" })
+      if (!userIds.includes(input.userId))
+        throw new TRPCError({ code: "NOT_FOUND" });
       const result = await ctx.prisma.user.findFirst({
         where: {
           id: input.userId,
@@ -39,18 +86,19 @@ export const profileRouter = createRouter()
           name: true,
           email: true,
           image: true,
-          profile: true
-        }
+          profile: true,
+        },
       });
       return result;
-    }
+    },
   })
   .mutation("update-profile", {
     input: updateProfileValidationSchema,
     async resolve({ ctx, input }) {
       await ctx.prisma.user.update({
         data: {
-          name: input.name,
+          name: input.username,
+          hasOnboarded: true
         },
         where: {
           id: ctx.userId,
@@ -64,6 +112,7 @@ export const profileRouter = createRouter()
       });
 
       const profileData = {
+        name: input.name,
         favoritePeak: input.favoritePeak,
         status: input.status,
         location: input.location,

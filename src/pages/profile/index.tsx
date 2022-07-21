@@ -11,20 +11,11 @@ import { ReactNode } from "react";
 
 const ProfilePageContent: React.FC<{ session: Session }> = ({ session }) => {
   if (!session.user) return null;
-  const { data: profileInfo, isLoading } = trpc.useQuery([
+  const { data: profile, isLoading } = trpc.useQuery([
     "profile.get-my-profile",
   ]);
 
-  if (isLoading) return <Spinner />;
-
-  const profile = {
-    name: session.user.name ?? "",
-    email: session.user.email ?? "",
-    image: session.user.image,
-    status: profileInfo?.status,
-    favoritePeak: profileInfo?.favoritePeak,
-    location: profileInfo?.location,
-  };
+  if (isLoading || !profile) return <Spinner />;
 
   return (
     <div className="flex flex-col gap-4">
