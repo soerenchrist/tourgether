@@ -33,7 +33,7 @@ export const profileRouter = createRouter()
         image: user.image,
         location: user.profile?.location,
         status: user.profile?.status,
-        visibility: user.profile?.visibility ?? "PUBLIC"
+        visibility: user.profile?.visibility ?? "PUBLIC",
       };
       return profile;
     },
@@ -79,9 +79,12 @@ export const profileRouter = createRouter()
       const results = await ctx.prisma.user.findMany({
         take: 10,
         include: {
-          profile: true
+          profile: true,
         },
         where: {
+          profile: {
+            visibility: "PUBLIC"
+          },
           OR: [
             {
               name: {
@@ -98,27 +101,32 @@ export const profileRouter = createRouter()
           ],
         },
       });
-      return results.map(x => ({
+      return results.map((x) => ({
         id: x.id,
         image: x.image,
         username: x.name,
-        name: x.profile?.name ?? "-"
-      }))
+        name: x.profile?.name ?? "-",
+      }));
     },
   })
-  .query("get-friends-profile", {
+  .query("get-profile", {
     input: z.object({
       userId: z.string(),
     }),
     async resolve({ ctx, input }) {
-      const friends = await getFriends(ctx.prisma, ctx.userId);
-      const userIds = friends.map((x) => x.id);
-      userIds.push(ctx.userId); // include the current user
-      if (!userIds.includes(input.userId))
-        throw new TRPCError({ code: "NOT_FOUND" });
       const user = await ctx.prisma.user.findFirst({
         where: {
           id: input.userId,
+          OR: [
+            {
+              profile: {
+                visibility: "PUBLIC",
+              },
+            },
+            {
+              id: ctx.userId,
+            },
+          ],
         },
         select: {
           name: true,
@@ -136,15 +144,17 @@ export const profileRouter = createRouter()
         image: user.image,
         location: user.profile?.location,
         status: user.profile?.status,
-        visibility: user.profile?.visibility ?? "PRIVATE"
+        visibility: user.profile?.visibility ?? "PRIVATE",
       };
       return profile;
     },
   })
   .mutation("update-profile", {
-    input: updateProfileValidationSchema.merge(z.object({
-      visibility: z.enum(["PUBLIC", "PRIVATE"])
-    })),
+    input: updateProfileValidationSchema.merge(
+      z.object({
+        visibility: z.enum(["PUBLIC", "PRIVATE"]),
+      })
+    ),
     async resolve({ ctx, input }) {
       await ctx.prisma.user.update({
         data: {
@@ -167,7 +177,7 @@ export const profileRouter = createRouter()
         favoritePeak: input.favoritePeak,
         status: input.status,
         location: input.location,
-        visibility: input.visibility
+        visibility: input.visibility,
       };
 
       if (existing) {

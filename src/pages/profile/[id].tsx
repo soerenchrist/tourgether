@@ -16,7 +16,7 @@ const FriendsProfileContent: React.FC<{ id: string }> = ({ id }) => {
     isError,
     isLoading,
   } = trpc.useQuery([
-    "profile.get-friends-profile",
+    "profile.get-profile",
     {
       userId: id,
     },
