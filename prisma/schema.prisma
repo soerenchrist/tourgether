@@ -99,14 +99,6 @@ model TourPeak {
     tour Tour @relation(fields: [tourId], references: [id])
 }
 
-model FriendRequest {
-    id String @id @default(cuid())
-    validUntil DateTime
-    issuedById String
-    token String
-    issuedBy User @relation(fields: [issuedById], references: [id])
-}
-
 model Friendship {
     user1Id String
     user2Id String
@@ -115,8 +107,14 @@ model Friendship {
     user2 User @relation(name: "friendship2", fields: [user2Id], references: [id], map: "friendship2")
 
     startDate DateTime @default(now())
+    state FriendshipState @default(ACTIVE)
 
     @@id([user1Id, user2Id])
+}
+
+enum FriendshipState {
+    PENDING
+    ACTIVE
 }
 
 // Necessary for Next auth
@@ -171,7 +169,6 @@ model User {
     profile Profile?
     createdTours Tour[]
     wishlistItems WishlistItem[]
-    friendRequests FriendRequest[]
     likes Like[]
     comments Comment[]
 }

@@ -9,7 +9,16 @@ export const ListItem: React.FC<{
   onTitleClick?: () => void;
   onImageClick?: () => void;
   isLoading?: boolean;
-}> = ({ title, subtitle, image, isLoading, onImageClick, onTitleClick }) => {
+  action?: ReactNode;
+}> = ({
+  title,
+  subtitle,
+  image,
+  isLoading,
+  onImageClick,
+  onTitleClick,
+  action,
+}) => {
   return (
     <li className="py-2">
       <div className="flex items-center space-x-4">
@@ -44,6 +53,7 @@ export const ListItem: React.FC<{
             </p>
           )}
         </div>
+        {action && <div>{action}</div>}
       </div>
     </li>
   );

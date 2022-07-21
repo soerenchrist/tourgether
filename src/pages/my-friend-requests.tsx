@@ -1,7 +1,7 @@
 import CardTitle from "@/components/common/cardTitle";
 import LayoutBase from "@/components/layout/layoutBase";
 import { trpc } from "@/utils/trpc";
-import { Card, Spinner, Table } from "flowbite-react";
+import { Button, Card, Spinner, Table } from "flowbite-react";
 import { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
@@ -19,17 +19,26 @@ const MyInvitationsPageContent: React.FC = () => {
       },
     }
   );
+  const { mutate: acceptInvitation } = trpc.useMutation(
+    "friends.accept-friend-request",
+    {
+      onSuccess: () => {
+        util.invalidateQueries("friends.get-my-friend-requests");
+      },
+    }
+  );
 
   if (isLoading || !data) return <Spinner size="xl" />;
 
-  const isExpired = (expiry: Date) => {
-    const now = new Date();
-    return expiry < now;
+  const decline = (id: string) => {
+    deleteInvitation({
+      userId: id,
+    });
   };
 
-  const revoke = (id: string) => {
-    deleteInvitation({
-      invite_token: id,
+  const accept = (id: string) => {
+    acceptInvitation({
+      userId: id,
     });
   };
 
@@ -38,7 +47,7 @@ const MyInvitationsPageContent: React.FC = () => {
       <CardTitle title="My friend requests" />
       <Table>
         <Table.Head>
-          <Table.HeadCell>Expires on</Table.HeadCell>
+          <Table.HeadCell>From</Table.HeadCell>
           <Table.HeadCell>Status</Table.HeadCell>
           <Table.HeadCell></Table.HeadCell>
         </Table.Head>
@@ -49,25 +58,24 @@ const MyInvitationsPageContent: React.FC = () => {
             </Table.Row>
           )}
           {data.map((link) => (
-            <Table.Row key={link.id}>
+            <Table.Row key={link.user1Id}>
               <Table.Cell>
-                {link.validUntil.toLocaleDateString()}{" "}
-                {link.validUntil.toLocaleTimeString()}
+                <b>{link.user1.name}</b>
               </Table.Cell>
               <Table.Cell>
-                <span
-                  className={isExpired(link.validUntil) ? "text-red-600" : "text-green-500"}
-                >
-                  {isExpired(link.validUntil) ? "Expired" : "Active"}
-                </span>
+                {link.state === "PENDING" && "Pending..."}
               </Table.Cell>
-              <Table.Cell className="flex justify-end">
-                <span
-                  onClick={() => revoke(link.token)}
-                  className="text-blue-500 hover:underline cursor-pointer font-medium"
+              <Table.Cell className="flex justify-end gap-2">
+                <Button onClick={() => accept(link.user1Id)} color="success">
+                  Accept
+                </Button>
+                <Button
+                  onClick={() => decline(link.user1Id)}
+                  outline
+                  color="light"
                 >
-                  {isExpired(link.validUntil) ? "Delete" : "Revoke"}
-                </span>
+                  Decline
+                </Button>
               </Table.Cell>
             </Table.Row>
           ))}

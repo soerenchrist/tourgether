@@ -4,7 +4,12 @@ import { TRPCError } from "@trpc/server";
 import { number, z } from "zod";
 import { createRouter } from "./context";
 import { getFriends } from "./friends";
-import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import * as uuid from "uuid";
 
@@ -15,10 +20,9 @@ export type Point = {
   heartRate?: number;
   temperature?: number;
   time: Date;
-}
+};
 
 const deleteS3File = async (url: string) => {
-
   const s3 = new S3Client({
     region: process.env.AWS_BUCKET_REGION,
     credentials: {
@@ -26,14 +30,14 @@ const deleteS3File = async (url: string) => {
       secretAccessKey: process.env.AWS_BUCKET_ACCESS_KEY_SECRET || "",
     },
   });
-  
+
   const command = new DeleteObjectCommand({
     Bucket: process.env.AWS_BUCKET_NAME,
     Key: url,
   });
 
   await s3.send(command);
-}
+};
 
 export const toursRouter = createRouter()
   .middleware(async ({ ctx, next }) => {
@@ -185,17 +189,24 @@ export const toursRouter = createRouter()
     },
   })
   .query("get-totals", {
-    input: z.object({
-      userId: z.string().optional()
-    }).optional(),
+    input: z
+      .object({
+        userId: z.string().optional(),
+      })
+      .optional(),
     async resolve({ ctx, input }) {
       let userId = ctx.userId;
       if (input?.userId) {
-        const friends = await getFriends(ctx.prisma, ctx.userId);
-        const userIds = friends.map(x => x.id);
-        userIds.push(ctx.userId);
-        if (!userIds.includes(input.userId)) throw new TRPCError({ code: "NOT_FOUND" })
-        userId = input.userId;
+        const user = await ctx.prisma.user.findUnique({
+          where: {
+            id: input.userId,
+          },
+          include: {
+            profile: true,
+          },
+        });
+        if (user?.profile?.visibility === "PUBLIC") userId = input.userId;
+        else throw new TRPCError({ code: "NOT_FOUND" });
       }
 
       const aggregate = await ctx.prisma.tour.aggregate({
@@ -312,7 +323,7 @@ export const toursRouter = createRouter()
   })
   .query("get-download-url", {
     input: z.object({
-      gpxUrl: z.string()
+      gpxUrl: z.string(),
     }),
     async resolve({ input }) {
       const s3 = new S3Client({
@@ -325,16 +336,16 @@ export const toursRouter = createRouter()
 
       const params = {
         Bucket: process.env.AWS_BUCKET_NAME,
-        Key: input.gpxUrl
+        Key: input.gpxUrl,
       };
 
       const command = new GetObjectCommand(params);
       const url = getSignedUrl(s3, command, {
-        expiresIn: 360
+        expiresIn: 360,
       });
 
       return url;
-    }
+    },
   })
   .mutation("delete-tour", {
     input: z.object({
@@ -343,13 +354,13 @@ export const toursRouter = createRouter()
     async resolve({ ctx, input }) {
       const tour = await ctx.prisma.tour.findFirst({
         where: {
-          id: input.id
+          id: input.id,
         },
-      })
-      if (!tour) throw new TRPCError({ code: "NOT_FOUND"});
+      });
+      if (!tour) throw new TRPCError({ code: "NOT_FOUND" });
 
       if (tour.gpxUrl) {
-        await deleteS3File(tour.gpxUrl)
+        await deleteS3File(tour.gpxUrl);
       }
 
       await ctx.prisma.like.deleteMany({
@@ -441,7 +452,7 @@ export const toursRouter = createRouter()
   })
   .mutation("create-upload-url", {
     input: z.object({
-      tourId: z.string().optional()
+      tourId: z.string().optional(),
     }),
     async resolve({ ctx, input }) {
       const s3 = new S3Client({
@@ -451,17 +462,17 @@ export const toursRouter = createRouter()
           secretAccessKey: process.env.AWS_BUCKET_ACCESS_KEY_SECRET || "",
         },
       });
-      
+
       let file = `${ctx.userId}/${uuid.v4()}.gpx`;
       if (input.tourId) {
         const tour = await ctx.prisma.tour.findFirst({
           where: {
-            id: input.tourId
+            id: input.tourId,
           },
         });
 
         if (tour && tour.gpxUrl) {
-          file = tour.gpxUrl
+          file = tour.gpxUrl;
         }
       }
 

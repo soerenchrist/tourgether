@@ -1,17 +1,16 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createRouter } from "./context";
-import * as uuid from "uuid";
 import { PrismaClient, Tour, User } from "@prisma/client";
 
 export type Interaction = {
-  id: string,
-  date: Date,
-  content?: string,
-  tour: Tour,
-  user: User,
-  type: "like" | "comment"
-}
+  id: string;
+  date: Date;
+  content?: string;
+  tour: Tour;
+  user: User;
+  type: "like" | "comment";
+};
 export const getFriends = async (prisma: PrismaClient, userId: string) => {
   const friendships = await prisma.friendship.findMany({
     where: {
@@ -47,52 +46,44 @@ export const friendsRouter = createRouter()
     }
     return next({ ctx: { ...ctx, userId } });
   })
-  .query("get-friend-request", {
+  .query("check-friendship-state", {
     input: z.object({
-      invite_token: z.string(),
+      userId: z.string(),
     }),
-    async resolve({ ctx, input }) {
-      const now = new Date();
-
-      const invitation = await ctx.prisma.friendRequest.findFirst({
+    resolve: async ({
+      ctx,
+      input,
+    }): Promise<{ state: "ACTIVE" | "PENDING" | "NO_FRIENDS" }> => {
+      const friendship = await ctx.prisma.friendship.findFirst({
         where: {
-          token: input.invite_token,
-        },
-        include: {
-          issuedBy: true,
+          OR: [
+            {
+              user1Id: input.userId,
+              user2Id: ctx.userId,
+            },
+            {
+              user1Id: ctx.userId,
+              user2Id: input.userId,
+            },
+          ],
         },
       });
-      if (!invitation)
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message:
-            "This invitation is not valid anymore. Please request a new one.",
-        });
 
-      if (invitation.validUntil < now) {
-        // remove the token
-        await ctx.prisma.friendRequest.delete({
-          where: {
-            id: invitation.id,
-          },
-        });
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "This invitation has expired. Please request a new one.",
-        });
+      if (!friendship) {
+        return { state: "NO_FRIENDS" };
       }
-
-      return invitation;
+      return { state: friendship.state };
     },
   })
   .query("get-my-friend-requests", {
     async resolve({ ctx }) {
-      return await ctx.prisma.friendRequest.findMany({
+      return await ctx.prisma.friendship.findMany({
         where: {
-          issuedById: ctx.userId,
+          user2Id: ctx.userId,
+          state: "PENDING",
         },
-        orderBy: {
-          validUntil: "desc",
+        include: {
+          user1: true,
         },
       });
     },
@@ -108,100 +99,100 @@ export const friendsRouter = createRouter()
         take: 5,
         where: {
           tour: {
-            creatorId: ctx.userId
-          }
+            creatorId: ctx.userId,
+          },
         },
         include: {
           user: true,
           tour: true,
         },
         orderBy: {
-          date: "desc"
-        }
-      })
+          date: "desc",
+        },
+      });
       const comments = await ctx.prisma.comment.findMany({
         take: 5,
         where: {
           tour: {
-            creatorId: ctx.userId
-          }
+            creatorId: ctx.userId,
+          },
         },
         include: {
           user: true,
           tour: true,
         },
         orderBy: {
-          date: "desc"
-        }
-      })
-
+          date: "desc",
+        },
+      });
 
       const interactions: Interaction[] = [];
-      likes.forEach(like => {
+      likes.forEach((like) => {
         interactions.push({
           date: like.date,
           id: like.id,
           tour: like.tour,
           user: like.user,
           content: undefined,
-          type: "like"
+          type: "like",
         });
-      })
-      comments.forEach(comment => {
+      });
+      comments.forEach((comment) => {
         interactions.push({
           date: comment.date,
           id: comment.id,
           tour: comment.tour,
           user: comment.user,
           content: comment.content,
-          type: "comment"
+          type: "comment",
         });
-      })
+      });
 
-      return interactions.sort((a, b) => b.date.getDate() - a.date.getDate())
-    }
+      return interactions.sort((a, b) => b.date.getDate() - a.date.getDate());
+    },
   })
   .mutation("decline-friend-request", {
     input: z.object({
-      invite_token: z.string(),
+      userId: z.string(),
     }),
     async resolve({ ctx, input }) {
-      await ctx.prisma.friendRequest.deleteMany({
+      await ctx.prisma.friendship.deleteMany({
         where: {
-          token: input.invite_token,
+          OR: [
+            {
+              user1Id: ctx.userId,
+              user2Id: input.userId,
+            },
+            {
+              user2Id: input.userId,
+              user1Id: ctx.userId,
+            },
+          ],
         },
       });
     },
   })
   .mutation("accept-friend-request", {
     input: z.object({
-      invite_token: z.string(),
+      userId: z.string(),
     }),
     async resolve({ ctx, input }) {
-      const invitation = await ctx.prisma.friendRequest.findFirst({
+      const invitation = await ctx.prisma.friendship.findFirst({
         where: {
-          token: input.invite_token,
+          user1Id: input.userId,
+          user2Id: ctx.userId,
         },
       });
       if (!invitation) throw new TRPCError({ code: "NOT_FOUND" });
-      if (invitation.issuedById === ctx.userId)
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Cannot accept your own invitation",
-        });
 
-      const friendship = {
-        user1Id: invitation.issuedById,
-        user2Id: ctx.userId,
-      };
-
-      await ctx.prisma.friendship.create({
-        data: friendship,
-      });
-
-      await ctx.prisma.friendRequest.delete({
+      invitation.state = "ACTIVE";
+      await ctx.prisma.friendship.update({
+        data: invitation,
         where: {
-          id: invitation.id,
+          user1Id_user2Id: {
+            user1Id: invitation.user1Id,
+            user2Id: invitation.user2Id,
+          },
         },
       });
     },
@@ -240,24 +231,17 @@ export const friendsRouter = createRouter()
     },
   })
   .mutation("create-friendship-request", {
-    async resolve({ ctx }) {
-      const now = new Date();
-      // valid for 2 days
-      now.setDate(now.getDate() + 2);
-
-      const link = {
-        issuedById: ctx.userId,
-        validUntil: now,
-        token: uuid.v4(),
-      };
-
-      const result = await ctx.prisma.friendRequest.create({
-        data: link,
+    input: z.object({
+      userId: z.string(),
+    }),
+    async resolve({ ctx, input }) {
+      const result = await ctx.prisma.friendship.create({
+        data: {
+          user1Id: ctx.userId,
+          user2Id: input.userId,
+          state: "PENDING",
+        },
       });
-
-      const url = `${ctx.req?.headers.host}/invitation/${result.token}`;
-      return {
-        url,
-      };
+      return result;
     },
   });

@@ -2,6 +2,7 @@ import CardTitle from "@/components/common/cardTitle";
 import Input from "@/components/common/input";
 import { List, ListItem } from "@/components/common/list";
 import LayoutBase from "@/components/layout/layoutBase";
+import useDebounceValue from "@/hooks/useDebounce";
 import { trpc } from "@/utils/trpc";
 import { Card } from "flowbite-react";
 import { NextPage } from "next";
@@ -12,11 +13,11 @@ import { useState } from "react";
 
 const SearchPageContent = () => {
   const [searchText, setSearchText] = useState("");
-
+  const debouncedSearch = useDebounceValue(searchText);
   const { data: profiles, isLoading } = trpc.useQuery([
     "profile.search-profiles",
     {
-      searchTerm: searchText,
+      searchTerm: debouncedSearch,
     },
   ], {
     enabled: searchText.length >= 3

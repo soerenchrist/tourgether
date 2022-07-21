@@ -1,6 +1,5 @@
 import CardTitle from "@/components/common/cardTitle";
 import ConfirmationModal from "@/components/common/confirmationDialog";
-import CreateInvitationButton from "@/components/friends/createInvitationButton";
 import LayoutBase from "@/components/layout/layoutBase";
 import { trpc } from "@/utils/trpc";
 import { Card, Spinner, Table } from "flowbite-react";
@@ -71,7 +70,6 @@ const FriendsPageContent = () => {
           ))}
         </Table.Body>
       </Table>
-      <CreateInvitationButton />
       <ConfirmationModal
         accept={quitFriendship}
         decline={() => setQuitUserId(undefined)}

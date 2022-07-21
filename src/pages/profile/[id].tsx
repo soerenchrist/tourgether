@@ -8,12 +8,13 @@ import { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 
 const FriendsProfileContent: React.FC<{ id: string }> = ({ id }) => {
   const {
     data: profile,
     isError,
+    error,
     isLoading,
   } = trpc.useQuery([
     "profile.get-profile",
@@ -21,6 +22,12 @@ const FriendsProfileContent: React.FC<{ id: string }> = ({ id }) => {
       userId: id,
     },
   ]);
+  const router = useRouter();
+  useEffect(() => {
+    if (error?.data?.code === "BAD_REQUEST") {
+      router.push("/profile")
+    }
+  }, [error, router])
 
   const { data: totals, isLoading: totalsLoading } = trpc.useQuery([
     "tours.get-totals",
@@ -30,11 +37,11 @@ const FriendsProfileContent: React.FC<{ id: string }> = ({ id }) => {
   ]);
 
   if (isLoading) return <Spinner size="xl" />;
-  else if (isError) return <NotFound message="This user does not exist!" />;
+  else if (isError && error.data?.code === "NOT_FOUND") return <NotFound message="This user does not exist!" />;
   else if (!profile) return <></>
   return (
     <div className="flex flex-col gap-4">
-      <ProfileOverview profile={profile} />
+      <ProfileOverview profile={profile} showFriendshipOption={true} />
       <TotalsDisplay isLoading={totalsLoading} totals={totals} />
     </div>
   );

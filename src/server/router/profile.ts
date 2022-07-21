@@ -2,7 +2,6 @@ import { TRPCError } from "@trpc/server";
 import { createRouter } from "./context";
 import { z } from "zod";
 import { updateProfileValidationSchema } from "@/components/profile/profileForm";
-import { getFriends } from "./friends";
 import { CompleteProfile } from "@/components/profile/profileOverview";
 import { Profile } from "@prisma/client";
 
@@ -26,6 +25,7 @@ export const profileRouter = createRouter()
       });
       if (!user) throw new TRPCError({ code: "NOT_FOUND" });
       const profile: CompleteProfile = {
+        id: user.id,
         email: user.email || "",
         name: user.profile?.name,
         username: user.name || "",
@@ -83,7 +83,10 @@ export const profileRouter = createRouter()
         },
         where: {
           profile: {
-            visibility: "PUBLIC"
+            visibility: "PUBLIC",
+          },
+          id: {
+            not: ctx.userId,
           },
           OR: [
             {
@@ -114,6 +117,8 @@ export const profileRouter = createRouter()
       userId: z.string(),
     }),
     async resolve({ ctx, input }) {
+      if (input.userId === ctx.userId)
+        throw new TRPCError({ code: "BAD_REQUEST" });
       const user = await ctx.prisma.user.findFirst({
         where: {
           id: input.userId,
@@ -129,6 +134,7 @@ export const profileRouter = createRouter()
           ],
         },
         select: {
+          id: true,
           name: true,
           email: true,
           image: true,
@@ -137,6 +143,7 @@ export const profileRouter = createRouter()
       });
       if (!user) throw new TRPCError({ code: "NOT_FOUND" });
       const profile: CompleteProfile = {
+        id: user.id,
         email: user.email || "",
         name: user.profile?.name,
         username: user.name || "",

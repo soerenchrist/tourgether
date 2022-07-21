@@ -1,10 +1,12 @@
+import { trpc } from "@/utils/trpc";
 import { ProfileVisibility } from "@prisma/client";
-import { Avatar, Button, Card } from "flowbite-react";
+import { Avatar, Badge, Button, Card, Spinner } from "flowbite-react";
 import { useRouter } from "next/router";
 import CardTitle from "../common/cardTitle";
 import { List, ListItem } from "../common/list";
 
 export type CompleteProfile = {
+  id: string;
   username: string;
   name?: string | null;
   email?: string | null;
@@ -21,22 +23,70 @@ const format = (value?: string | null) => {
   return value;
 };
 
+const FriendshipState: React.FC<{
+  id: string;
+  friendship?: { state: "ACTIVE" | "PENDING" | "NO_FRIENDS" } | null;
+  isLoading: boolean;
+}> = ({ id, friendship, isLoading }) => {
+  const util = trpc.useContext();
+  const { mutate: sendRequest } = trpc.useMutation(
+    "friends.create-friendship-request",
+    {
+      onSuccess() {
+        util.invalidateQueries("friends.check-friendship-state");
+      },
+    }
+  );
+  const handleClick = () => {
+    sendRequest({
+      userId: id,
+    });
+  };
+  if (!friendship || isLoading) return <Spinner />;
+  else if (friendship.state === "ACTIVE") return <Badge size="xl">You are friends!</Badge>
+  else if (friendship.state === "PENDING")
+    return <Badge size="xl">Request pending</Badge>
+  return <Button onClick={handleClick}>Send friend request</Button>;
+};
+
 const ProfileOverview: React.FC<{
   profile: CompleteProfile;
   showEdit?: boolean;
-}> = ({ profile, showEdit }) => {
+  showFriendshipOption?: boolean;
+}> = ({ profile, showEdit, showFriendshipOption }) => {
+  const { data: friendshipState, isLoading } = trpc.useQuery(
+    [
+      "friends.check-friendship-state",
+      {
+        userId: profile.id,
+      },
+    ],
+    {
+      enabled: showFriendshipOption,
+    }
+  );
+
   const router = useRouter();
   return (
     <Card>
       <div className="flex flex-col h-full justify-start">
         <div className="flex justify-between">
-          <div>
-            <CardTitle title={profile.username} />
-            <span className="text-sm">{profile.email}</span>
+          <div className="flex justify-start gap-6">
+            <Avatar img={profile.image!} size="xl" />
+            <div>
+              <CardTitle title={profile.username} />
+              <span className="text-sm">{profile.email}</span>
+            </div>
           </div>
-          <Avatar img={profile.image!} size="xl" />
+          {showFriendshipOption && (
+            <FriendshipState
+              id={profile.id}
+              isLoading={isLoading}
+              friendship={friendshipState}
+            />
+          )}
         </div>
-        <List>
+        <List className="mt-4">
           <ListItem subtitle="Name" title={format(profile.name)} />
           <ListItem subtitle="Location" title={format(profile.location)} />
           <ListItem subtitle="Status" title={format(profile.status)} />
