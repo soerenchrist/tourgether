@@ -68,6 +68,42 @@ export const profileRouter = createRouter()
       };
     },
   })
+  .query("search-profiles", {
+    input: z.object({
+      searchTerm: z.string(),
+    }),
+    async resolve({ input, ctx }) {
+      if (input.searchTerm.length === 0) return [];
+      const results = await ctx.prisma.user.findMany({
+        take: 10,
+        include: {
+          profile: true
+        },
+        where: {
+          OR: [
+            {
+              name: {
+                contains: input.searchTerm,
+              },
+            },
+            {
+              profile: {
+                name: {
+                  contains: input.searchTerm,
+                },
+              },
+            },
+          ],
+        },
+      });
+      return results.map(x => ({
+        id: x.id,
+        image: x.image,
+        username: x.name,
+        name: x.profile?.name ?? "-"
+      }))
+    },
+  })
   .query("get-friends-profile", {
     input: z.object({
       userId: z.string(),
