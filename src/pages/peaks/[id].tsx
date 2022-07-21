@@ -4,13 +4,6 @@ import NotFound from "@/components/common/notFound";
 import LayoutBase from "@/components/layout/layoutBase";
 import ToursTable from "@/components/tours/toursTable";
 import { trpc } from "@/utils/trpc";
-import {
-  DotsVerticalIcon,
-  HeartIcon,
-  PencilIcon,
-  TrashIcon,
-} from "@heroicons/react/solid";
-import { HeartIcon as OutlinedHeartIcon } from "@heroicons/react/outline";
 import { Card, Dropdown, Spinner, Tooltip } from "flowbite-react";
 import { NextPage } from "next";
 import { useSession } from "next-auth/react";
@@ -19,6 +12,14 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { ReactNode, useState } from "react";
 import PeakDetailCard from "@/components/peaks/peakDetailCard";
+import Icon from "@mdi/react";
+import {
+  mdiDelete,
+  mdiDotsVertical,
+  mdiHeart,
+  mdiHeartOutline,
+  mdiPencil,
+} from "@mdi/js";
 
 const Map = dynamic(() => import("../../components/maps/peakMap"), {
   ssr: false,
@@ -65,8 +66,17 @@ const WishlistButton: React.FC<{ id: string }> = ({ id }) => {
 
   let icon: ReactNode;
   if (wishlistItem === null)
-    icon = <OutlinedHeartIcon onClick={toggle} className={classes} />;
-  else icon = <HeartIcon onClick={toggle} className={classes} />;
+    icon = (
+      <span onClick={toggle}>
+        <Icon path={mdiHeartOutline} className={classes} />
+      </span>
+    );
+  else
+    icon = (
+      <span onClick={toggle}>
+        <Icon path={mdiHeart} className={classes} />
+      </span>
+    );
 
   return (
     <Tooltip
@@ -140,13 +150,16 @@ const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
                   inline={true}
                   arrowIcon={false}
                   label={
-                    <DotsVerticalIcon className="h-5 w-5 cursor-pointer" />
+                    <Icon
+                      path={mdiDotsVertical}
+                      className="h-5 w-5 cursor-pointer"
+                    />
                   }
                 >
                   <div className="bg-white h-full w-full">
                     <Dropdown.Item onClick={() => setShowDelete(true)}>
                       <div className="flex">
-                        <TrashIcon className="w-5 h-5 mr-2" />
+                        <Icon path={mdiDelete} className="w-5 h-5 mr-2" />
                         Delete this Peak
                       </div>
                     </Dropdown.Item>
@@ -154,7 +167,7 @@ const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
                       onClick={() => router.push(`/peaks/edit/${peak.id}`)}
                     >
                       <div className="flex">
-                        <PencilIcon className="w-5 h-5 mr-2" />
+                        <Icon path={mdiPencil} className="w-5 h-5 mr-2" />
                         Edit Peak
                       </div>
                     </Dropdown.Item>

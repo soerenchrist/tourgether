@@ -1,5 +1,6 @@
 import { trpc } from "@/utils/trpc";
-import { AnnotationIcon } from "@heroicons/react/outline";
+import { mdiComment } from "@mdi/js";
+import Icon from "@mdi/react";
 import { Comment, Tour, User } from "@prisma/client";
 import {
   Avatar,
@@ -31,7 +32,9 @@ export const CommentItem: React.FC<{ comment: Comment & { user: User } }> = ({
             {comment.user.name}
           </p>
         </div>
-        <div className="text-sm text-gray-500">{comment.date.toLocaleDateString()}</div>
+        <div className="text-sm text-gray-500">
+          {comment.date.toLocaleDateString()}
+        </div>
       </div>
     </li>
   );
@@ -69,10 +72,9 @@ const CommentButton: React.FC<{ tour: Tour }> = ({ tour }) => {
   return (
     <>
       <Tooltip content="Leave a comment">
-        <AnnotationIcon
-          onClick={() => setShowModal(true)}
-          className="w-7 h-7 cursor-pointer"
-        ></AnnotationIcon>
+        <span onClick={() => setShowModal(true)}>
+          <Icon path={mdiComment} className="w-5 h-5 cursor-pointer"></Icon>
+        </span>
       </Tooltip>
 
       <Modal show={showModal} onClose={() => setShowModal(false)}>
@@ -99,10 +101,9 @@ const CommentButton: React.FC<{ tour: Tour }> = ({ tour }) => {
               />
             </div>
             <div className="flex-none">
-
-            <Button disabled={content.length === 0} onClick={handleSend}>
-              Send
-            </Button>
+              <Button disabled={content.length === 0} onClick={handleSend}>
+                Send
+              </Button>
             </div>
           </div>
         </Modal.Footer>

@@ -8,11 +8,6 @@ import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { ReactNode, useMemo, useState } from "react";
-import {
-  DotsVerticalIcon,
-  PencilIcon,
-  TrashIcon,
-} from "@heroicons/react/solid";
 import ConfirmationModal from "@/components/common/confirmationDialog";
 import NotFound from "@/components/common/notFound";
 import Link from "next/link";
@@ -24,6 +19,8 @@ import Skeleton from "@/components/common/skeleton";
 import DownloadGpxButton from "@/components/tours/downloadGpxButton";
 import { parseGpx } from "@/lib/gpxLib";
 import { Point } from "@/server/router/tours";
+import Icon from "@mdi/react";
+import { mdiDelete, mdiDotsVertical, mdiPencil } from "@mdi/js";
 
 const Map = dynamic(() => import("../../components/maps/tourMap"), {
   ssr: false,
@@ -51,17 +48,17 @@ const OwnerMenu: React.FC<{
     <Dropdown
       inline={true}
       arrowIcon={false}
-      label={<DotsVerticalIcon className="h-5 w-5 cursor-pointer" />}
+      label={<Icon path={mdiDotsVertical} className="h-5 w-5 cursor-pointer" />}
     >
       <Dropdown.Item onClick={() => setShowDelete(true)}>
         <div className="flex">
-          <TrashIcon className="w-5 h-5 mr-2" />
+          <Icon path={mdiDelete} className="w-5 h-5 mr-2" />
           Delete this Tour
         </div>
       </Dropdown.Item>
       <Dropdown.Item onClick={onEdit}>
         <div className="flex">
-          <PencilIcon className="w-5 h-5 mr-2" />
+          <Icon path={mdiPencil} className="w-5 h-5 mr-2" />
           Edit Tour
         </div>
       </Dropdown.Item>
@@ -81,7 +78,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
   });
   const [points, setPoints] = useState<Point[]>([]);
 
-  const {data: downloadUrl } = trpc.useQuery(
+  const { data: downloadUrl } = trpc.useQuery(
     [
       "tours.get-download-url",
       {

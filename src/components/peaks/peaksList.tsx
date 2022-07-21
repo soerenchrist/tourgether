@@ -1,4 +1,5 @@
-import { BanIcon, CheckCircleIcon } from "@heroicons/react/solid";
+import { mdiCancel, mdiCheckCircle } from "@mdi/js";
+import Icon from "@mdi/react";
 import { Peak } from "@prisma/client";
 import { Spinner, Table, Tooltip } from "flowbite-react";
 import Link from "next/link";
@@ -43,10 +44,10 @@ const PeaksList: React.FC<{
                 <Tooltip
                   content={`You climbed ${peak.name} ${peak.tourCount} times!`}
                 >
-                  <CheckCircleIcon className="ml-4 w-5 h-5 text-green-500" />
+                  <Icon path={mdiCheckCircle} className="ml-4 w-5 h-5 text-green-500" />
                 </Tooltip>
               ) : (
-                <BanIcon className="ml-4 w-5 h-5 text-red-500" />
+                <Icon path={mdiCancel}  className="ml-4 w-5 h-5 text-red-500" />
               )}
             </Table.Cell>
             <Table.Cell className="flex justify-end">

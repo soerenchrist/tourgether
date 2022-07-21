@@ -14,6 +14,7 @@ export type Interaction = {
 export const getFriends = async (prisma: PrismaClient, userId: string) => {
   const friendships = await prisma.friendship.findMany({
     where: {
+      state: "ACTIVE",
       OR: [
         {
           user1Id: userId,
@@ -158,16 +159,8 @@ export const friendsRouter = createRouter()
     async resolve({ ctx, input }) {
       await ctx.prisma.friendship.deleteMany({
         where: {
-          OR: [
-            {
-              user1Id: ctx.userId,
-              user2Id: input.userId,
-            },
-            {
-              user2Id: input.userId,
-              user1Id: ctx.userId,
-            },
-          ],
+          user1Id: input.userId,
+          user2Id: ctx.userId,
         },
       });
     },

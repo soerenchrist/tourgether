@@ -4,8 +4,8 @@ import HeightDistanceChart from "@/components/plan/heightDistanceChart";
 import { createGpx } from "@/lib/gpxLib";
 import { FeatureProperties } from "@/server/router/routing";
 import { trpc } from "@/utils/trpc";
-import { DownloadIcon } from "@heroicons/react/outline";
-import { ReplyIcon } from "@heroicons/react/solid";
+import { mdiDownload, mdiUndo } from "@mdi/js";
+import Icon from "@mdi/react";
 import { Alert, Card } from "flowbite-react";
 import { LatLng } from "leaflet";
 import { NextPage } from "next";
@@ -162,8 +162,12 @@ const PlanPageContent = () => {
     <div className="flex flex-col gap-4">
       <Card>
         <div className="flex gap-2">
-          <ReplyIcon className="w-6 h-6 cursor-pointer" onClick={undo} />
-          <DownloadIcon className="w-6 h-6 cursor-pointer" onClick={download} />
+          <span onClick={undo}>
+            <Icon path={mdiUndo} className="w-6 h-6 cursor-pointer" />
+          </span>
+          <span onClick={download}>
+            <Icon path={mdiDownload} className="w-6 h-6 cursor-pointer" />
+          </span>
         </div>
         {error && <Alert color="failure">{error}</Alert>}
         <div style={{ height: "40vh" }}>

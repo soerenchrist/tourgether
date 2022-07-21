@@ -1,3 +1,5 @@
+import { mdiMagnify } from "@mdi/js";
+import Icon from "@mdi/react";
 import { Avatar, Button, Dropdown, Navbar } from "flowbite-react";
 import { Session } from "next-auth";
 import { signIn, signOut } from "next-auth/react";
@@ -7,7 +9,7 @@ import { useRouter } from "next/router";
 const UserDropdown: React.FC<{ session: Session }> = ({ session }) => {
   const router = useRouter();
   const handleSignOut = () => {
-    signOut({ callbackUrl: "/"});
+    signOut({ callbackUrl: "/" });
   };
 
   const goTo = (route: string) => {
@@ -60,7 +62,11 @@ const Header = ({
       </Navbar.Brand>
       {!session?.user && !isLoading && (
         <div className="flex md:order-2">
-          <Button onClick={() => signIn("auth0", { callbackUrl: "/onboarding"})}>Sign in</Button>
+          <Button
+            onClick={() => signIn("auth0", { callbackUrl: "/onboarding" })}
+          >
+            Sign in
+          </Button>
         </div>
       )}
       {session?.user && (
@@ -72,7 +78,10 @@ const Header = ({
         <>
           <Navbar.Toggle />
           <Navbar.Collapse>
-            <>
+            <div className="flex items-center gap-4">
+              <Link href="/search">
+                <Icon path={mdiMagnify} className="w-4 h-4 cursor-pointer" />
+              </Link>
               <Link href="/dashboard">
                 <span className="cursor-pointer">Dashboard</span>
               </Link>
@@ -88,7 +97,7 @@ const Header = ({
               <Link href="/explore">
                 <span className="cursor-pointer">Explore</span>
               </Link>
-            </>
+            </div>
           </Navbar.Collapse>
         </>
       )}

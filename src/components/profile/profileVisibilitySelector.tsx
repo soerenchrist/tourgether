@@ -1,4 +1,5 @@
-import { InformationCircleIcon } from "@heroicons/react/solid";
+import { mdiInformation } from "@mdi/js";
+import Icon from "@mdi/react";
 import { ProfileVisibility, Visibility } from "@prisma/client";
 import { Dropdown, Tooltip } from "flowbite-react";
 import { useMemo } from "react";
@@ -32,7 +33,7 @@ const ProfileVisibilitySelector: React.FC<{
                     Visibility
                 </label>
                 <Tooltip content={infoText} placement="right">
-                    <InformationCircleIcon className="ml-2 text-gray-700 w-5 h-5"></InformationCircleIcon>
+                    <Icon path={mdiInformation} className="ml-2 text-gray-700 w-5 h-5"></Icon>
                 </Tooltip>
             </div>
             <Dropdown id="visibility" label={text}>

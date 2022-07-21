@@ -16,8 +16,9 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.131.0",
     "@aws-sdk/s3-request-presigner": "^3.131.0",
-    "@heroicons/react": "^1.0.6",
     "@hookform/resolvers": "^2.9.5",
+    "@mdi/js": "^7.0.96",
+    "@mdi/react": "^1.6.0",
     "@next-auth/prisma-adapter": "^1.0.3",
     "@prisma/client": "^4.0.0",
     "@trpc/client": "^9.25.3",

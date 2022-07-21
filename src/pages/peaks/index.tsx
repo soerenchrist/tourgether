@@ -5,7 +5,8 @@ import LayoutBase from "@/components/layout/layoutBase";
 import PeaksList from "@/components/peaks/peaksList";
 import useDebounceValue from "@/hooks/useDebounce";
 import { trpc } from "@/utils/trpc";
-import { LocationMarkerIcon, ViewListIcon } from "@heroicons/react/solid";
+import { mdiListBox, mdiMapSearch } from "@mdi/js";
+import Icon from "@mdi/react";
 import {
   Button,
   Card,
@@ -49,7 +50,7 @@ const PeaksPageContent: React.FC = () => {
 
   useEffect(() => {
     setPage(1);
-  },[debouncedSearchTerm]);
+  }, [debouncedSearchTerm]);
 
   const filterBar = (
     <>
@@ -77,10 +78,12 @@ const PeaksPageContent: React.FC = () => {
         <div className="flex justify-between">
           <CardTitle title="Peaks" />
           <Tooltip content="Display list">
-            <ViewListIcon
-              className="h-5 w-5 text-gray-500 cursor-pointer"
-              onClick={() => setMapMode(false)}
-            />
+            <span onClick={() => setMapMode(false)}>
+              <Icon
+                path={mdiListBox}
+                className="h-5 w-5 text-gray-500 cursor-pointer"
+              />
+            </span>
           </Tooltip>
         </div>
         {filterBar}
@@ -97,10 +100,12 @@ const PeaksPageContent: React.FC = () => {
       <div className="flex justify-between">
         <CardTitle title="Peaks" />
         <Tooltip content="Display map">
-          <LocationMarkerIcon
-            className="h-5 w-5 text-gray-500 cursor-pointer"
-            onClick={() => setMapMode(true)}
-          />
+            <span onClick={() => setMapMode(true)}>
+              <Icon
+                path={mdiMapSearch}
+                className="h-5 w-5 text-gray-500 cursor-pointer"
+              />
+            </span>
         </Tooltip>
       </div>
       {filterBar}

@@ -1,5 +1,6 @@
 import { trpc } from "@/utils/trpc";
-import { DownloadIcon } from "@heroicons/react/solid";
+import { mdiDownload } from "@mdi/js";
+import Icon from "@mdi/react";
 import { Tour } from "@prisma/client";
 import { Spinner, Tooltip } from "flowbite-react";
 import { useState } from "react";
@@ -23,7 +24,6 @@ const DownloadGpxButton: React.FC<{ tour: Tour; downloadUrl?: string }> = ({
   };
   if (!downloadUrl) return <></>;
   const handleClick = async () => {
-    
     setLoading(true);
 
     const name = `${tour.name.replace(" ", "_")}.gpx`;
@@ -35,10 +35,9 @@ const DownloadGpxButton: React.FC<{ tour: Tour; downloadUrl?: string }> = ({
 
   return (
     <Tooltip content="Download GPX file">
-      <DownloadIcon
-        onClick={handleClick}
-        className="w-7 h-7 cursor-pointer"
-      ></DownloadIcon>
+      <span onClick={handleClick}>
+        <Icon path={mdiDownload} className="w-5 h-5 cursor-pointer"></Icon>
+      </span>
     </Tooltip>
   );
 };
