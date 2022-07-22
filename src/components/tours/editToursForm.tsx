@@ -277,7 +277,7 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
                 visibility={visibility}
                 onChange={(v) => setVisibility(v)}
               />
-              <div className="lg:flex justify-end hidden">
+              <div className="justify-end w-full flex">
                 <Button disabled={isLoading} type="submit">
                   {editTour ? "Update your tour" : "Create your tour"}
                 </Button>

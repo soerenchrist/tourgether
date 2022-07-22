@@ -49,7 +49,7 @@ const ToursTable: React.FC<{
             <Table.Cell className="hidden md:table-cell">
               {format(tour.elevationUp)}
             </Table.Cell>
-            <Table.Cell className="flex justify-end">
+            <Table.Cell className="flex justify-end items-center h-full">
               <Link href={`/tours/${tour.id}`}>
                 <span className="font-medium text-blue-500 cursor-pointer dark:text-blue-500 hover:underline">
                   Show

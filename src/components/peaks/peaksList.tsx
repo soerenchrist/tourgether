@@ -27,7 +27,7 @@ const PeaksList: React.FC<{
     <Table>
       <Table.Head>
         <Table.HeadCell>Name</Table.HeadCell>
-        <Table.HeadCell>Height</Table.HeadCell>
+        <Table.HeadCell className="hidden md:table-cell">Height</Table.HeadCell>
         <Table.HeadCell className="hidden md:table-cell">
           Climbed
         </Table.HeadCell>
@@ -35,10 +35,17 @@ const PeaksList: React.FC<{
       </Table.Head>
       <Table.Body>
         {isLoading && loader}
+        {peaks?.length === 0 && (
+          <Table.Row>
+            <Table.Cell colSpan={4}>
+              No peaks found...
+            </Table.Cell>
+          </Table.Row>
+        )}
         {peaks?.map((peak) => (
           <Table.Row key={peak.id}>
             <Table.Cell>{peak.name}</Table.Cell>
-            <Table.Cell>{peak.height} m</Table.Cell>
+            <Table.Cell className="hidden md:table-cell">{peak.height} m</Table.Cell>
             <Table.Cell className="hidden md:table-cell">
               {peak.tourCount > 0 ? (
                 <Tooltip

@@ -72,12 +72,25 @@ const ProfileOverview: React.FC<{
       <div className="flex flex-col h-full justify-start">
         <div className="flex justify-between">
           <div className="flex justify-start gap-6">
-            <Avatar img={profile.image!} size="xl" />
+            <Avatar img={profile.image!} size="lg" />
             <div>
               <CardTitle title={profile.username} />
               <span className="text-sm">{profile.email}</span>
             </div>
           </div>
+          <div className="hidden lg:block">
+
+            {showFriendshipOption && (
+              <FriendshipState
+                id={profile.id}
+                isLoading={isLoading}
+                friendship={friendshipState}
+              />
+            )}
+          </div>
+        </div>
+        <div className="lg:hidden flex justify-start pt-4 ">
+
           {showFriendshipOption && (
             <FriendshipState
               id={profile.id}

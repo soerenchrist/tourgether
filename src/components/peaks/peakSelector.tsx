@@ -28,9 +28,9 @@ const PeakSelectorTable: React.FC<{
   return (
     <Table>
       <Table.Head>
-        <Table.HeadCell className="!p-4"></Table.HeadCell>
+        <Table.HeadCell className="w-8"></Table.HeadCell>
         <Table.HeadCell>Name</Table.HeadCell>
-        <Table.HeadCell>Height</Table.HeadCell>
+        <Table.HeadCell className="hidden md:table-cell">Height</Table.HeadCell>
       </Table.Head>
       <Table.Body>
         {isLoading && (
@@ -42,14 +42,14 @@ const PeakSelectorTable: React.FC<{
         )}
         {selectedPeaks?.map((peak) => (
           <Table.Row key={peak.id}>
-            <Table.Cell>
+            <Table.Cell className="w-8">
               <Checkbox
                 checked={true}
                 onChange={(e) => selectPeak(peak, e.target.checked)}
               />
             </Table.Cell>
             <Table.Cell>{peak.name}</Table.Cell>
-            <Table.Cell>{peak.height} m</Table.Cell>
+            <Table.Cell className="hidden md:table-cell">{peak.height} m</Table.Cell>
           </Table.Row>
         ))}
 
@@ -57,13 +57,13 @@ const PeakSelectorTable: React.FC<{
           ?.filter((x) => selectedPeaks.findIndex((p) => p.id === x.id) < 0)
           .map((peak) => (
             <Table.Row key={peak.id}>
-              <Table.Cell>
+              <Table.Cell className="!px-3 !py-2">
                 <Checkbox
                   onChange={(e) => selectPeak(peak, e.target.checked)}
                 />
               </Table.Cell>
               <Table.Cell>{peak.name}</Table.Cell>
-              <Table.Cell>{peak.height} m</Table.Cell>
+              <Table.Cell className="hidden md:table-cell">{peak.height} m</Table.Cell>
             </Table.Row>
           ))}
       </Table.Body>

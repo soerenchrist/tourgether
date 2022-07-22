@@ -37,7 +37,7 @@ const FriendsPageContent = () => {
       <Table>
         <Table.Head>
           <Table.HeadCell>Name</Table.HeadCell>
-          <Table.HeadCell>Email</Table.HeadCell>
+          <Table.HeadCell className="hidden md:table-cell">Email</Table.HeadCell>
           <Table.HeadCell></Table.HeadCell>
         </Table.Head>
         <Table.Body>
@@ -57,7 +57,7 @@ const FriendsPageContent = () => {
                   </span>
                 </Link>
               </Table.Cell>
-              <Table.Cell>{f.email}</Table.Cell>
+              <Table.Cell className="hidden md:table-cell">{f.email}</Table.Cell>
               <Table.Cell className="flex justify-end">
                 <span
                   className="text-blue-500 hover:underline font-medium cursor-pointer"
