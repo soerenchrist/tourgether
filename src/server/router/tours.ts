@@ -12,6 +12,7 @@ import {
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import * as uuid from "uuid";
+import { s3Client } from "@/lib/s3Lib";
 
 export type Point = {
   latitude: number;
@@ -582,15 +583,7 @@ export const toursRouter = createRouter()
       tourId: z.string().optional(),
     }),
     async resolve({ ctx, input }) {
-      const s3 = new S3Client({
-        region: process.env.AWS_BUCKET_REGION,
-        credentials: {
-          accessKeyId: process.env.AWS_BUCKET_ACCESS_KEY_ID || "",
-          secretAccessKey: process.env.AWS_BUCKET_ACCESS_KEY_SECRET || "",
-        },
-      });
-
-      let file = `${ctx.userId}/${uuid.v4()}.gpx`;
+      let file = `${ctx.userId}/${input.tourId}/tracks/${uuid.v4()}.gpx`;
       if (input.tourId) {
         const tour = await ctx.prisma.tour.findFirst({
           where: {
@@ -608,7 +601,7 @@ export const toursRouter = createRouter()
         Key: file,
       };
       const command = new PutObjectCommand(bucketParams);
-      const result = await getSignedUrl(s3, command);
+      const result = await getSignedUrl(s3Client, command);
 
       return {
         url: result,

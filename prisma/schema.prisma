@@ -25,7 +25,7 @@ model Tour {
     creatorId     String
     creator       User            @relation(fields: [creatorId], references: [id])
     tourPeaks     TourPeak[]
-    gpxUrl        String?
+    url           String?         @db.Text
     visibility    Visibility      @default(FRIENDS)
     likes         Like[]
     companions    CompanionShip[]
@@ -34,12 +34,13 @@ model Tour {
 }
 
 model CompanionShip {
-    tourId String
-    tour   Tour          @relation(fields: [tourId], references: [id])
-    userId String
-    user   User          @relation(fields: [userId], references: [id])
-    role   CompanionRole
-    addedOn DateTime @default(now())
+    tourId  String
+    tour    Tour          @relation(fields: [tourId], references: [id])
+    userId  String
+    user    User          @relation(fields: [userId], references: [id])
+    role    CompanionRole
+    addedOn DateTime      @default(now())
+
     @@id([tourId, userId])
 }
 
@@ -51,7 +52,7 @@ enum CompanionRole {
 model Image {
     id       String @id @default(cuid())
     filename String
-    url      String
+    url      String @db.Text
     tourId   String
     tour     Tour   @relation(fields: [tourId], references: [id])
 }

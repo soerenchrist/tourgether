@@ -22,6 +22,7 @@ import { Point } from "@/server/router/tours";
 import Icon from "@mdi/react";
 import { mdiDelete, mdiDotsVertical, mdiPencil } from "@mdi/js";
 import AddFriendsModal from "@/components/friends/addFriendsModal";
+import ImagesArea from "@/components/tours/imagesArea";
 
 const Map = dynamic(() => import("../../components/maps/tourMap"), {
   ssr: false,
@@ -140,139 +141,152 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
       <Head>
         <title>Tour - {data?.name ?? ""}</title>
       </Head>
-      <div className="grid lg:grid-cols-2 grid-cols-1 gap-6 mb-4">
-        <Card>
-          <div className="flex justify-between">
-            {isLoading && <Skeleton className="h-8 w-72"></Skeleton>}
-            {!isLoading && <CardTitle title={data?.name ?? ""} />}
+      <div className="flex flex-col gap-4">
+        <div className="grid lg:grid-cols-2 grid-cols-1 gap-6">
+          <Card>
+            <div className="flex justify-between">
+              {isLoading && <Skeleton className="h-8 w-72"></Skeleton>}
+              {!isLoading && <CardTitle title={data?.name ?? ""} />}
 
-            <div className="flex justify-end items-center gap-3">
-              {isLoading && <Spinner size="md" />}
-              {!isLoading && (
-                <>
-                  <CommentButton tour={data!} />
-                  <DownloadGpxButton downloadUrl={downloadUrl} tour={data!} />
-                  {!data?.viewer && (
-                    <OwnerMenu onEdit={onEdit} setShowDelete={setShowDelete} />
-                  )}
-
-                  {data?.viewer && <LikeButton tour={data} />}
-                </>
-              )}
-            </div>
-          </div>
-
-          <List className="mt-4">
-            <ListItem
-              title={`${data?.distance} m`}
-              isLoading={isLoading}
-              subtitle="Distance"
-            />
-            <ListItem
-              title={`${data?.elevationUp} m`}
-              subtitle="Total Ascent"
-              isLoading={isLoading}
-            />
-            <ListItem
-              title={`${data?.elevationDown} m`}
-              subtitle="Total Descent"
-              isLoading={isLoading}
-            />
-
-            {(data?.tourPeaks.length ?? 0) > 0 && (
-              <ListItem
-                title={peaks?.map((tp) => (
-                  <Link href={`/peaks/${tp.id}`} key={tp.id}>
-                    <span className="cursor-pointer mr-2 text-blue-500 font-medium hover:underline w-auto">
-                      {tp.name} ({tp.height} m)
-                    </span>
-                  </Link>
-                ))}
-                isLoading={isLoading}
-                subtitle="Peaks"
-              />
-            )}
-
-            <ListItem
-              title={`${data?.date.toLocaleDateString()}`}
-              isLoading={isLoading}
-              subtitle="Date"
-            />
-            {data?.startTime && (
-              <ListItem
-                title={`${data!.startTime}`}
-                isLoading={isLoading}
-                subtitle="Start time"
-              />
-            )}
-
-            {data?.endTime && (
-              <ListItem
-                title={`${data!.endTime}`}
-                isLoading={isLoading}
-                subtitle="End time"
-              />
-            )}
-
-            {data?.viewer && (
-              <ListItem
-                title={`${data!.creator.name} (${data!.creator.email})`}
-                isLoading={isLoading}
-                subtitle="Created by"
-              ></ListItem>
-            )}
-
-            {data?.description && (
-              <ListItem isLoading={isLoading} subtitle={data!.description} />
-            )}
-
-            <ListItem
-              title={getVisibilityText(data?.visibility)}
-              isLoading={isLoading}
-              subtitle="Visibility"
-            ></ListItem>
-            <div className="flex justify-between gap-2">
-              <ListItem
-                title={
+              <div className="flex justify-end items-center gap-3">
+                {isLoading && <Spinner size="md" />}
+                {!isLoading && (
                   <>
-                    <span>{companions?.map((x) => x.user.name).join(",")}</span>
+                    <CommentButton tour={data!} />
+                    <DownloadGpxButton downloadUrl={downloadUrl} tour={data!} />
                     {!data?.viewer && (
-                      <span
-                        style={{
-                          marginLeft:
-                            (companions?.length ?? 0) > 0 ? "5px" : "0",
-                        }}
-                        className="text-blue-500 font-medium hover:underline cursor-pointer"
-                        onClick={() => setAddFriends(true)}
-                      >
-                        Add
-                      </span>
+                      <OwnerMenu
+                        onEdit={onEdit}
+                        setShowDelete={setShowDelete}
+                      />
                     )}
+
+                    {data?.viewer && <LikeButton tour={data} />}
                   </>
-                }
-                subtitle="Companions"
-                isLoading={companionsLoading}
+                )}
+              </div>
+            </div>
+
+            <List className="mt-4">
+              <ListItem
+                title={`${data?.distance} m`}
+                isLoading={isLoading}
+                subtitle="Distance"
+              />
+              <ListItem
+                title={`${data?.elevationUp} m`}
+                subtitle="Total Ascent"
+                isLoading={isLoading}
+              />
+              <ListItem
+                title={`${data?.elevationDown} m`}
+                subtitle="Total Descent"
+                isLoading={isLoading}
+              />
+
+              {(data?.tourPeaks.length ?? 0) > 0 && (
+                <ListItem
+                  title={peaks?.map((tp) => (
+                    <Link href={`/peaks/${tp.id}`} key={tp.id}>
+                      <span className="cursor-pointer mr-2 text-blue-500 font-medium hover:underline w-auto">
+                        {tp.name} ({tp.height} m)
+                      </span>
+                    </Link>
+                  ))}
+                  isLoading={isLoading}
+                  subtitle="Peaks"
+                />
+              )}
+
+              <ListItem
+                title={`${data?.date.toLocaleDateString()}`}
+                isLoading={isLoading}
+                subtitle="Date"
+              />
+              {data?.startTime && (
+                <ListItem
+                  title={`${data!.startTime}`}
+                  isLoading={isLoading}
+                  subtitle="Start time"
+                />
+              )}
+
+              {data?.endTime && (
+                <ListItem
+                  title={`${data!.endTime}`}
+                  isLoading={isLoading}
+                  subtitle="End time"
+                />
+              )}
+
+              {data?.viewer && (
+                <ListItem
+                  title={`${data!.creator.name} (${data!.creator.email})`}
+                  isLoading={isLoading}
+                  subtitle="Created by"
+                ></ListItem>
+              )}
+
+              {data?.description && (
+                <ListItem isLoading={isLoading} subtitle={data!.description} />
+              )}
+
+              <ListItem
+                title={getVisibilityText(data?.visibility)}
+                isLoading={isLoading}
+                subtitle="Visibility"
+              ></ListItem>
+              <div className="flex justify-between gap-2">
+                <ListItem
+                  title={
+                    <>
+                      <span>
+                        {companions?.map((x) => x.user.name).join(",")}
+                      </span>
+                      {!data?.viewer && (
+                        <span
+                          style={{
+                            marginLeft:
+                              (companions?.length ?? 0) > 0 ? "5px" : "0",
+                          }}
+                          className="text-blue-500 font-medium hover:underline cursor-pointer"
+                          onClick={() => setAddFriends(true)}
+                        >
+                          Add
+                        </span>
+                      )}
+                    </>
+                  }
+                  subtitle="Companions"
+                  isLoading={companionsLoading}
                 ></ListItem>
                 {companions && (
                   <div>
                     <div className="h-2"></div>
                     <Avatar.Group>
                       {companions.map((x) => (
-                        <Avatar key={x.userId} rounded img={x.user.image ?? ""} />
+                        <Avatar
+                          key={x.userId}
+                          stacked
+                          rounded
+                          img={x.user.image ?? ""}
+                        />
                       ))}
                     </Avatar.Group>
                   </div>
                 )}
-            </div>
-          </List>
-        </Card>
-        <Card>
-          <Map hoverPoint={hoverPoint} peaks={peaks} points={points} />
-        </Card>
+              </div>
+            </List>
+          </Card>
+          <Card>
+            <Map hoverPoint={hoverPoint} peaks={peaks} points={points} />
+          </Card>
+        </div>
+        {points && points.length > 0 && (
+          <ChartArea points={points} onHover={(e) => setHoverPoint(e)} />
+        )}
+        <ImagesArea tourId={id} />
       </div>
-      {points && points.length > 0 && (
-        <ChartArea points={points} onHover={(e) => setHoverPoint(e)} />
-      )}
       <AddFriendsModal
         tourId={id}
         show={addFriends}

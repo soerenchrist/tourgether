@@ -25,11 +25,14 @@ const FileInput = (props: Props) => {
                     </svg>}
                     <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">{props.label}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">{props.helperText}</p>
+                    <div className="flex gap-2">
+
                     {props.files.map(file => (
-                        <div key={file.name} className="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800">{file.name}</div>
-                    ))}
+                      <div key={file.name} className="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800">{file.name}</div>
+                      ))}
+                      </div>
                 </div>
-                <input onChange={props.onChange} id="dropzone-file" accept={props.accept} type="file" className="hidden" />
+                <input onChange={props.onChange} id="dropzone-file" multiple={props.multiple} accept={props.accept} type="file" className="hidden" />
             </label>
         </div>
     )

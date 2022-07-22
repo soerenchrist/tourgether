@@ -1,3 +1,4 @@
+import { imagesRouter } from './images';
 import { commentsRouter } from './comments';
 import { likesRouter } from "./likes";
 // src/server/router/index.ts
@@ -20,6 +21,7 @@ export const appRouter = createRouter()
   .merge("wishlist.", wishlistRouter)
   .merge("likes.", likesRouter)
   .merge("comments.", commentsRouter)
+  .merge("images.", imagesRouter)
   .merge("wikidata.", wikidataRouter)
   .merge("profile.", profileRouter)
   .merge("routing.", routingRouter)
