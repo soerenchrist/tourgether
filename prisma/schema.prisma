@@ -39,7 +39,7 @@ model CompanionShip {
     userId String
     user   User          @relation(fields: [userId], references: [id])
     role   CompanionRole
-
+    addedOn DateTime @default(now())
     @@id([tourId, userId])
 }
 

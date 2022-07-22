@@ -296,7 +296,18 @@ export const toursRouter = createRouter()
           _all: true,
         },
         where: {
-          creatorId: userId,
+          OR: [
+            {
+              creatorId: userId,
+            },
+            {
+              companions: {
+                some: {
+                  userId: userId,
+                },
+              },
+            },
+          ],
         },
       });
       return {
@@ -330,7 +341,18 @@ export const toursRouter = createRouter()
                 },
               },
               {
-                creatorId: ctx.userId,
+                OR: [
+                  {
+                    creatorId: ctx.userId,
+                  },
+                  {
+                    companions: {
+                      some: {
+                        userId: ctx.userId,
+                      },
+                    },
+                  },
+                ],
               },
             ],
           },
