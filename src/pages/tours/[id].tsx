@@ -2,7 +2,7 @@ import CardTitle from "@/components/common/cardTitle";
 import { List, ListItem } from "@/components/common/list";
 import LayoutBase from "@/components/layout/layoutBase";
 import { trpc } from "@/utils/trpc";
-import { Card, Dropdown, Spinner } from "flowbite-react";
+import { Avatar, Card, Dropdown, Spinner } from "flowbite-react";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
@@ -231,22 +231,39 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
               isLoading={isLoading}
               subtitle="Visibility"
             ></ListItem>
-            <ListItem
-              title={
-                <>
-                  <span>{companions?.map((x) => x.user.name).join(",")}</span>
-                  <span
-                    style={{ marginLeft: companions?.length > 0 ? "5px" : "0" }}
-                    className="text-blue-500 font-medium hover:underline cursor-pointer"
-                    onClick={() => setAddFriends(true)}
-                  >
-                    Add
-                  </span>
-                </>
-              }
-              subtitle="Companions"
-              isLoading={companionsLoading}
-            ></ListItem>
+            <div className="flex justify-between gap-2">
+              <ListItem
+                title={
+                  <>
+                    <span>{companions?.map((x) => x.user.name).join(",")}</span>
+                    {!data?.viewer && (
+                      <span
+                        style={{
+                          marginLeft:
+                            (companions?.length ?? 0) > 0 ? "5px" : "0",
+                        }}
+                        className="text-blue-500 font-medium hover:underline cursor-pointer"
+                        onClick={() => setAddFriends(true)}
+                      >
+                        Add
+                      </span>
+                    )}
+                  </>
+                }
+                subtitle="Companions"
+                isLoading={companionsLoading}
+                ></ListItem>
+                {companions && (
+                  <div>
+                    <div className="h-2"></div>
+                    <Avatar.Group>
+                      {companions.map((x) => (
+                        <Avatar key={x.userId} rounded img={x.user.image ?? ""} />
+                      ))}
+                    </Avatar.Group>
+                  </div>
+                )}
+            </div>
           </List>
         </Card>
         <Card>

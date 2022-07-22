@@ -76,8 +76,25 @@ export const toursRouter = createRouter()
         skip: skip,
         take: count,
         where: {
-          creatorId: ctx.userId,
-          ...searchFilter,
+          AND: [
+            {
+              OR: [
+                {
+                  creatorId: ctx.userId,
+                },
+                {
+                  companions: {
+                    some: {
+                      userId: ctx.userId,
+                    },
+                  },
+                },
+              ],
+            },
+            {
+              ...searchFilter,
+            },
+          ],
         },
       });
       const totalCount = await ctx.prisma.tour.count({
