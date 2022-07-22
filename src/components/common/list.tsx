@@ -24,14 +24,15 @@ export const ListItem: React.FC<{
       <div className="flex items-center space-x-4">
         {image && (
           <div>
-            <Avatar
+            {!isLoading &&<Avatar
               img={image}
               size="md"
               onClick={() => {
                 if (onImageClick) onImageClick();
               }}
               style={{ cursor: onImageClick ? "pointer" : "auto" }}
-            />
+            />}
+            {isLoading && <Skeleton className="w-10 h-10" />}
           </div>
         )}
         <div className="flex-1 min-w-0">
@@ -46,7 +47,8 @@ export const ListItem: React.FC<{
               {title}
             </div>
           )}
-          {isLoading && <Skeleton className="w-52 h-5"></Skeleton>}
+          {isLoading && <Skeleton className="w-52 h-3"></Skeleton>}
+          {isLoading && <Skeleton className="w-32 h-2 mt-2"></Skeleton>}
           {subtitle && (
             <p className="text-sm text-gray-500 truncat dark:text-gray-400">
               {subtitle}

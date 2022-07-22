@@ -188,6 +188,50 @@ export const toursRouter = createRouter()
       return results;
     },
   })
+  .query("search-tours", {
+    input: z.object({
+      searchTerm: z.string(),
+      peakId: z.string().optional(),
+    }),
+    async resolve({ ctx, input }) {
+      const peakQuery = input.peakId
+        ? {
+            tourPeaks: {
+              some: {
+                peakId: input.peakId,
+              },
+            },
+          }
+        : {};
+      const friends = await getFriends(ctx.prisma, ctx.userId);
+      const friendsIds = friends.map((x) => x.id);
+      return await ctx.prisma.tour.findMany({
+        take: 10,
+        where: {
+          name: {
+            contains: input.searchTerm,
+          },
+          OR: [
+            {
+              visibility: "PUBLIC",
+            },
+            {
+              creatorId: ctx.userId,
+            },
+            {
+              creatorId: {
+                in: friendsIds,
+              },
+            },
+          ],
+          ...peakQuery,
+        },
+        include: {
+          creator: true,
+        },
+      });
+    },
+  })
   .query("get-totals", {
     input: z
       .object({
