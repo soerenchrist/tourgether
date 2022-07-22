@@ -1,7 +1,7 @@
 import { createTourValidationSchema } from "@/components/tours/editToursForm";
 import { getDateXDaysBeforeToday } from "@/utils/dateUtils";
 import { TRPCError } from "@trpc/server";
-import { number, z } from "zod";
+import { z } from "zod";
 import { createRouter } from "./context";
 import { getFriends } from "./friends";
 import {
@@ -230,6 +230,22 @@ export const toursRouter = createRouter()
           creator: true,
         },
       });
+    },
+  })
+  .query("get-companions", {
+    input: z.object({
+      tourId: z.string(),
+    }),
+    async resolve({ ctx, input }) {
+      const companions = await ctx.prisma.companionShip.findMany({
+        where: {
+          tourId: input.tourId,
+        },
+        include: {
+          user: true,
+        },
+      });
+      return companions;
     },
   })
   .query("get-totals", {
@@ -492,6 +508,34 @@ export const toursRouter = createRouter()
       });
 
       return insertedTour;
+    },
+  })
+  .mutation("add-companion", {
+    input: z.object({
+      userId: z.string(),
+      tourId: z.string(),
+      role: z.enum(["MAINTAINER", "VIEWER"]),
+    }),
+    async resolve({ ctx, input }) {
+      await ctx.prisma.companionShip.create({
+        data: input,
+      });
+    },
+  })
+  .mutation("remove-companion", {
+    input: z.object({
+      userId: z.string(),
+      tourId: z.string(),
+    }),
+    async resolve({ ctx, input }) {
+      await ctx.prisma.companionShip.delete({
+        where: {
+          tourId_userId: {
+            tourId: input.tourId,
+            userId: input.userId,
+          },
+        },
+      });
     },
   })
   .mutation("create-upload-url", {

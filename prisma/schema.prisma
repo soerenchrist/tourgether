@@ -2,58 +2,83 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+    provider        = "prisma-client-js"
     previewFeatures = ["referentialIntegrity"]
 }
 
 datasource db {
-    provider = "mysql"
-    url      = env("DATABASE_URL")
+    provider             = "mysql"
+    url                  = env("DATABASE_URL")
     referentialIntegrity = "prisma"
 }
 
 model Tour {
-    id String @id @default(cuid())
-    name String
-    description String @db.VarChar(2000)
-    elevationUp Int
+    id            String          @id @default(cuid())
+    name          String
+    description   String          @db.VarChar(2000)
+    elevationUp   Int
     elevationDown Int
-    distance Int
-    date DateTime
-    startTime String?
-    endTime String?
-    creatorId String
-    creator User @relation(fields: [creatorId], references: [id])
-    tourPeaks TourPeak[]
-    gpxUrl String?
-    visibility Visibility @default(FRIENDS) 
-    likes Like[]
-    comments Comment[]
+    distance      Int
+    date          DateTime
+    startTime     String?
+    endTime       String?
+    creatorId     String
+    creator       User            @relation(fields: [creatorId], references: [id])
+    tourPeaks     TourPeak[]
+    gpxUrl        String?
+    visibility    Visibility      @default(FRIENDS)
+    likes         Like[]
+    companions    CompanionShip[]
+    comments      Comment[]
+    images        Image[]
+}
+
+model CompanionShip {
+    tourId String
+    tour   Tour          @relation(fields: [tourId], references: [id])
+    userId String
+    user   User          @relation(fields: [userId], references: [id])
+    role   CompanionRole
+
+    @@id([tourId, userId])
+}
+
+enum CompanionRole {
+    VIEWER
+    MAINTAINER
+}
+
+model Image {
+    id       String @id @default(cuid())
+    filename String
+    url      String
+    tourId   String
+    tour     Tour   @relation(fields: [tourId], references: [id])
 }
 
 model Like {
-    id String @id @default(cuid())
+    id     String   @id @default(cuid())
     userId String
-    user User @relation(fields: [userId], references: [id])
+    user   User     @relation(fields: [userId], references: [id])
     tourId String
-    tour Tour @relation(fields: [tourId], references: [id])
-    date DateTime @default(now())
+    tour   Tour     @relation(fields: [tourId], references: [id])
+    date   DateTime @default(now())
 }
 
 model Comment {
-    id String @id @default(cuid())
-    userId String
-    user User @relation(fields: [userId], references: [id])
-    tourId String
-    tour Tour @relation(fields: [tourId], references: [id])
-    date DateTime @default(now())
-    content String @db.VarChar(200)
+    id      String   @id @default(cuid())
+    userId  String
+    user    User     @relation(fields: [userId], references: [id])
+    tourId  String
+    tour    Tour     @relation(fields: [tourId], references: [id])
+    date    DateTime @default(now())
+    content String   @db.VarChar(200)
 }
 
 enum Visibility {
-  PUBLIC
-  FRIENDS
-  PRIVATE
+    PUBLIC
+    FRIENDS
+    PRIVATE
 }
 
 enum ProfileVisibility {
@@ -62,41 +87,40 @@ enum ProfileVisibility {
 }
 
 model WishlistItem {
-    id String @id @default(cuid())
-    peakId String
-    peak Peak @relation(fields: [peakId], references: [id])
-    userId String
-    user User @relation(fields: [userId], references: [id])
-    addDate DateTime @default(now())
-    finished Boolean @default(false)
+    id         String    @id @default(cuid())
+    peakId     String
+    peak       Peak      @relation(fields: [peakId], references: [id])
+    userId     String
+    user       User      @relation(fields: [userId], references: [id])
+    addDate    DateTime  @default(now())
+    finished   Boolean   @default(false)
     finishDate DateTime?
 }
 
-
 model Peak {
-    id String @id @default(cuid())
-    name String
-    osmId BigInt?
-    latitude Float
-    longitude Float
-    height Int
-    prominence Int?
-    cross Boolean?
-    register Boolean?
-    massif String?
-    wikipedia String?
-    wikidata String?
-    tourPeaks TourPeak[]
+    id            String         @id @default(cuid())
+    name          String
+    osmId         BigInt?
+    latitude      Float
+    longitude     Float
+    height        Int
+    prominence    Int?
+    cross         Boolean?
+    register      Boolean?
+    massif        String?
+    wikipedia     String?
+    wikidata      String?
+    tourPeaks     TourPeak[]
     wishlistItems WishlistItem[]
-    creatorId String?
+    creatorId     String?
 }
 
 model TourPeak {
-    id String @id @default(cuid())
+    id     String @id @default(cuid())
     peakId String
-    peak Peak @relation(fields: [peakId], references: [id])
+    peak   Peak   @relation(fields: [peakId], references: [id])
     tourId String
-    tour Tour @relation(fields: [tourId], references: [id])
+    tour   Tour   @relation(fields: [tourId], references: [id])
 }
 
 model Friendship {
@@ -106,8 +130,8 @@ model Friendship {
     user1 User @relation(name: "friendship1", fields: [user1Id], references: [id], map: "friendship1")
     user2 User @relation(name: "friendship2", fields: [user2Id], references: [id], map: "friendship2")
 
-    startDate DateTime @default(now())
-    state FriendshipState @default(ACTIVE)
+    startDate DateTime        @default(now())
+    state     FriendshipState @default(ACTIVE)
 
     @@id([user1Id, user2Id])
 }
@@ -145,32 +169,32 @@ model Session {
 }
 
 model Profile {
-    id String @id
-    name String?
+    id           String            @id
+    name         String?
     favoritePeak String?
-    status String?
-    location String?
-    visibility ProfileVisibility @default(PUBLIC)
-    user User @relation(fields: [id], references: [id])
-
+    status       String?
+    location     String?
+    visibility   ProfileVisibility @default(PUBLIC)
+    user         User              @relation(fields: [id], references: [id])
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    hasOnboarded  Boolean @default(false)
-    accounts      Account[]
-    sessions      Session[]
-    friendship1 Friendship[] @relation(name: "friendship1")
-    friendship2 Friendship[] @relation(name: "friendship2")
-    profile Profile?
-    createdTours Tour[]
-    wishlistItems WishlistItem[]
-    likes Like[]
-    comments Comment[]
+    id             String          @id @default(cuid())
+    name           String?
+    email          String?         @unique
+    emailVerified  DateTime?
+    image          String?
+    hasOnboarded   Boolean         @default(false)
+    accounts       Account[]
+    sessions       Session[]
+    friendship1    Friendship[]    @relation(name: "friendship1")
+    friendship2    Friendship[]    @relation(name: "friendship2")
+    profile        Profile?
+    createdTours   Tour[]
+    wishlistItems  WishlistItem[]
+    likes          Like[]
+    comments       Comment[]
+    companionShips CompanionShip[]
 }
 
 model VerificationToken {

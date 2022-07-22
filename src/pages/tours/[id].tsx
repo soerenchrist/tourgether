@@ -21,10 +21,20 @@ import { parseGpx } from "@/lib/gpxLib";
 import { Point } from "@/server/router/tours";
 import Icon from "@mdi/react";
 import { mdiDelete, mdiDotsVertical, mdiPencil } from "@mdi/js";
+import AddFriendsModal from "@/components/friends/addFriendsModal";
 
 const Map = dynamic(() => import("../../components/maps/tourMap"), {
   ssr: false,
 });
+
+const useCompanions = (tourId: string) => {
+  return trpc.useQuery([
+    "tours.get-companions",
+    {
+      tourId,
+    },
+  ]);
+};
 
 const downloadAndParse = async (fileUrl: string): Promise<Point[]> => {
   const response = await fetch(fileUrl);
@@ -76,7 +86,9 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
     retry: false,
     refetchOnWindowFocus: false,
   });
+  const { data: companions, isLoading: companionsLoading } = useCompanions(id);
   const [points, setPoints] = useState<Point[]>([]);
+  const [addFriends, setAddFriends] = useState(false);
 
   const { data: downloadUrl } = trpc.useQuery(
     [
@@ -219,6 +231,22 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
               isLoading={isLoading}
               subtitle="Visibility"
             ></ListItem>
+            <ListItem
+              title={
+                <>
+                  <span>{companions?.map((x) => x.user.name).join(",")}</span>
+                  <span
+                    style={{ marginLeft: companions?.length > 0 ? "5px" : "0" }}
+                    className="text-blue-500 font-medium hover:underline cursor-pointer"
+                    onClick={() => setAddFriends(true)}
+                  >
+                    Add
+                  </span>
+                </>
+              }
+              subtitle="Companions"
+              isLoading={companionsLoading}
+            ></ListItem>
           </List>
         </Card>
         <Card>
@@ -228,6 +256,12 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
       {points && points.length > 0 && (
         <ChartArea points={points} onHover={(e) => setHoverPoint(e)} />
       )}
+      <AddFriendsModal
+        tourId={id}
+        show={addFriends}
+        companions={companions}
+        onClose={() => setAddFriends(false)}
+      />
       <ConfirmationModal
         text={
           data?.viewer

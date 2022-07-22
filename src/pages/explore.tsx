@@ -16,40 +16,49 @@ const Map = dynamic(() => import("../components/maps/tourMap"), {
 });
 
 const TourCard: React.FC<{
-  tour: Tour & { creator: User, tourPeaks: (TourPeak & { peak: Peak })[] },
-  router: NextRouter
+  tour: Tour & { creator: User; tourPeaks: (TourPeak & { peak: Peak })[] };
+  router: NextRouter;
 }> = ({ tour, router }) => {
   const util = trpc.useContext();
   const { data: count, isLoading: countLoading } = trpc.useQuery([
     "likes.like-count",
     {
-      tourId: tour.id
-    }
-  ])
+      tourId: tour.id,
+    },
+  ]);
   const handleLikesChanged = () => {
     util.invalidateQueries("likes.like-count");
-  }
-  const peaks = useMemo(() => tour.tourPeaks.map(t => t.peak), [tour]);
+  };
+  const peaks = useMemo(() => tour.tourPeaks.map((t) => t.peak), [tour]);
   return (
-
     <Card>
       <div className="flex flex-col h-full gap-2 justify-start">
         <div className="flex justify-between">
-          <CardTitle className="cursor-pointer" onClick={() => router.push(`/tours/${tour.id}`)} title={tour.name} />
-          <LikeButton tour={tour} onLiked={handleLikesChanged} onRemovedLike={handleLikesChanged} />
+          <CardTitle
+            className="cursor-pointer"
+            onClick={() => router.push(`/tours/${tour.id}`)}
+            title={tour.name}
+          />
+          <LikeButton
+            tour={tour}
+            onLiked={handleLikesChanged}
+            onRemovedLike={handleLikesChanged}
+          />
         </div>
         <span className="text-sm text-gray-600 -mt-2">
-          Created by {tour.creator.name} - {countLoading ? <Skeleton className="w-12 h-4" /> : <span>{count} Likes</span>}
+          Created by {tour.creator.name} -{" "}
+          {countLoading ? (
+            <Skeleton className="w-12 h-4" />
+          ) : (
+            <span>{count} Likes</span>
+          )}
         </span>
         <div className="flex gap-2">
-
-          {peaks.map(peak => (
+          {peaks.map((peak) => (
             <Badge key={peak.id}>{peak.name}</Badge>
           ))}
         </div>
-        {tour.description && (
-          <span>{tour.description}</span>
-        )}
+        {tour.description && <span>{tour.description}</span>}
         {peaks.length > 0 && (
           <div className="h-52">
             <Map peaks={peaks} allowScrolling={false} />
@@ -57,8 +66,8 @@ const TourCard: React.FC<{
         )}
       </div>
     </Card>
-  )
-}
+  );
+};
 
 const ExplorePageContent = () => {
   const { data: tours } = trpc.useQuery([
@@ -71,6 +80,13 @@ const ExplorePageContent = () => {
 
   return (
     <div className="grid lg:grid-cols-4 grid-cols-2 gap-4">
+      {tours?.length === 0 && (
+        <div className="lg:col-span-4 col-span-2">
+          <Card>
+            Nothing to see here, yet...
+          </Card>
+        </div>
+      )}
       {tours?.map((tour) => (
         <TourCard key={tour.id} tour={tour} router={router} />
       ))}
