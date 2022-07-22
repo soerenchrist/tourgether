@@ -25,7 +25,7 @@ model Tour {
     creatorId     String
     creator       User            @relation(fields: [creatorId], references: [id])
     tourPeaks     TourPeak[]
-    url           String?         @db.Text
+    gpxUrl        String?         @db.Text
     visibility    Visibility      @default(FRIENDS)
     likes         Like[]
     companions    CompanionShip[]

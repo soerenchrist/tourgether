@@ -426,21 +426,13 @@ export const toursRouter = createRouter()
       gpxUrl: z.string(),
     }),
     async resolve({ input }) {
-      const s3 = new S3Client({
-        region: process.env.AWS_BUCKET_REGION,
-        credentials: {
-          accessKeyId: process.env.AWS_BUCKET_ACCESS_KEY_ID || "",
-          secretAccessKey: process.env.AWS_BUCKET_ACCESS_KEY_SECRET || "",
-        },
-      });
-
       const params = {
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: input.gpxUrl,
       };
 
       const command = new GetObjectCommand(params);
-      const url = getSignedUrl(s3, command, {
+      const url = await getSignedUrl(s3Client, command, {
         expiresIn: 360,
       });
 

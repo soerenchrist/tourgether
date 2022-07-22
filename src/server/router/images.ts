@@ -1,5 +1,5 @@
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { TRPCError } from "@trpc/server";
 import * as uuid from "uuid";
 import { z } from "zod";
@@ -13,6 +13,34 @@ export const imagesRouter = createRouter()
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
     return next({ ctx: { ...ctx, userId } });
+  })
+  .query("get-images", {
+    input: z.object({
+      tourId: z.string(),
+    }),
+    async resolve({ ctx, input }) {
+      const images = await ctx.prisma.image.findMany({
+        where: {
+          tourId: input.tourId,
+        },
+      });
+      const urls = [];
+      for (let i = 0; i < images.length; i++) {
+        const image = images[i]!;
+
+        const params = {
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: image.url,
+        };
+
+        const command = new GetObjectCommand(params);
+        const url = await getSignedUrl(s3Client, command, {
+          expiresIn: 3600,
+        });
+        urls.push({ filename: image.filename, id: image.id, url });
+      }
+      return urls;
+    },
   })
   .mutation("create-upload-url", {
     input: z.object({
@@ -47,11 +75,14 @@ export const imagesRouter = createRouter()
     }),
     async resolve({ ctx, input }) {
       const index = input.url.search(".com");
-      const filename = input.url.slice(index+5);
+      const filename = input.url.slice(index + 5);
+
+      const [url] = filename.split("?");
+
       await ctx.prisma.image.create({
         data: {
           filename: input.filename,
-          url: filename,
+          url: url!,
           tourId: input.tourId,
         },
       });
