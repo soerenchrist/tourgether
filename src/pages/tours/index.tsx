@@ -4,7 +4,6 @@ import { trpc } from "@/utils/trpc";
 import { useRouter } from "next/router";
 import { Button, Card, Pagination, Spinner } from "flowbite-react";
 import { useSession } from "next-auth/react";
-import { Tour } from "@prisma/client";
 import CardTitle from "@/components/common/cardTitle";
 import { useEffect, useState } from "react";
 import ToursTable from "@/components/tours/toursTable";

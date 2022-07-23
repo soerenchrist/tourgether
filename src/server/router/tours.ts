@@ -53,6 +53,7 @@ export const toursRouter = createRouter()
       page: z.number().min(1),
       count: z.number(),
       searchTerm: z.string(),
+      userId: z.string().optional(),
     }),
     async resolve({ ctx, input }) {
       const { count, page } = input;
@@ -73,6 +74,17 @@ export const toursRouter = createRouter()
         ],
       };
 
+      let userId = ctx.userId;
+      let visibilityFilter = {};
+      if (input.userId) {
+        userId = input.userId;
+        visibilityFilter = {
+          visibility: {
+            in: ["PUBLIC", "FRIENDS"],
+          },
+        };
+      }
+
       const tours = await ctx.prisma.tour.findMany({
         skip: skip,
         take: count,
@@ -81,12 +93,12 @@ export const toursRouter = createRouter()
             {
               OR: [
                 {
-                  creatorId: ctx.userId,
+                  creatorId: userId,
                 },
                 {
                   companions: {
                     some: {
-                      userId: ctx.userId,
+                      userId: userId,
                     },
                   },
                 },
@@ -94,13 +106,14 @@ export const toursRouter = createRouter()
             },
             {
               ...searchFilter,
+              ...visibilityFilter,
             },
           ],
         },
       });
       const totalCount = await ctx.prisma.tour.count({
         where: {
-          creatorId: ctx.userId,
+          creatorId: userId,
           ...searchFilter,
         },
       });

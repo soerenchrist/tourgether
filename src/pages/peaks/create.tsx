@@ -1,6 +1,5 @@
 import LayoutBase from "@/components/layout/layoutBase";
 import EditPeaksForm from "@/components/peaks/editPeaksForm";
-import { Spinner } from "flowbite-react";
 import { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import Head from "next/head";

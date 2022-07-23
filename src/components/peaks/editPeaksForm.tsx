@@ -1,7 +1,9 @@
 import { useZodForm } from "@/utils/formHelpers";
 import { trpc } from "@/utils/trpc";
+import { mdiInformation } from "@mdi/js";
+import Icon from "@mdi/react";
 import { Peak } from "@prisma/client";
-import { Button, Card } from "flowbite-react";
+import { Button, Card, Tooltip } from "flowbite-react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { ChangeEventHandler, useEffect, useState } from "react";
@@ -101,7 +103,12 @@ const EditPeaksForm: React.FC<{ editPeak: Peak | undefined }> = ({
   return (
     <div className="grid grid-cols-2 gap-6">
       <Card>
-        <CardTitle title={editPeak ? "Edit Peak" : "Create a new Peak"} />
+        <div className="flex gap-3 items-center">
+          <CardTitle title={editPeak ? "Edit Peak" : "Create a new Peak"} />
+          <Tooltip content="Peaks that you create are only visible for yourself">
+            <Icon path={mdiInformation} className="w-7 h-7" />
+          </Tooltip>
+        </div>
         <form
           onSubmit={handleSubmit(async (values) => {
             setLoading(true);

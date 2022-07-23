@@ -2,6 +2,7 @@ import NotFound from "@/components/common/notFound";
 import TotalsDisplay from "@/components/dashboard/totalsDisplay";
 import LayoutBase from "@/components/layout/layoutBase";
 import ProfileOverview from "@/components/profile/profileOverview";
+import UsersTours from "@/components/profile/usersTours";
 import { trpc } from "@/utils/trpc";
 import { Spinner } from "flowbite-react";
 import { NextPage } from "next";
@@ -41,7 +42,10 @@ const FriendsProfileContent: React.FC<{ id: string }> = ({ id }) => {
   else if (!profile) return <></>
   return (
     <div className="flex flex-col gap-4">
-      <ProfileOverview profile={profile} showFriendshipOption={true} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <ProfileOverview profile={profile} showFriendshipOption={true} />
+        <UsersTours userId={id} name={profile.username} />
+      </div>
       <TotalsDisplay isLoading={totalsLoading} totals={totals} />
     </div>
   );
