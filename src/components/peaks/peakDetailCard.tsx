@@ -22,7 +22,7 @@ const PeakDetailCard: React.FC<{
               <CardTitle title={peak.name} />
               {wikidataLoading && <Skeleton className="h-5 w-11/12"></Skeleton>}
               {!wikidataLoading && wikidata && (
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-500">
                   {wikidata.description}
                 </span>
               )}

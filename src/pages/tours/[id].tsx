@@ -146,7 +146,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
           <Card>
             <div className="flex justify-between">
               {isLoading && <Skeleton className="h-8 w-72"></Skeleton>}
-              {!isLoading && <CardTitle title={data?.name ?? ""} />}
+              {!isLoading && <CardTitle title={data?.name ?? ""} subtitle={`Created by ${data?.creator.name} on ${data?.createdAt?.toLocaleDateString()}`} />}
 
               <div className="flex justify-end items-center gap-3">
                 {isLoading && <Spinner size="md" />}
