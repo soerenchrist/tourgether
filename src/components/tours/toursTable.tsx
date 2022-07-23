@@ -1,6 +1,27 @@
 import { Tour } from "@prisma/client";
 import { Table } from "flowbite-react";
 import Link from "next/link";
+import Skeleton from "../common/skeleton";
+
+const TourRowLoader = () => {
+  return (
+    <Table.Row>
+      <Table.Cell>
+        <Skeleton className="h-4 w-32" />
+      </Table.Cell>
+      <Table.Cell>
+        <Skeleton className="h-4 w-20" />
+      </Table.Cell>
+      <Table.Cell className="hidden md:table-cell">
+        <Skeleton className="h-4 w-20" />
+      </Table.Cell>
+      <Table.Cell className="hidden md:table-cell">
+        <Skeleton className="h-4 w-12" />
+      </Table.Cell>
+      <Table.Cell></Table.Cell>
+    </Table.Row>
+  )
+}
 
 const ToursTable: React.FC<{
   tours: Tour[] | undefined;
@@ -38,6 +59,7 @@ const ToursTable: React.FC<{
     <Table className="rounded-b-none shadow-none" style={{ zIndex: 1 }}>
       {tableHeader}
       <Table.Body>
+        {isLoading && <TourRowLoader />}
         {tours?.length === 0 && !isLoading && noDataContent}
         {tours?.map((tour) => (
           <Table.Row key={tour.id}>

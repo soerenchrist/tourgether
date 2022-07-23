@@ -3,26 +3,50 @@ import Icon from "@mdi/react";
 import { Peak } from "@prisma/client";
 import { Spinner, Table, Tooltip } from "flowbite-react";
 import Link from "next/link";
+import Skeleton from "../common/skeleton";
+
+const PeaksRowLoader = () => {
+  return (
+    <>
+      <Table.Row>
+        <Table.Cell>
+          <Skeleton className="w-52 h-4" />
+        </Table.Cell>
+        <Table.Cell className="hidden md:table-cell">
+          <Skeleton className="w-14 h-4" />
+        </Table.Cell>
+        <Table.Cell className="hidden md:table-cell">
+          <Skeleton className="w-10 h-4" />
+        </Table.Cell>
+        <Table.Cell>
+        </Table.Cell>
+      </Table.Row>
+      <Table.Row>
+        <Table.Cell>
+          <Skeleton className="w-56 h-4" />
+        </Table.Cell>
+        <Table.Cell className="hidden md:table-cell">
+          <Skeleton className="w-14 h-4" />
+        </Table.Cell>
+        <Table.Cell className="hidden md:table-cell">
+          <Skeleton className="w-10 h-4" />
+        </Table.Cell>
+        <Table.Cell>
+        </Table.Cell>
+      </Table.Row>
+    </>
+  )
+}
 
 const PeaksList: React.FC<{
   peaks:
-    | (Peak & {
-        tourCount: number;
-      })[]
-    | undefined
-    | undefined;
+  | (Peak & {
+    tourCount: number;
+  })[]
+  | undefined
+  | undefined;
   isLoading: boolean;
 }> = ({ peaks, isLoading }) => {
-  const loader = (
-    <Table.Row>
-      <Table.Cell>
-        <div className="p-4 flex justify-center">
-          <Spinner size="xl" />
-        </div>
-      </Table.Cell>
-    </Table.Row>
-  );
-
   return (
     <Table>
       <Table.Head>
@@ -34,7 +58,7 @@ const PeaksList: React.FC<{
         <Table.HeadCell></Table.HeadCell>
       </Table.Head>
       <Table.Body>
-        {isLoading && loader}
+        {isLoading && <PeaksRowLoader />}
         {peaks?.length === 0 && (
           <Table.Row>
             <Table.Cell colSpan={4}>
@@ -54,7 +78,7 @@ const PeaksList: React.FC<{
                   <Icon path={mdiCheckCircle} className="ml-4 w-5 h-5 text-green-500" />
                 </Tooltip>
               ) : (
-                <Icon path={mdiCancel}  className="ml-4 w-5 h-5 text-red-500" />
+                <Icon path={mdiCancel} className="ml-4 w-5 h-5 text-red-500" />
               )}
             </Table.Cell>
             <Table.Cell className="flex justify-end">
