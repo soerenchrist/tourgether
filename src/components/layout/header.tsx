@@ -1,10 +1,24 @@
+import { trpc } from "@/utils/trpc";
 import { mdiMagnify } from "@mdi/js";
 import Icon from "@mdi/react";
-import { Avatar, Button, Dropdown, Navbar } from "flowbite-react";
+import { Avatar, Badge, Button, Dropdown, Navbar } from "flowbite-react";
 import { Session } from "next-auth";
 import { signIn, signOut } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+
+const FriendRequestsMenuItem = () => {
+  const { data: count } = trpc.useQuery(["friends.count-friend-requests"]);
+
+  return (
+    <div className="flex gap-2">
+      <span>
+        Friend Requests
+      </span>
+      {count && count > 0 && <Badge color="failure">{count}</Badge>}
+    </div>
+  )
+}
 
 const UserDropdown: React.FC<{ session: Session }> = ({ session }) => {
   const router = useRouter();
@@ -39,7 +53,7 @@ const UserDropdown: React.FC<{ session: Session }> = ({ session }) => {
       <Dropdown.Item onClick={() => goTo("/wishlist")}>My wish list</Dropdown.Item>
       <Dropdown.Item onClick={() => goTo("/friends")}>Friends</Dropdown.Item>
       <Dropdown.Item onClick={() => goTo("/my-friend-requests")}>
-        Friend Requests
+        <FriendRequestsMenuItem />
       </Dropdown.Item>
       <Dropdown.Divider />
       <Dropdown.Item onClick={handleSignOut}>Sign out</Dropdown.Item>

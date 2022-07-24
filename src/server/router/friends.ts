@@ -96,6 +96,16 @@ export const friendsRouter = createRouter()
       return { state: friendship.state };
     },
   })
+  .query("count-friend-requests", {
+    async resolve({ ctx }) {
+      return await ctx.prisma.friendship.count({
+        where: {
+          user2Id: ctx.userId,
+          state: "PENDING",
+        }
+      });
+    }
+  })
   .query("get-my-friend-requests", {
     async resolve({ ctx }) {
       return await ctx.prisma.friendship.findMany({
