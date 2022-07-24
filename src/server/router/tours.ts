@@ -3,10 +3,9 @@ import { getDateXDaysBeforeToday } from "@/utils/dateUtils";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createRouter } from "./context";
-import { getFriends } from "./friends";
+import { getFriends, isFriend } from "./friends";
 import {
   DeleteObjectCommand,
-  DeleteObjectsCommand,
   GetObjectCommand,
   PutObjectCommand,
   S3Client,
@@ -79,9 +78,14 @@ export const toursRouter = createRouter()
       let visibilityFilter = {};
       if (input.userId) {
         userId = input.userId;
+        const friend = await isFriend(ctx.prisma, ctx.userId, input.userId);
+        const visibilities = ["PUBLIC"];
+        if (friend)
+          visibilities.push("FRIENDS")
+
         visibilityFilter = {
           visibility: {
-            in: ["PUBLIC", "FRIENDS"],
+            in: visibilities
           },
         };
       }

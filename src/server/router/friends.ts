@@ -39,6 +39,26 @@ export const getFriends = async (prisma: PrismaClient, userId: string) => {
   return friends;
 };
 
+export const isFriend = async(prisma: PrismaClient, myId: string, otherId: string) => {
+  const friendships = await prisma.friendship.findMany({
+    where: {
+      state: "ACTIVE",
+      OR: [
+        {
+          user1Id: myId,
+          user2Id: otherId
+        },
+        {
+          user1Id: otherId,
+          user2Id: myId,
+        },
+      ],
+    },
+  });
+
+  return friendships.length > 0;
+}
+
 export const friendsRouter = createRouter()
   .middleware(async ({ ctx, next }) => {
     const userId = ctx.session?.userId;

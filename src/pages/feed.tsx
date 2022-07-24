@@ -84,6 +84,8 @@ const ExplorePageContent = () => {
 
       </div>
       <div className="lg:col-span-4 col-span-1 flex flex-col justify-start">
+
+
         {tours?.length === 0 && (
           <div className="lg:col-span-4 col-span-2">
             <Card>
