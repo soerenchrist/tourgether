@@ -82,7 +82,7 @@ const RecentTours: React.FC = () => {
   const count = 5;
   const router = useRouter();
   const { data: tours, isLoading } = trpc.useQuery([
-    "tours.get-friends-tours",
+    "feed.get-feed",
     {
       count,
       page,

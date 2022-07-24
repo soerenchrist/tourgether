@@ -71,25 +71,31 @@ const TourCard: React.FC<{
 
 const ExplorePageContent = () => {
   const { data: tours } = trpc.useQuery([
-    "tours.get-explore-tours",
-    {
-      sortMode: "RECENT",
-    },
+    "feed.get-feed", {
+      count: 20,
+      page: 1
+    }
   ]);
   const router = useRouter();
 
   return (
-    <div className="grid lg:grid-cols-4 grid-cols-2 gap-4">
-      {tours?.length === 0 && (
-        <div className="lg:col-span-4 col-span-2">
-          <Card>
-            Nothing to see here, yet...
-          </Card>
-        </div>
-      )}
-      {tours?.map((tour) => (
-        <TourCard key={tour.id} tour={tour} router={router} />
-      ))}
+    <div className="grid lg:grid-cols-6 grid-cols-1 gap-4">
+      <div>
+
+      </div>
+      <div className="lg:col-span-4 col-span-1 flex flex-col justify-start">
+        {tours?.length === 0 && (
+          <div className="lg:col-span-4 col-span-2">
+            <Card>
+              Nothing to see here, yet...
+            </Card>
+          </div>
+        )}
+        {tours?.map((tour) => (
+          <TourCard key={tour.id} tour={tour} router={router} />
+        ))}
+
+      </div>
     </div>
   );
 };

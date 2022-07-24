@@ -6,6 +6,7 @@ import { createRouter } from "./context";
 import { getFriends } from "./friends";
 import {
   DeleteObjectCommand,
+  DeleteObjectsCommand,
   GetObjectCommand,
   PutObjectCommand,
   S3Client,
@@ -166,57 +167,6 @@ export const toursRouter = createRouter()
 
       if (!friendsTour) throw new TRPCError({ code: "NOT_FOUND" });
       return { viewer: true, ...friendsTour };
-    },
-  })
-  .query("get-explore-tours", {
-    input: z.object({
-      peakId: z.string().optional(),
-      sortMode: z.enum(["RECENT", "LIKES"]),
-    }),
-    async resolve({ ctx, input }) {
-      const peakFilter = input.peakId
-        ? {
-            tourPeaks: {
-              some: {
-                peak: {
-                  id: input.peakId,
-                },
-              },
-            },
-          }
-        : {};
-
-      const dateOrder = {
-        date: "desc",
-      } as any; // type does not get inferred correctly ---> any
-      const likeOrder = {
-        likes: {
-          _count: "desc",
-        },
-      };
-      const results = await ctx.prisma.tour.findMany({
-        take: 5,
-        where: {
-          visibility: "PUBLIC",
-          ...peakFilter,
-        },
-        include: {
-          _count: {
-            select: {
-              likes: true,
-            },
-          },
-          creator: true,
-          tourPeaks: {
-            include: {
-              peak: true,
-            },
-          },
-        },
-        orderBy: input.sortMode === "RECENT" ? dateOrder : likeOrder,
-      });
-
-      return results;
     },
   })
   .query("search-tours", {
@@ -399,41 +349,6 @@ export const toursRouter = createRouter()
       ];
     },
   })
-  .query("get-friends-tours", {
-    input: z.object({
-      count: z.number(),
-      page: z.number().min(1),
-    }),
-    async resolve({ ctx, input }) {
-      const friends = await getFriends(ctx.prisma, ctx.userId);
-
-      const userIds = [...friends.map((x) => x.id), ctx.userId];
-
-      const { count, page } = input;
-      const skip = count * (page - 1);
-
-      const tours = await ctx.prisma.tour.findMany({
-        take: input.count,
-        skip: skip,
-        where: {
-          creatorId: {
-            in: userIds,
-          },
-          visibility: {
-            in: ["FRIENDS", "PUBLIC"],
-          },
-        },
-        include: {
-          creator: true,
-        },
-        orderBy: {
-          date: "desc",
-        },
-      });
-
-      return tours;
-    },
-  })
   .query("get-download-url", {
     input: z.object({
       gpxUrl: z.string(),
@@ -467,6 +382,33 @@ export const toursRouter = createRouter()
       if (tour.gpxUrl) {
         await deleteS3File(tour.gpxUrl);
       }
+
+      const images = await ctx.prisma.image.findMany({
+        where: {
+          tourId: input.id,
+        },
+      });
+      await ctx.prisma.image.deleteMany({
+        where: {
+          tourId: input.id,
+        },
+      });
+
+      for (let i = 0; i < images.length; i++) {
+        const image = images[i]!;
+
+        const deleteCommand = new DeleteObjectCommand({
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: image.url,
+        });
+        await s3Client.send(deleteCommand);
+      }
+
+      await ctx.prisma.companionShip.deleteMany({
+        where: {
+          tourId: input.id,
+        },
+      });
 
       await ctx.prisma.like.deleteMany({
         where: {
@@ -588,7 +530,7 @@ export const toursRouter = createRouter()
       tourId: z.string().optional(),
     }),
     async resolve({ ctx, input }) {
-      let file = `${ctx.userId}/${input.tourId}/tracks/${uuid.v4()}.gpx`;
+      let file = `${ctx.userId}/tracks/${uuid.v4()}.gpx`;
       if (input.tourId) {
         const tour = await ctx.prisma.tour.findFirst({
           where: {

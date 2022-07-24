@@ -12,6 +12,7 @@ import { wishlistRouter } from "./wishlist";
 import { wikidataRouter } from './wikidata';
 import { profileRouter } from './profile';
 import { routingRouter } from './routing';
+import { feedRouter } from './feed';
 
 export const appRouter = createRouter()
   .transformer(superjson)
@@ -25,6 +26,7 @@ export const appRouter = createRouter()
   .merge("wikidata.", wikidataRouter)
   .merge("profile.", profileRouter)
   .merge("routing.", routingRouter)
+  .merge("feed.", feedRouter)
 
 // export type definition of API
 export type AppRouter = typeof appRouter;

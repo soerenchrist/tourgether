@@ -285,7 +285,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
         {points && points.length > 0 && (
           <ChartArea points={points} onHover={(e) => setHoverPoint(e)} />
         )}
-        <ImagesArea tourId={id} />
+        <ImagesArea tourId={id} canAddImages={!data?.viewer} />
       </div>
       <AddFriendsModal
         tourId={id}

@@ -83,8 +83,8 @@ const Header = ({
               <Link href="/search">
                 <Icon path={mdiMagnify} className="w-4 h-4 cursor-pointer" />
               </Link>
-              <Link href="/dashboard">
-                <span className="cursor-pointer">Dashboard</span>
+              <Link href="/feed">
+                <span className="cursor-pointer">Feed</span>
               </Link>
               <Link href="/tours">
                 <span className="cursor-pointer">Tours</span>
@@ -92,8 +92,8 @@ const Header = ({
               <Link href="/peaks">
                 <span className="cursor-pointer">Peaks</span>
               </Link>
-              <Link href="/explore">
-                <span className="cursor-pointer">Explore</span>
+              <Link href="/stats">
+                <span className="cursor-pointer">Stats</span>
               </Link>
             </div>
           </Navbar.Collapse>

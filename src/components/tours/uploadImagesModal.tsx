@@ -47,6 +47,7 @@ const UploadImagesModal: React.FC<{
       };
       fileReader.readAsArrayBuffer(file);
     }
+    onClose();
   };
 
   const handleFilesChanged: ChangeEventHandler<HTMLInputElement> = (event) => {

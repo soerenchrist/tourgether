@@ -8,7 +8,7 @@ const CardTitle: React.FC<{ title: string, subtitle?: string, className?: string
         {title}
       </h5>
       {subtitle &&
-        <caption className="text-sm text-gray-500">{subtitle}</caption>
+        <span className="text-sm text-gray-500">{subtitle}</span>
       }
     </div>
   );
