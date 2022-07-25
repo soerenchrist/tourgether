@@ -58,4 +58,37 @@ export const feedRouter = createRouter()
         nextCursor,
       };
     },
+  })
+  .query("get-trending", {
+    async resolve({ ctx }) {
+      const lastTwoWeeks = new Date();
+      lastTwoWeeks.setDate(lastTwoWeeks.getDate() - 14);
+      const tours = await ctx.prisma.tour.findMany({
+        take: 10,
+        where: {
+          visibility: "PUBLIC",
+          creatorId: {
+            not: ctx.userId,
+          },
+          createdAt: {
+            gt: lastTwoWeeks,
+          },
+        },
+        include: {
+          creator: true,
+          _count: {
+            select: {
+              likes: true
+            }
+          }
+        },
+        orderBy: {
+          likes: {
+            _count: "desc",
+          },
+        },
+      });
+
+      return tours;
+    },
   });

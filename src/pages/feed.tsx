@@ -2,6 +2,7 @@ import CardTitle from "@/components/common/cardTitle";
 import Skeleton from "@/components/common/skeleton";
 import LayoutBase from "@/components/layout/layoutBase";
 import LikeButton from "@/components/tours/likeButton";
+import TrendingTours from "@/components/tours/trendingTours";
 import { trpc } from "@/utils/trpc";
 import { Peak, Tour, TourPeak, User } from "@prisma/client";
 import { Badge, Card, Spinner } from "flowbite-react";
@@ -74,7 +75,7 @@ const TourCard: React.FC<{
 };
 
 const ExplorePageContent = () => {
-  const { data, fetchNextPage, hasNextPage } = trpc.useInfiniteQuery(
+  const { data, fetchNextPage, hasNextPage, isLoading } = trpc.useInfiniteQuery(
     [
       "feed.get-feed",
       {
@@ -94,9 +95,8 @@ const ExplorePageContent = () => {
 
   return (
     <div className="grid lg:grid-cols-6 grid-cols-1 gap-4">
-      <div></div>
-      <div className="lg:col-span-4 gap-4 col-span-1 flex flex-col justify-start">
-        {tours.length === 0 && (
+      <main className="lg:col-span-4 gap-4 col-span-1 flex flex-col justify-start">
+        {tours.length === 0 && !isLoading && (
           <div className="lg:col-span-4 col-span-2">
             <Card>Nothing to see here, yet...</Card>
           </div>
@@ -111,7 +111,10 @@ const ExplorePageContent = () => {
             <TourCard key={tour.id} tour={tour} router={router} />
           ))}
         </InfiniteScroll>
-      </div>
+      </main>
+      <aside className="hidden h-96 lg:block lg:col-span-2 lg:static fixed z-50 top-24">
+        <TrendingTours />
+      </aside>
     </div>
   );
 };
