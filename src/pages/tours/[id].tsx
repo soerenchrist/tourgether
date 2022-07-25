@@ -107,7 +107,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
 
   const router = useRouter();
   const [hoverPoint, setHoverPoint] = useState<Point>();
-  const { mutate: deleteTourOnServer } = trpc.useMutation("tours.delete-tour", {
+  const { mutate: deleteTourOnServer, isLoading: isDeleting } = trpc.useMutation("tours.delete-tour", {
     onSuccess: () => {
       router.push("/tours");
     },
@@ -294,6 +294,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
             ? "Do you really want to remove the tour? You will lose access to the data!"
             : "Do you really want to delete the tour? All data will be lost!"
         }
+        isLoading={isDeleting}
         show={showDelete}
         accept={deleteTour}
         acceptColor="failure"

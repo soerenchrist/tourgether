@@ -1,4 +1,4 @@
-import { Button, Modal } from "flowbite-react";
+import { Button, Modal, Spinner } from "flowbite-react";
 
 const ConfirmationModal: React.FC<{
   show: boolean;
@@ -7,8 +7,18 @@ const ConfirmationModal: React.FC<{
   acceptButton?: string;
   cancelButton?: string;
   accept: () => void;
+  isLoading?: boolean;
   decline: () => void;
-}> = ({ show, acceptButton, cancelButton, accept, decline, text, acceptColor }) => {
+}> = ({
+  show,
+  acceptButton,
+  cancelButton,
+  accept,
+  decline,
+  text,
+  acceptColor,
+  isLoading,
+}) => {
   return (
     <Modal show={show} onClose={decline}>
       <Modal.Header>Are you sure?</Modal.Header>
@@ -18,10 +28,15 @@ const ConfirmationModal: React.FC<{
         </p>
       </Modal.Body>
       <Modal.Footer>
-        <Button onClick={accept} color={acceptColor}>
+        <Button onClick={accept} color={acceptColor} disabled={isLoading}>
+          {isLoading && (
+            <div className="mr-3">
+              <Spinner size="sm" light={true} />
+            </div>
+          )}
           {acceptButton || "Delete"}
         </Button>
-        <Button onClick={decline} outline color="light">
+        <Button onClick={decline} outline color="light" disabled={isLoading}>
           {cancelButton || "Cancel"}
         </Button>
       </Modal.Footer>

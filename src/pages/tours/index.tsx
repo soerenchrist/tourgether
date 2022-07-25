@@ -17,7 +17,7 @@ const PaginatedToursTable: React.FC = () => {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounceValue(searchTerm, 500);
-  const count = 20;
+  const count = 10;
   const { data, isLoading } = trpc.useQuery([
     "tours.get-tours",
     {
