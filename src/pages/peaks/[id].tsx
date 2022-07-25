@@ -20,6 +20,8 @@ import {
   mdiHeartOutline,
   mdiPencil,
 } from "@mdi/js";
+import { type SortState } from "@/components/common/sortableCol";
+import { type Tour } from "@prisma/client";
 
 const Map = dynamic(() => import("../../components/maps/peakMap"), {
   ssr: false,
@@ -92,6 +94,10 @@ const WishlistButton: React.FC<{ id: string }> = ({ id }) => {
 const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
   const [showDelete, setShowDelete] = useState(false);
   const router = useRouter();
+  const [sortState, setSortState] = useState<SortState<Tour>>({
+    order: "desc",
+    sortKey: "date",
+  });
   const { mutate: deletePeak } = trpc.useMutation("peaks.delete-peak", {
     onSuccess: () => {
       router.push("/peaks");
@@ -107,6 +113,8 @@ const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
     "peaks.get-tours-by-peak",
     {
       peakId: id,
+      orderBy: sortState.sortKey,
+      orderDir: sortState.order
     },
   ]);
   const { data: wikidata, isLoading: wikidataLoading } = trpc.useQuery(
@@ -184,6 +192,8 @@ const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
               <div className="flex flex-col justify-start h-full gap-4">
                 <CardTitle title={`Your Tours to ${peak.name}`} />
                 <ToursTable
+                  sortState={sortState}
+                  onChangeSortState={setSortState}
                   tours={tours}
                   isLoading={toursLoading}
                   noResultsText={`You don't have any tours to ${peak.name} yet.`}

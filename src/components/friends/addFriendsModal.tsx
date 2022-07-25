@@ -2,7 +2,7 @@ import { trpc } from "@/utils/trpc";
 import { mdiAccountPlus, mdiDelete } from "@mdi/js";
 import Icon from "@mdi/react";
 import { CompanionShip, User } from "@prisma/client";
-import { Dropdown, Modal, Tooltip } from "flowbite-react";
+import { Modal, Tooltip } from "flowbite-react";
 import { useMemo } from "react";
 import { List, ListItem } from "../common/list";
 
@@ -114,18 +114,6 @@ const AddFriendsModal: React.FC<{
                       />
                     </span>
                   </Tooltip>
-                  {/* <Dropdown label="Add" size="sm">
-                    <Dropdown.Item
-                      onClick={() => handleAddCompanion(x.id, "MAINTAINER")}
-                    >
-                      Maintainer
-                    </Dropdown.Item>
-                    <Dropdown.Item
-                      onClick={() => handleAddCompanion(x.id, "VIEWER")}
-                    >
-                      Viewer
-                    </Dropdown.Item>
-                  </Dropdown> */}
                 </div>
               ))}
             </List>

@@ -1,6 +1,7 @@
 import { XMLParser } from "fast-xml-parser";
 
-const toTime = (date: Date) => {
+const toTime = (date?: Date) => {
+  if (!date) return undefined;
   const hours = "" + date.getHours();
   const minutes = "" + date.getMinutes();
 
@@ -13,7 +14,7 @@ type GpxPoint = {
   elevation: number;
   heartRate?: number;
   temperature?: number;
-  time: Date;
+  time?: Date;
 };
 
 export type AnalysisResult = {
@@ -21,9 +22,9 @@ export type AnalysisResult = {
   name: string;
   elevationDown: number;
   elevationUp: number;
-  date: Date;
-  end: string;
-  start: string;
+  date?: Date;
+  end?: string;
+  start?: string;
   points: GpxPoint[];
 };
 
@@ -77,12 +78,14 @@ export const parseGpx = (content: string): AnalysisResult => {
 
     const ext = getExtensions(point);
 
+    const time = point.time ? new Date(point.time) : undefined;
+
     if (isNaN(lng) || isNaN(lat)) return;
     points.push({
       elevation: point.ele,
       latitude: lat,
       longitude: lng,
-      time: new Date(point.time),
+      time,
       ...ext,
     });
   });
@@ -121,9 +124,10 @@ export const parseGpx = (content: string): AnalysisResult => {
 };
 
 export const createGpx = (points: [number, number, number][], avgSpeed: number = 0.85): string => {
+  const date = new Date();
   const begin = `<?xml version="1.0" encoding="UTF-8"?><gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" creator="BergtourOnline - https://www.bergtour-online.de" version="1.1">  <metadata>
-  <name>montschein</name>
-  <time>2013-06-21T16:42:28Z</time>
+  <name>Exported Track</name>
+  <time>${date.toISOString()}</time>
 </metadata>
 <trk>
   <trkseg>`;

@@ -2,14 +2,16 @@ import CardTitle from "@/components/common/cardTitle";
 import Skeleton from "@/components/common/skeleton";
 import LayoutBase from "@/components/layout/layoutBase";
 import LikeButton from "@/components/tours/likeButton";
+import TrendingTours from "@/components/tours/trendingTours";
 import { trpc } from "@/utils/trpc";
 import { Peak, Tour, TourPeak, User } from "@prisma/client";
-import { Badge, Card } from "flowbite-react";
+import { Badge, Card, Spinner } from "flowbite-react";
 import { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import { NextRouter, useRouter } from "next/router";
 import { useMemo } from "react";
+import InfiniteScroll from "react-infinite-scroller";
 
 const Map = dynamic(() => import("../components/maps/tourMap"), {
   ssr: false,
@@ -31,6 +33,8 @@ const TourCard: React.FC<{
   };
   const peaks = useMemo(() => tour.tourPeaks.map((t) => t.peak), [tour]);
   return (
+    <div className="pb-4">
+
     <Card>
       <div className="flex flex-col h-full gap-2 justify-start">
         <div className="flex justify-between">
@@ -66,38 +70,51 @@ const TourCard: React.FC<{
         )}
       </div>
     </Card>
+        </div>
   );
 };
 
 const ExplorePageContent = () => {
-  const { data: tours } = trpc.useQuery([
-    "feed.get-feed", {
-      count: 20,
-      page: 1
+  const { data, fetchNextPage, hasNextPage, isLoading } = trpc.useInfiniteQuery(
+    [
+      "feed.get-feed",
+      {
+        limit: 10,
+      },
+    ],
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
     }
-  ]);
+  );
   const router = useRouter();
+
+  const tours = useMemo(
+    () => data?.pages.flatMap((x) => x.tours) ?? [],
+    [data]
+  );
 
   return (
     <div className="grid lg:grid-cols-6 grid-cols-1 gap-4">
-      <div>
-
-      </div>
-      <div className="lg:col-span-4 col-span-1 flex flex-col justify-start">
-
-
-        {tours?.length === 0 && (
+      <main className="lg:col-span-4 gap-4 col-span-1 flex flex-col justify-start">
+        {tours.length === 0 && !isLoading && (
           <div className="lg:col-span-4 col-span-2">
-            <Card>
-              Nothing to see here, yet...
-            </Card>
+            <Card>Nothing to see here, yet...</Card>
           </div>
         )}
-        {tours?.map((tour) => (
-          <TourCard key={tour.id} tour={tour} router={router} />
-        ))}
-
-      </div>
+        <InfiniteScroll
+          pageStart={0}
+          loadMore={() => fetchNextPage()}
+          hasMore={hasNextPage}
+          loader={<Spinner key="loading" />}
+        >
+          {tours.map((tour) => (
+            <TourCard key={tour.id} tour={tour} router={router} />
+          ))}
+        </InfiniteScroll>
+      </main>
+      <aside className="hidden h-96 lg:block lg:col-span-2 lg:static fixed z-50 top-24">
+        <TrendingTours />
+      </aside>
     </div>
   );
 };

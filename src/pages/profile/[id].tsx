@@ -1,5 +1,5 @@
 import NotFound from "@/components/common/notFound";
-import TotalsDisplay from "@/components/dashboard/totalsDisplay";
+import TotalsDisplay from "@/components/stats/totalsDisplay";
 import LayoutBase from "@/components/layout/layoutBase";
 import ProfileOverview from "@/components/profile/profileOverview";
 import UsersTours from "@/components/profile/usersTours";

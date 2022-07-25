@@ -1,19 +1,20 @@
 import CardTitle from "@/components/common/cardTitle";
 import Input from "@/components/common/input";
 import PaginationText from "@/components/common/paginationText";
+import { type SortState } from "@/components/common/sortableCol";
 import LayoutBase from "@/components/layout/layoutBase";
-import PeaksList from "@/components/peaks/peaksList";
+import PeaksTable from "@/components/peaks/peaksTable";
 import useDebounceValue from "@/hooks/useDebounce";
 import { trpc } from "@/utils/trpc";
 import { mdiListBox, mdiMapSearch } from "@mdi/js";
 import Icon from "@mdi/react";
+import { type Peak } from "@prisma/client";
 import {
   Button,
   Card,
   Checkbox,
   Label,
   Pagination,
-  Spinner,
   Tooltip,
 } from "flowbite-react";
 import { NextPage } from "next";
@@ -31,6 +32,10 @@ const PeaksPageContent: React.FC = () => {
   const [mapMode, setMapMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [onlyClimbed, setOnlyClimbed] = useState(false);
+  const [sortState, setSortState] = useState<SortState<Peak>>({
+    order: "asc",
+    sortKey: "name",
+  });
   const debouncedSearchTerm = useDebounceValue(searchTerm, 500);
   const [page, setPage] = useState(1);
   const count = 10;
@@ -41,6 +46,8 @@ const PeaksPageContent: React.FC = () => {
         page,
         count,
       },
+      orderBy: sortState.sortKey,
+      orderDir: sortState.order,
       searchTerm: debouncedSearchTerm,
       onlyClimbed,
     },
@@ -100,16 +107,21 @@ const PeaksPageContent: React.FC = () => {
       <div className="flex justify-between">
         <CardTitle title="Peaks" />
         <Tooltip content="Display map">
-            <span onClick={() => setMapMode(true)}>
-              <Icon
-                path={mdiMapSearch}
-                className="h-5 w-5 text-gray-500 cursor-pointer"
-              />
-            </span>
+          <span onClick={() => setMapMode(true)}>
+            <Icon
+              path={mdiMapSearch}
+              className="h-5 w-5 text-gray-500 cursor-pointer"
+            />
+          </span>
         </Tooltip>
       </div>
       {filterBar}
-      <PeaksList peaks={data?.peaks} isLoading={isLoading} />
+      <PeaksTable
+        peaks={data?.peaks}
+        isLoading={isLoading}
+        sortState={sortState}
+        onChangeSortState={setSortState}
+      />
       <div className="flex justify-between p-2 items-center">
         <div>
           <PaginationText

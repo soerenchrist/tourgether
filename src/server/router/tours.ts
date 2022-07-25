@@ -13,6 +13,7 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import * as uuid from "uuid";
 import { s3Client } from "@/lib/s3Lib";
+import { Tour } from "@prisma/client";
 
 export type Point = {
   latitude: number;
@@ -20,7 +21,7 @@ export type Point = {
   elevation: number;
   heartRate?: number;
   temperature?: number;
-  time: Date;
+  time?: Date;
 };
 
 const deleteS3File = async (url: string) => {
@@ -54,8 +55,12 @@ export const toursRouter = createRouter()
       count: z.number(),
       searchTerm: z.string(),
       userId: z.string().optional(),
+      orderBy: z.string().optional(),
+      orderDir: z.enum(["asc", "desc"]).optional()
     }),
     async resolve({ ctx, input }) {
+      const orderBy = (input.orderBy ?? "date") as keyof Tour;
+      const orderDir = input.orderDir ?? "desc";
       const { count, page } = input;
       const skip = count * (page - 1);
 
@@ -115,6 +120,9 @@ export const toursRouter = createRouter()
             },
           ],
         },
+        orderBy: {
+          [orderBy]: orderDir
+        }
       });
       const totalCount = await ctx.prisma.tour.count({
         where: {
@@ -438,22 +446,53 @@ export const toursRouter = createRouter()
     },
   })
   .mutation("update-tour", {
-    input: createTourValidationSchema.merge(
-      z.object({
-        id: z.string(),
-        visibility: z.enum(["PRIVATE", "PUBLIC", "FRIENDS"]),
-      })
-    ),
+    input: z.object({
+      tour: createTourValidationSchema.merge(
+        z.object({
+          visibility: z.enum(["PRIVATE", "PUBLIC", "FRIENDS"]),
+          id: z.string(),
+        })
+      ),
+      peaks: z
+        .object({
+          id: z.string(),
+        })
+        .array(),
+    }),
     async resolve({ ctx, input }) {
-      return await ctx.prisma.tour.update({
+      await ctx.prisma.tourPeak.deleteMany({
         where: {
-          id: input.id,
+          tourId: input.tour.id
+        }
+      });
+
+      
+      const updatedTour = await ctx.prisma.tour.update({
+        where: {
+          id: input.tour.id,
         },
         data: {
-          ...input,
-          date: new Date(input.date),
+          ...input.tour,
+          date: new Date(input.tour.date),
         },
       });
+      const tourPeaks: { tourId: string; peakId: string }[] = [];
+      for (let i = 0; i < input.peaks.length; i++) {
+        const peak = input.peaks[i];
+        if (!peak) continue;
+
+        const tourPeak = {
+          tourId: input.tour.id,
+          peakId: peak.id,
+        };
+
+        tourPeaks.push(tourPeak);
+      }
+
+      await ctx.prisma.tourPeak.createMany({
+        data: tourPeaks,
+      });
+      return updatedTour;
     },
   })
   .mutation("create-tour", {

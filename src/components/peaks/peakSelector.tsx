@@ -1,7 +1,9 @@
+import useDebounceValue from "@/hooks/useDebounce";
 import { trpc } from "@/utils/trpc";
-import { Badge, Checkbox, Spinner, Table } from "flowbite-react";
+import { Badge, Checkbox, Table } from "flowbite-react";
 import { useEffect, useState } from "react";
 import Input from "../common/input";
+import Skeleton from "../common/skeleton";
 
 type Peak = {
   name: string;
@@ -36,13 +38,18 @@ const PeakSelectorTable: React.FC<{
         {isLoading && (
           <Table.Row>
             <Table.Cell>
-              <Spinner className="pa-2" />
+            </Table.Cell>
+            <Table.Cell>
+              <Skeleton className="w-20 h-4"/>
+            </Table.Cell>
+            <Table.Cell className="hidden md:table-cell">
+              <Skeleton className="w-12 h-4" />
             </Table.Cell>
           </Table.Row>
         )}
         {selectedPeaks?.map((peak) => (
           <Table.Row key={peak.id}>
-            <Table.Cell className="w-8">
+            <Table.Cell className="!px-3 !py-2">
               <Checkbox
                 checked={true}
                 onChange={(e) => selectPeak(peak, e.target.checked)}
@@ -77,13 +84,14 @@ const PeakSelector: React.FC<{
   onPeaksChanged: (peaks: Peak[]) => void;
 }> = ({ peaks, onPeaksChanged, disabled }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearch = useDebounceValue(searchTerm, 500);
   const [selectedPeaks, setSelectedPeaks] = useState<Peak[]>([]);
 
   useEffect(() => {
     if (peaks) {
       setSelectedPeaks(peaks);
     }
-  }, [peaks]);
+  }, []);
 
   const handlePeaksChanged = (peaks: Peak[]) => {
     setSelectedPeaks(peaks);
@@ -94,7 +102,7 @@ const PeakSelector: React.FC<{
     [
       "peaks.get-peaks",
       {
-        searchTerm,
+        searchTerm: debouncedSearch,
         pagination: {
           page: 1,
           count: 5,

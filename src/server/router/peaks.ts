@@ -45,6 +45,8 @@ export const peaksRouter = createRouter()
         page: z.number().min(1),
         count: z.number(),
       }),
+      orderBy: z.string().optional(),
+      orderDir: z.enum(["asc", "desc"]).optional(),
       onlyClimbed: z.boolean().nullish(),
       bounds: z
         .object({
@@ -56,6 +58,8 @@ export const peaksRouter = createRouter()
         .nullish(),
     }),
     async resolve({ ctx, input }) {
+      const orderBy = (input.orderBy ?? "name") as keyof Peak;
+      const orderDir = input.orderDir ?? "asc";
       const { count, page } = input.pagination;
       const skip = count * (page - 1);
 
@@ -83,6 +87,20 @@ export const peaksRouter = createRouter()
                 peakId: {
                   startsWith: "",
                 },
+                tour: {
+                  OR: [
+                    {
+                      creatorId: ctx.userId,
+                    },
+                    {
+                      companions: {
+                        some: {
+                          userId: ctx.userId,
+                        },
+                      },
+                    },
+                  ],
+                },
               },
             },
           }
@@ -92,11 +110,12 @@ export const peaksRouter = createRouter()
         take: count,
         skip: skip,
         orderBy: {
-          name: "asc",
+          [orderBy]: orderDir,
         },
         where: {
           ...boundsQuery,
           ...onlyClimbedQuery,
+
           name: {
             contains: input.searchTerm,
           },
@@ -113,13 +132,23 @@ export const peaksRouter = createRouter()
           tourPeaks: {
             where: {
               tour: {
-                creatorId: ctx.userId,
+                OR: [
+                  {
+                    creatorId: ctx.userId,
+                  },
+                  {
+                    companions: {
+                      some: {
+                        userId: ctx.userId,
+                      },
+                    },
+                  },
+                ],
               },
             },
           },
         },
       });
-
       const totalCount = await ctx.prisma.peak.count({
         where: {
           OR: [
@@ -138,7 +167,10 @@ export const peaksRouter = createRouter()
         },
       });
 
-      const peaksResult = peaks.map(p => ({ ...p, tourCount: p.tourPeaks.length}));
+      const peaksResult = peaks.map((p) => ({
+        ...p,
+        tourCount: p.tourPeaks.length,
+      }));
 
       return {
         peaks: peaksResult,
@@ -149,17 +181,37 @@ export const peaksRouter = createRouter()
   .query("get-tours-by-peak", {
     input: z.object({
       peakId: z.string(),
+      orderBy: z.string().optional(),
+      orderDir: z.enum(["asc", "desc"]).optional(),
     }),
     async resolve({ ctx, input }) {
+      const orderBy = (input.orderBy ?? "date") as keyof Tour;
+      const orderDir = input.orderDir ?? "desc";
       const result = await ctx.prisma.tourPeak.findMany({
         where: {
           peakId: input.peakId,
           tour: {
-            creatorId: ctx.userId,
+            OR: [
+              {
+                creatorId: ctx.userId,
+              },
+              {
+                companions: {
+                  some: {
+                    userId: ctx.userId,
+                  },
+                },
+              },
+            ],
           },
         },
         select: {
           tour: true,
+        },
+        orderBy: {
+          tour: {
+            [orderBy]: orderDir,
+          },
         },
       });
 

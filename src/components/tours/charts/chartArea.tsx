@@ -32,15 +32,14 @@ const ChartArea: React.FC<{
       break;
   }
 
-  const hasHeartRates = useMemo(
-    () => points[0]?.heartRate != null,
+  const hasHeartRates = useMemo(() => points[0]?.heartRate != null, [points]);
+
+  const hasTemperature = useMemo(
+    () => points[0]?.temperature != null,
     [points]
   );
 
-  const hasTemperature = useMemo(
-    () => points[0]?.temperature != null, 
-    [points]
-  );
+  const hasTime = useMemo(() => points[0]?.time !== undefined, [points]);
 
   const title = useMemo(() => {
     if (currentChart === "height") return "Height profile";
@@ -50,6 +49,7 @@ const ChartArea: React.FC<{
     return "";
   }, [currentChart]);
 
+  if (!hasTime) return <></>;
   return (
     <Card>
       <div className="flex justify-between">

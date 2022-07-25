@@ -1,4 +1,4 @@
-import { TotalsContainer } from "@/components/dashboard/totalsDisplay";
+import { TotalsContainer } from "@/components/stats/totalsDisplay";
 import LayoutBase from "@/components/layout/layoutBase";
 import ProfileOverview from "@/components/profile/profileOverview";
 import { trpc } from "@/utils/trpc";

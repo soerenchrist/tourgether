@@ -70,7 +70,11 @@ const TourMap: React.FC<{
 
       <PositionHandler peaks={peaks} points={points} />
       {peaks?.map((peak) => (
-        <Marker key={peak.id} icon={blueMarker} position={[peak.latitude, peak.longitude]}>
+        <Marker
+          key={peak.id}
+          icon={blueMarker}
+          position={[peak.latitude, peak.longitude]}
+        >
           <Tooltip permanent>
             {peak.name} ({peak.height} m)
           </Tooltip>
@@ -82,10 +86,12 @@ const TourMap: React.FC<{
           position={[hoverPoint.latitude, hoverPoint.longitude]}
           icon={blueMarker}
         >
-          <Tooltip permanent>
-            <b>{hoverPoint.time.toLocaleTimeString()}</b> (
-            {Math.round(hoverPoint.elevation)} m)
-          </Tooltip>
+          {hoverPoint.time && (
+            <Tooltip permanent>
+              <b>{hoverPoint.time.toLocaleTimeString()}</b> (
+              {Math.round(hoverPoint.elevation)} m)
+            </Tooltip>
+          )}
         </Marker>
       )}
 
@@ -94,10 +100,12 @@ const TourMap: React.FC<{
           position={[startPosition.latitude, startPosition.longitude]}
           icon={greenMarker}
         >
-          <Tooltip>
-            <b>{startPosition.time.toLocaleTimeString()}</b> (
-            {Math.round(startPosition.elevation)} m)
-          </Tooltip>
+          {startPosition.time && (
+            <Tooltip>
+              <b>{startPosition.time.toLocaleTimeString()}</b> (
+              {Math.round(startPosition.elevation)} m)
+            </Tooltip>
+          )}
         </Marker>
       )}
       {endPosition && (
@@ -105,10 +113,12 @@ const TourMap: React.FC<{
           position={[endPosition.latitude, endPosition.longitude]}
           icon={redMarker}
         >
-          <Tooltip>
-            <b>{endPosition.time.toLocaleTimeString()}</b> (
-            {Math.round(endPosition.elevation)} m)
-          </Tooltip>
+          {endPosition.time && (
+            <Tooltip>
+              <b>{endPosition.time.toLocaleTimeString()}</b> (
+              {Math.round(endPosition.elevation)} m)
+            </Tooltip>
+          )}
         </Marker>
       )}
     </MapContainer>
