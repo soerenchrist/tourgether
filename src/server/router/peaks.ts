@@ -177,8 +177,12 @@ export const peaksRouter = createRouter()
   .query("get-tours-by-peak", {
     input: z.object({
       peakId: z.string(),
+      orderBy: z.string().optional(),
+      orderDir: z.enum(["asc", "desc"]).optional()
     }),
     async resolve({ ctx, input }) {
+      const orderBy = (input.orderBy ?? "date") as keyof Tour;
+      const orderDir = input.orderDir ?? "desc";
       const result = await ctx.prisma.tourPeak.findMany({
         where: {
           peakId: input.peakId,
@@ -200,6 +204,11 @@ export const peaksRouter = createRouter()
         select: {
           tour: true,
         },
+        orderBy: {
+          tour: {
+            [orderBy]: orderDir
+          }
+        }
       });
 
       return result.map((x) => x.tour);
