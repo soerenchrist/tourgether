@@ -6,7 +6,6 @@ import { createRouter } from "./context";
 import { getFriends } from "./friends";
 import {
   DeleteObjectCommand,
-  DeleteObjectsCommand,
   GetObjectCommand,
   PutObjectCommand,
   S3Client,
@@ -21,7 +20,7 @@ export type Point = {
   elevation: number;
   heartRate?: number;
   temperature?: number;
-  time: Date;
+  time?: Date;
 };
 
 const deleteS3File = async (url: string) => {

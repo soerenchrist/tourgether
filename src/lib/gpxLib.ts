@@ -124,9 +124,10 @@ export const parseGpx = (content: string): AnalysisResult => {
 };
 
 export const createGpx = (points: [number, number, number][], avgSpeed: number = 0.85): string => {
+  const date = new Date();
   const begin = `<?xml version="1.0" encoding="UTF-8"?><gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" creator="BergtourOnline - https://www.bergtour-online.de" version="1.1">  <metadata>
-  <name>montschein</name>
-  <time>2013-06-21T16:42:28Z</time>
+  <name>Exported Track</name>
+  <time>${date.toISOString()}</time>
 </metadata>
 <trk>
   <trkseg>`;
