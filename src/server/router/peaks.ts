@@ -45,6 +45,8 @@ export const peaksRouter = createRouter()
         page: z.number().min(1),
         count: z.number(),
       }),
+      orderBy: z.string().optional(),
+      orderDir: z.enum(["asc", "desc"]).optional(),
       onlyClimbed: z.boolean().nullish(),
       bounds: z
         .object({
@@ -56,6 +58,8 @@ export const peaksRouter = createRouter()
         .nullish(),
     }),
     async resolve({ ctx, input }) {
+      const orderBy = (input.orderBy ?? "name") as keyof Peak;
+      const orderDir = input.orderDir ?? "asc";
       const { count, page } = input.pagination;
       const skip = count * (page - 1);
 
@@ -106,7 +110,7 @@ export const peaksRouter = createRouter()
         take: count,
         skip: skip,
         orderBy: {
-          name: "asc",
+          [orderBy]: orderDir,
         },
         where: {
           ...boundsQuery,
@@ -178,7 +182,7 @@ export const peaksRouter = createRouter()
     input: z.object({
       peakId: z.string(),
       orderBy: z.string().optional(),
-      orderDir: z.enum(["asc", "desc"]).optional()
+      orderDir: z.enum(["asc", "desc"]).optional(),
     }),
     async resolve({ ctx, input }) {
       const orderBy = (input.orderBy ?? "date") as keyof Tour;
@@ -206,9 +210,9 @@ export const peaksRouter = createRouter()
         },
         orderBy: {
           tour: {
-            [orderBy]: orderDir
-          }
-        }
+            [orderBy]: orderDir,
+          },
+        },
       });
 
       return result.map((x) => x.tour);
