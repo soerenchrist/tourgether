@@ -13,19 +13,19 @@ export const feedRouter = createRouter()
   })
   .query("get-feed", {
     input: z.object({
-      count: z.number(),
-      page: z.number().min(1),
+      limit: z.number().min(1).max(100).nullish(),
+      cursor: z.date().nullish(),
     }),
     async resolve({ ctx, input }) {
       const friends = await getFriends(ctx.prisma, ctx.userId);
       const userIds = [...friends.map((x) => x.id), ctx.userId];
 
-      const { count, page } = input;
-      const skip = count * (page - 1);
+      const limit = input.limit ?? 30;
+      const { cursor } = input;
 
       const tours = await ctx.prisma.tour.findMany({
-        take: input.count,
-        skip: skip,
+        take: limit + 1, // get an extra item at the end which will be used as next cursor
+        cursor: cursor ? { createdAt: cursor } : undefined,
         where: {
           creatorId: {
             in: userIds,
@@ -38,15 +38,24 @@ export const feedRouter = createRouter()
           creator: true,
           tourPeaks: {
             include: {
-              peak: true
-            }
-          }
+              peak: true,
+            },
+          },
         },
         orderBy: {
-          date: "desc",
+          createdAt: "desc",
         },
       });
 
-      return tours;
+      let nextCursor: typeof cursor | null = null;
+      if (tours.length > limit) {
+        const nextItem = tours.pop();
+        nextCursor = nextItem!.createdAt;
+      }
+
+      return {
+        tours,
+        nextCursor,
+      };
     },
-  })
+  });
