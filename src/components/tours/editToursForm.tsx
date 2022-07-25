@@ -153,11 +153,13 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
   const setAnalysisResult = (data: AnalysisResult) => {
     setValue("name", data.name);
     setValue("distance", Math.floor(data.distance));
-    setValue("date", data.date.toISOString().substring(0, 10));
+    if (data.date) {
+      setValue("date", data.date.toISOString().substring(0, 10));
+    }
     setValue("elevationDown", Math.floor(data.elevationDown));
     setValue("elevationUp", Math.floor(data.elevationUp));
-    setValue("startTime", data.start);
-    setValue("endTime", data.end);
+    if (data.start) setValue("startTime", data.start);
+    if (data.end) setValue("endTime", data.end);
 
     setConfirmData(undefined);
   };
@@ -168,8 +170,7 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
       values.name ||
       values.distance ||
       values.elevationDown ||
-      values.elevationUp ||
-      values.date
+      values.elevationUp
     ) {
       setConfirmData(data);
       return;

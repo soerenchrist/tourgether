@@ -1,6 +1,7 @@
 import { XMLParser } from "fast-xml-parser";
 
-const toTime = (date: Date) => {
+const toTime = (date?: Date) => {
+  if (!date) return undefined;
   const hours = "" + date.getHours();
   const minutes = "" + date.getMinutes();
 
@@ -13,7 +14,7 @@ type GpxPoint = {
   elevation: number;
   heartRate?: number;
   temperature?: number;
-  time: Date;
+  time?: Date;
 };
 
 export type AnalysisResult = {
@@ -21,9 +22,9 @@ export type AnalysisResult = {
   name: string;
   elevationDown: number;
   elevationUp: number;
-  date: Date;
-  end: string;
-  start: string;
+  date?: Date;
+  end?: string;
+  start?: string;
   points: GpxPoint[];
 };
 
@@ -77,12 +78,14 @@ export const parseGpx = (content: string): AnalysisResult => {
 
     const ext = getExtensions(point);
 
+    const time = point.time ? new Date(point.time) : undefined;
+
     if (isNaN(lng) || isNaN(lat)) return;
     points.push({
       elevation: point.ele,
       latitude: lat,
       longitude: lng,
-      time: new Date(point.time),
+      time,
       ...ext,
     });
   });
