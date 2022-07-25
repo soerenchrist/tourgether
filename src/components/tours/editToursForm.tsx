@@ -134,9 +134,12 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
     }
     if (editTour) {
       update({
-        id: editTour.id,
-        ...data,
-        visibility,
+        tour: {
+          id: editTour.id,
+          ...data,
+          visibility,
+        },
+        peaks: selectedPeaks
       });
     } else {
       create({
@@ -292,7 +295,6 @@ const EditToursForm: React.FC<{ editTour?: ExtendedTour }> = ({ editTour }) => {
         <div className="flex flex-col justify-start h-full gap-4">
           <CardTitle title={editTour ? "Your added peaks" : "Select peaks"} />
           <PeakSelector
-            disabled={editTour !== undefined}
             peaks={editTour?.tourPeaks.map((p) => p.peak)}
             onPeaksChanged={handleSelectedPeaksChanged}
           />
