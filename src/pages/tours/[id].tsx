@@ -77,11 +77,6 @@ const OwnerMenu: React.FC<{
   );
 };
 
-const isSet = (value?: string | null) => {
-  if (!value) return false;
-  return true;
-};
-
 const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
   const { data, isLoading } = trpc.useQuery(["tours.get-tour-by-id", { id }], {
     retry: false,
@@ -99,7 +94,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
       },
     ],
     {
-      enabled: isSet(data?.gpxUrl),
+      enabled: data?.gpxUrl != null,
       refetchOnWindowFocus: false,
       async onSuccess(url) {
         if (url) {

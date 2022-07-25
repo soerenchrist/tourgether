@@ -1,10 +1,9 @@
-import RecentActivities from "@/components/dashboard/recentActivities";
-import HistoryChart from "@/components/dashboard/historyChart";
+import HistoryChart from "@/components/stats/historyChart";
 import LayoutBase from "@/components/layout/layoutBase";
 import { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
-import { TotalsContainer } from "@/components/dashboard/totalsDisplay";
+import { TotalsContainer } from "@/components/stats/totalsDisplay";
 
 
 const DashboardContent = () => {
@@ -15,10 +14,7 @@ const DashboardContent = () => {
       </Head>
       <div className="flex flex-col gap-4">
         <TotalsContainer />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <HistoryChart className="lg:col-span-2" />
-          <RecentActivities />
-        </div>
+        <HistoryChart />
       </div>
     </>
   );

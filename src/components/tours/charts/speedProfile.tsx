@@ -28,6 +28,8 @@ const calculateSpeeds = (points: Point[]) => {
   for (let i = 0; i < points.length - 1; i++) {
     const current = points[i]!;
     const next = points[i + 1]!;
+
+    if (!next.time || !current.time) continue;
     const distance = calculateDistance(
       current.latitude,
       current.longitude,

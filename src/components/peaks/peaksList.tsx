@@ -1,7 +1,7 @@
 import { mdiCancel, mdiCheckCircle } from "@mdi/js";
 import Icon from "@mdi/react";
 import { Peak } from "@prisma/client";
-import { Spinner, Table, Tooltip } from "flowbite-react";
+import { Table, Tooltip } from "flowbite-react";
 import Link from "next/link";
 import Skeleton from "../common/skeleton";
 

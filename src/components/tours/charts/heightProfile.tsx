@@ -64,7 +64,7 @@ const HeightProfile: React.FC<{
         hardMin: min
       },
     ],
-    []
+    [min]
   );
 
   const getSeriesStyle = useCallback(() => {

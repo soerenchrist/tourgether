@@ -1,5 +1,6 @@
+import useDebounceValue from "@/hooks/useDebounce";
 import { trpc } from "@/utils/trpc";
-import { Badge, Checkbox, Spinner, Table } from "flowbite-react";
+import { Badge, Checkbox, Table } from "flowbite-react";
 import { useEffect, useState } from "react";
 import Input from "../common/input";
 import Skeleton from "../common/skeleton";
@@ -83,6 +84,7 @@ const PeakSelector: React.FC<{
   onPeaksChanged: (peaks: Peak[]) => void;
 }> = ({ peaks, onPeaksChanged, disabled }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearch = useDebounceValue(searchTerm, 500);
   const [selectedPeaks, setSelectedPeaks] = useState<Peak[]>([]);
 
   useEffect(() => {
@@ -100,7 +102,7 @@ const PeakSelector: React.FC<{
     [
       "peaks.get-peaks",
       {
-        searchTerm,
+        searchTerm: debouncedSearch,
         pagination: {
           page: 1,
           count: 5,
