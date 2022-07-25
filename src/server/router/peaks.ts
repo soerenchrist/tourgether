@@ -83,6 +83,20 @@ export const peaksRouter = createRouter()
                 peakId: {
                   startsWith: "",
                 },
+                tour: {
+                  OR: [
+                    {
+                      creatorId: ctx.userId,
+                    },
+                    {
+                      companions: {
+                        some: {
+                          userId: ctx.userId,
+                        },
+                      },
+                    },
+                  ],
+                },
               },
             },
           }
@@ -97,6 +111,7 @@ export const peaksRouter = createRouter()
         where: {
           ...boundsQuery,
           ...onlyClimbedQuery,
+
           name: {
             contains: input.searchTerm,
           },
@@ -113,13 +128,23 @@ export const peaksRouter = createRouter()
           tourPeaks: {
             where: {
               tour: {
-                creatorId: ctx.userId,
+                OR: [
+                  {
+                    creatorId: ctx.userId,
+                  },
+                  {
+                    companions: {
+                      some: {
+                        userId: ctx.userId,
+                      },
+                    },
+                  },
+                ],
               },
             },
           },
         },
       });
-
       const totalCount = await ctx.prisma.peak.count({
         where: {
           OR: [
@@ -138,7 +163,10 @@ export const peaksRouter = createRouter()
         },
       });
 
-      const peaksResult = peaks.map(p => ({ ...p, tourCount: p.tourPeaks.length}));
+      const peaksResult = peaks.map((p) => ({
+        ...p,
+        tourCount: p.tourPeaks.length,
+      }));
 
       return {
         peaks: peaksResult,
