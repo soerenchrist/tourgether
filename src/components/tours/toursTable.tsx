@@ -1,7 +1,8 @@
-import { Tour } from "@prisma/client";
+import { type Tour } from "@prisma/client";
 import { Table } from "flowbite-react";
 import Link from "next/link";
 import Skeleton from "../common/skeleton";
+import SortableCol, { type SortState } from "../common/sortableCol";
 
 const TourRowLoader = () => {
   return (
@@ -20,14 +21,16 @@ const TourRowLoader = () => {
       </Table.Cell>
       <Table.Cell></Table.Cell>
     </Table.Row>
-  )
-}
+  );
+};
 
 const ToursTable: React.FC<{
   tours: Tour[] | undefined;
   isLoading: boolean;
   noResultsText?: string;
-}> = ({ tours, isLoading, noResultsText }) => {
+  sortState: SortState<Tour>;
+  onChangeSortState: (state: SortState<Tour>) => void;
+}> = ({ tours, isLoading, noResultsText, sortState, onChangeSortState }) => {
   const format = (value: number | null | undefined) => {
     if (!value) return "0 m";
     if (value < 10000) return `${value} m`;
@@ -36,11 +39,41 @@ const ToursTable: React.FC<{
   };
   const tableHeader = (
     <Table.Head>
-      <Table.HeadCell>Name</Table.HeadCell>
-      <Table.HeadCell>Date</Table.HeadCell>
-      <Table.HeadCell className="hidden md:table-cell">Distance</Table.HeadCell>
+      <Table.HeadCell className="lg:w-1/3 sm:w-2/3">
+        <SortableCol
+          sortKey="name"
+          sortState={sortState}
+          onSort={onChangeSortState}
+        >
+          Name
+        </SortableCol>
+      </Table.HeadCell>
+      <Table.HeadCell>
+        <SortableCol
+          sortKey="date"
+          sortState={sortState}
+          onSort={onChangeSortState}
+        >
+          Date
+        </SortableCol>
+      </Table.HeadCell>
       <Table.HeadCell className="hidden md:table-cell">
-        Total Ascent
+        <SortableCol
+          sortKey="distance"
+          sortState={sortState}
+          onSort={onChangeSortState}
+        >
+          Distance
+        </SortableCol>
+      </Table.HeadCell>
+      <Table.HeadCell className="hidden md:table-cell">
+        <SortableCol
+          sortKey="elevationUp"
+          sortState={sortState}
+          onSort={onChangeSortState}
+        >
+          Ascent
+        </SortableCol>
       </Table.HeadCell>
       <Table.HeadCell></Table.HeadCell>
     </Table.Head>

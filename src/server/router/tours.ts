@@ -13,6 +13,7 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import * as uuid from "uuid";
 import { s3Client } from "@/lib/s3Lib";
+import { Tour } from "@prisma/client";
 
 export type Point = {
   latitude: number;
@@ -54,8 +55,12 @@ export const toursRouter = createRouter()
       count: z.number(),
       searchTerm: z.string(),
       userId: z.string().optional(),
+      orderBy: z.string().optional(),
+      orderDir: z.enum(["asc", "desc"]).optional()
     }),
     async resolve({ ctx, input }) {
+      const orderBy = (input.orderBy ?? "date") as keyof Tour;
+      const orderDir = input.orderDir ?? "desc";
       const { count, page } = input;
       const skip = count * (page - 1);
 
@@ -110,6 +115,9 @@ export const toursRouter = createRouter()
             },
           ],
         },
+        orderBy: {
+          [orderBy]: orderDir
+        }
       });
       const totalCount = await ctx.prisma.tour.count({
         where: {

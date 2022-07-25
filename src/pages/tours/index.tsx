@@ -2,7 +2,7 @@ import { NextPage } from "next";
 import LayoutBase from "@/components/layout/layoutBase";
 import { trpc } from "@/utils/trpc";
 import { useRouter } from "next/router";
-import { Button, Card, Pagination, Spinner } from "flowbite-react";
+import { Button, Card, Pagination } from "flowbite-react";
 import { useSession } from "next-auth/react";
 import CardTitle from "@/components/common/cardTitle";
 import { useEffect, useState } from "react";
@@ -11,10 +11,13 @@ import PaginationText from "@/components/common/paginationText";
 import Head from "next/head";
 import useDebounceValue from "@/hooks/useDebounce";
 import Input from "@/components/common/input";
+import { type SortState } from "@/components/common/sortableCol";
+import { type Tour } from "@prisma/client";
 
 const PaginatedToursTable: React.FC = () => {
   const router = useRouter();
   const [page, setPage] = useState(1);
+  const [sortState, setSortState] = useState<SortState<Tour>>({order: "desc", sortKey: "date"})
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounceValue(searchTerm, 500);
   const count = 10;
@@ -24,13 +27,15 @@ const PaginatedToursTable: React.FC = () => {
       count,
       page: page,
       searchTerm: debouncedSearchTerm,
+      orderBy: sortState.sortKey,
+      orderDir: sortState.order
     },
   ]);
   const totalPages = Math.ceil((data?.totalCount ?? 1) / count);
 
   useEffect(() => {
     setPage(1);
-  }, [debouncedSearchTerm]);
+  }, [debouncedSearchTerm, sortState]);
 
   const handleAddClick = () => {
     router.push("/tours/create");
@@ -48,6 +53,8 @@ const PaginatedToursTable: React.FC = () => {
       />
       <ToursTable
         tours={data?.tours}
+        sortState={sortState}
+        onChangeSortState={setSortState}
         isLoading={isLoading}
         noResultsText={
           searchTerm.length === 0
