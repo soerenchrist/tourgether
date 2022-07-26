@@ -33,7 +33,7 @@ const OnboardingPageContent: React.FC<{ session: Session }> = ({ session }) => {
   return (
     <Card>
       <CardTitle title="Create your profile"></CardTitle>
-      <ProfileForm profile={profile} callbackUrl="/dashboard"></ProfileForm>
+      <ProfileForm profile={profile} callbackUrl="/feed"></ProfileForm>
     </Card>
   );
 };
