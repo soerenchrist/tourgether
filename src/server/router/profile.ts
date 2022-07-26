@@ -7,7 +7,7 @@ import { Profile } from "@prisma/client";
 
 export const profileRouter = createRouter()
   .middleware(async ({ ctx, next }) => {
-    const userId = ctx.session?.userId;
+    const userId = ctx?.session?.user?.id;
     if (!userId) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }

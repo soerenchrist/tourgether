@@ -5,9 +5,11 @@ import { trpc } from "@/utils/trpc";
 import { Spinner } from "flowbite-react";
 import { NextPage } from "next";
 import { Session } from "next-auth";
-import { useSession } from "next-auth/react";
 import Head from "next/head";
-import { ReactNode } from "react";
+import {
+  PageProps,
+  protectedServersideProps,
+} from "@/server/common/protectedServersideProps";
 
 const ProfilePageContent: React.FC<{ session: Session }> = ({ session }) => {
   if (!session.user) return null;
@@ -25,24 +27,20 @@ const ProfilePageContent: React.FC<{ session: Session }> = ({ session }) => {
   );
 };
 
-const ProfilePage: NextPage = () => {
-  const { data, status } = useSession();
-
-  let content: ReactNode;
-  if (status === "unauthenticated") content = <p>Access denied</p>;
-  else if (status === "loading") content = <></>;
-  else if (data)
-    content = <ProfilePageContent session={data!}></ProfilePageContent>;
-  else content = <></>;
-
+const ProfilePage: NextPage<PageProps> = ({ data }) => {
   return (
     <>
       <Head>
         <title>Profile</title>
       </Head>
-      <LayoutBase>{content}</LayoutBase>;
+      <LayoutBase session={data.session}>
+        <ProfilePageContent session={data.session}></ProfilePageContent>
+      </LayoutBase>
+      ;
     </>
   );
 };
+
+export const getServerSideProps = protectedServersideProps;
 
 export default ProfilePage;

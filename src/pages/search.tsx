@@ -4,9 +4,11 @@ import { List, ListItem } from "@/components/common/list";
 import ProgressBar from "@/components/common/progressBar";
 import LayoutBase from "@/components/layout/layoutBase";
 import useDebounceValue from "@/hooks/useDebounce";
+import { protectedServersideProps } from "@/server/common/protectedServersideProps";
 import { trpc } from "@/utils/trpc";
 import { Card, Tabs } from "flowbite-react";
-import { NextPage } from "next";
+import { InferGetServerSidePropsType, NextPage } from "next";
+import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
 import { NextRouter, useRouter } from "next/router";
@@ -152,21 +154,19 @@ const SearchPageContent = () => {
   );
 };
 
-const SearchPage: NextPage = () => {
-  const { status } = useSession();
-
-  let content = <SearchPageContent></SearchPageContent>;
-  if (status === "unauthenticated") content = <p>Access denied</p>;
-  else if (status === "loading") content = <></>;
-
+const SearchPage = ({ data }: { data: { session: Session } }) => {
   return (
     <>
       <Head>
         <title>Search members and tours</title>
       </Head>
-      <LayoutBase>{content}</LayoutBase>
+      <LayoutBase session={data.session}>
+        <SearchPageContent></SearchPageContent>
+      </LayoutBase>
     </>
   );
 };
+
+export const getServerSideProps = protectedServersideProps;
 
 export default SearchPage;

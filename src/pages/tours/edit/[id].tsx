@@ -1,37 +1,41 @@
 import LayoutBase from "@/components/layout/layoutBase";
 import EditToursForm from "@/components/tours/editToursForm";
+import {
+  PageProps,
+  protectedServersideProps,
+} from "@/server/common/protectedServersideProps";
 import { trpc } from "@/utils/trpc";
-import { Spinner } from "flowbite-react";
 import { NextPage } from "next";
-import { useSession } from "next-auth/react";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
 
-const EditPeak: React.FC<{ id: string }> = ({ id }) => {
+const EditTourPageContent: React.FC<{ id: string }> = ({ id }) => {
   const { data } = trpc.useQuery(["tours.get-tour-by-id", { id }]);
 
-  return (
-    <div>
-    {data && <EditToursForm editTour={data}></EditToursForm>}
-    </div>  
-  );
+  return <div>{data && <EditToursForm editTour={data}></EditToursForm>}</div>;
 };
 
-const EditPeakPage: NextPage = () => {
-  const { status } = useSession();
+const EditTourPage: NextPage<PageProps> = ({ data }) => {
   const { query } = useRouter();
   const { id } = query;
 
-  let content: ReactNode;
   if (!id || typeof id !== "string") {
-    content = <div>No ID</div>;
-  } else {
-    if (status === "unauthenticated") content = <div>Access denied</div>;
-    else if (status === "loading") content = <Spinner size="xl"></Spinner>;
-    else content = <EditPeak id={id} />;
+    return <div>No ID</div>;
   }
 
-  return <LayoutBase>{content}</LayoutBase>;
+  return (
+    <>
+      <Head>
+        <title>Edit Tour</title>
+      </Head>
+      <LayoutBase session={data.session}>
+        <EditTourPageContent id={id}></EditTourPageContent>
+      </LayoutBase>
+    </>
+  );
 };
 
-export default EditPeakPage;
+export const getServerSideProps = protectedServersideProps;
+
+export default EditTourPage;

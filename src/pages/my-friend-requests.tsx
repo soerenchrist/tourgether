@@ -1,5 +1,9 @@
 import CardTitle from "@/components/common/cardTitle";
 import LayoutBase from "@/components/layout/layoutBase";
+import {
+  PageProps,
+  protectedServersideProps,
+} from "@/server/common/protectedServersideProps";
 import { trpc } from "@/utils/trpc";
 import { Button, Card, Spinner, Table } from "flowbite-react";
 import { NextPage } from "next";
@@ -85,22 +89,19 @@ const MyInvitationsPageContent: React.FC = () => {
   );
 };
 
-const MyInvitationsPage: NextPage = () => {
-  const { status } = useSession();
-
-  let content: ReactNode;
-  if (status === "loading") content = <></>;
-  else if (status === "unauthenticated") content = <p>Access denied</p>;
-  else content = <MyInvitationsPageContent />;
-
+const MyInvitationsPage: NextPage<PageProps> = ({ data }) => {
   return (
     <>
       <Head>
         <title>My friend requests</title>
       </Head>
-      <LayoutBase>{content}</LayoutBase>
+      <LayoutBase session={data.session}>
+        <MyInvitationsPageContent />;
+      </LayoutBase>
     </>
   );
 };
+
+export const getServerSideProps = protectedServersideProps;
 
 export default MyInvitationsPage;

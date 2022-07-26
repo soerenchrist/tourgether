@@ -43,7 +43,7 @@ const deleteS3File = async (url: string) => {
 
 export const toursRouter = createRouter()
   .middleware(async ({ ctx, next }) => {
-    const userId = ctx.session?.userId;
+    const userId = ctx?.session?.user?.id;
     if (!userId) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }

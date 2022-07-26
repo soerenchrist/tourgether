@@ -23,6 +23,11 @@ import Icon from "@mdi/react";
 import { mdiDelete, mdiDotsVertical, mdiPencil } from "@mdi/js";
 import AddFriendsModal from "@/components/friends/addFriendsModal";
 import ImagesArea from "@/components/tours/imagesArea";
+import {
+  PageProps,
+  protectedServersideProps,
+} from "@/server/common/protectedServersideProps";
+import { NextPage } from "next";
 
 const Map = dynamic(() => import("../../components/maps/tourMap"), {
   ssr: false,
@@ -107,11 +112,12 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
 
   const router = useRouter();
   const [hoverPoint, setHoverPoint] = useState<Point>();
-  const { mutate: deleteTourOnServer, isLoading: isDeleting } = trpc.useMutation("tours.delete-tour", {
-    onSuccess: () => {
-      router.push("/tours");
-    },
-  });
+  const { mutate: deleteTourOnServer, isLoading: isDeleting } =
+    trpc.useMutation("tours.delete-tour", {
+      onSuccess: () => {
+        router.push("/tours");
+      },
+    });
 
   const [showDelete, setShowDelete] = useState(false);
   const peaks = useMemo(() => data?.tourPeaks?.map((t) => t.peak), [data]);
@@ -141,7 +147,14 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
           <Card>
             <div className="flex justify-between">
               {isLoading && <Skeleton className="h-8 w-72"></Skeleton>}
-              {!isLoading && <CardTitle title={data?.name ?? ""} subtitle={`Created by ${data?.creator.name} on ${data?.createdAt?.toLocaleDateString()}`} />}
+              {!isLoading && (
+                <CardTitle
+                  title={data?.name ?? ""}
+                  subtitle={`Created by ${
+                    data?.creator.name
+                  } on ${data?.createdAt?.toLocaleDateString()}`}
+                />
+              )}
 
               <div className="flex justify-end items-center gap-3">
                 {isLoading && <Spinner size="md" />}
@@ -305,24 +318,25 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
   );
 };
 
-const TourPage = () => {
-  const { status } = useSession();
+const TourPage: NextPage<PageProps> = ({ data }) => {
   const { query } = useRouter();
   const { id } = query;
-  let content: ReactNode;
   if (!id || typeof id !== "string") {
-    content = <></>;
-  } else {
-    if (status === "unauthenticated") content = <div>Access denied</div>;
-    else if (status === "loading") content = <></>;
-    else content = <TourPageContent id={id} />;
+    return <></>;
   }
 
   return (
     <>
-      <LayoutBase>{content}</LayoutBase>
+    <Head>
+      <title>Display tour</title>
+    </Head>
+      <LayoutBase session={data.session}>
+        <TourPageContent id={id} />
+      </LayoutBase>
     </>
   );
 };
+
+export const getServerSideProps = protectedServersideProps;
 
 export default TourPage;

@@ -1,9 +1,9 @@
+import { PageProps, protectedServersideProps, redirectToFeedProps } from "@/server/common/protectedServersideProps";
 import { Card } from "flowbite-react";
-import type { NextPage } from "next";
 import Head from "next/head";
 import LayoutBase from "../components/layout/layoutBase";
 
-const Home: NextPage = () => {
+const Home = ({data}: PageProps) => {
   return (
     <>
       <Head>
@@ -14,7 +14,7 @@ const Home: NextPage = () => {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <LayoutBase>
+      <LayoutBase session={null}>
         <main className="flex flex-col items-center justify-center h-full p-10 px-0 mx-auto md:py-10 md:p-10 md:px-0">
           <h1 className="font-extrabold text-center lg:text-7xl text-4xl">
             Tour<span className="text-blue-500">gether</span>
@@ -54,5 +54,7 @@ const Home: NextPage = () => {
     </>
   );
 };
+
+export const getServerSideProps = redirectToFeedProps;
 
 export default Home;

@@ -3,7 +3,6 @@ import LayoutBase from "@/components/layout/layoutBase";
 import { trpc } from "@/utils/trpc";
 import { useRouter } from "next/router";
 import { Button, Card, Pagination } from "flowbite-react";
-import { useSession } from "next-auth/react";
 import CardTitle from "@/components/common/cardTitle";
 import { useEffect, useState } from "react";
 import ToursTable from "@/components/tours/toursTable";
@@ -13,11 +12,18 @@ import useDebounceValue from "@/hooks/useDebounce";
 import Input from "@/components/common/input";
 import { type SortState } from "@/components/common/sortableCol";
 import { type Tour } from "@prisma/client";
+import {
+  PageProps,
+  protectedServersideProps,
+} from "@/server/common/protectedServersideProps";
 
 const PaginatedToursTable: React.FC = () => {
   const router = useRouter();
   const [page, setPage] = useState(1);
-  const [sortState, setSortState] = useState<SortState<Tour>>({order: "desc", sortKey: "date"})
+  const [sortState, setSortState] = useState<SortState<Tour>>({
+    order: "desc",
+    sortKey: "date",
+  });
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounceValue(searchTerm, 500);
   const count = 10;
@@ -28,7 +34,7 @@ const PaginatedToursTable: React.FC = () => {
       page: page,
       searchTerm: debouncedSearchTerm,
       orderBy: sortState.sortKey,
-      orderDir: sortState.order
+      orderDir: sortState.order,
     },
   ]);
   const totalPages = Math.ceil((data?.totalCount ?? 1) / count);
@@ -87,21 +93,19 @@ const PaginatedToursTable: React.FC = () => {
   );
 };
 
-const ToursPage: NextPage = () => {
-  const { status } = useSession();
-
-  let content = <PaginatedToursTable />;
-  if (status === "unauthenticated") content = <p>Access denied</p>;
-  else if (status === "loading") content = <></>;
-
+const ToursPage: NextPage<PageProps> = ({ data }) => {
   return (
     <>
       <Head>
         <title>My Tours</title>
       </Head>
-      <LayoutBase>{content}</LayoutBase>
+      <LayoutBase session={data.session}>
+        <PaginatedToursTable />
+      </LayoutBase>
     </>
   );
 };
+
+export const getServerSideProps = protectedServersideProps;
 
 export default ToursPage;

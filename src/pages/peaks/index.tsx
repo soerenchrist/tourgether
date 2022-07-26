@@ -5,6 +5,10 @@ import { type SortState } from "@/components/common/sortableCol";
 import LayoutBase from "@/components/layout/layoutBase";
 import PeaksTable from "@/components/peaks/peaksTable";
 import useDebounceValue from "@/hooks/useDebounce";
+import {
+  PageProps,
+  protectedServersideProps,
+} from "@/server/common/protectedServersideProps";
 import { trpc } from "@/utils/trpc";
 import { mdiListBox, mdiMapSearch } from "@mdi/js";
 import Icon from "@mdi/react";
@@ -18,7 +22,6 @@ import {
   Tooltip,
 } from "flowbite-react";
 import { NextPage } from "next";
-import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -147,21 +150,19 @@ const PeaksPageContent: React.FC = () => {
   );
 };
 
-const PeaksPage: NextPage = () => {
-  const { status } = useSession();
-
-  let content = <PeaksPageContent />;
-  if (status === "unauthenticated") content = <p>Access denied</p>;
-  else if (status === "loading") content = <></>;
-
+const PeaksPage: NextPage<PageProps> = ({ data }) => {
   return (
     <>
       <Head>
         <title>Peaks</title>
       </Head>
-      <LayoutBase>{content}</LayoutBase>
+      <LayoutBase session={data.session}>
+        <PeaksPageContent></PeaksPageContent>
+      </LayoutBase>
     </>
   );
 };
+
+export const getServerSideProps = protectedServersideProps;
 
 export default PeaksPage;

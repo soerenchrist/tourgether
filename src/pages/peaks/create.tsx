@@ -1,30 +1,29 @@
 import LayoutBase from "@/components/layout/layoutBase";
 import EditPeaksForm from "@/components/peaks/editPeaksForm";
+import {
+  PageProps,
+  protectedServersideProps,
+} from "@/server/common/protectedServersideProps";
 import { NextPage } from "next";
-import { useSession } from "next-auth/react";
 import Head from "next/head";
 
 const CreatePeakPageContent: React.FC = () => {
-  return (
-    <EditPeaksForm editPeak={undefined} />
-  );
+  return <EditPeaksForm editPeak={undefined} />;
 };
 
-const CreatePeakPage: NextPage = () => {
-  const { status } = useSession();
-
-  let content = <CreatePeakPageContent />;
-  if (status === "unauthenticated") content = <p>Access denied</p>;
-  else if (status === "loading") content = <></>;
-
+const CreatePeakPage: NextPage<PageProps> = ({ data }) => {
   return (
     <>
       <Head>
         <title>Create a new peak</title>
       </Head>
-      <LayoutBase>{content}</LayoutBase>
+      <LayoutBase session={data.session}>
+        <CreatePeakPageContent></CreatePeakPageContent>
+      </LayoutBase>
     </>
   );
 };
+
+export const getServerSideProps = protectedServersideProps;
 
 export default CreatePeakPage;

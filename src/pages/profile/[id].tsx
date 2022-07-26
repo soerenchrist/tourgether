@@ -6,10 +6,13 @@ import UsersTours from "@/components/profile/usersTours";
 import { trpc } from "@/utils/trpc";
 import { Spinner } from "flowbite-react";
 import { NextPage } from "next";
-import { useSession } from "next-auth/react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { ReactNode, useEffect } from "react";
+import {
+  PageProps,
+  protectedServersideProps,
+} from "@/server/common/protectedServersideProps";
 
 const FriendsProfileContent: React.FC<{ id: string }> = ({ id }) => {
   const {
@@ -26,9 +29,9 @@ const FriendsProfileContent: React.FC<{ id: string }> = ({ id }) => {
   const router = useRouter();
   useEffect(() => {
     if (error?.data?.code === "BAD_REQUEST") {
-      router.push("/profile")
+      router.push("/profile");
     }
-  }, [error, router])
+  }, [error, router]);
 
   const { data: totals, isLoading: totalsLoading } = trpc.useQuery([
     "tours.get-totals",
@@ -38,8 +41,9 @@ const FriendsProfileContent: React.FC<{ id: string }> = ({ id }) => {
   ]);
 
   if (isLoading) return <Spinner size="xl" />;
-  else if (isError && error.data?.code === "NOT_FOUND") return <NotFound message="This user does not exist!" />;
-  else if (!profile) return <></>
+  else if (isError && error.data?.code === "NOT_FOUND")
+    return <NotFound message="This user does not exist!" />;
+  else if (!profile) return <></>;
   return (
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -51,27 +55,28 @@ const FriendsProfileContent: React.FC<{ id: string }> = ({ id }) => {
   );
 };
 
-const FriendsProfilePage: NextPage = () => {
-  const { status } = useSession();
-
+const FriendsProfilePage: NextPage<PageProps> = ({ data }) => {
   const { query } = useRouter();
   const { id } = query;
 
   let content: ReactNode;
   if (!id || typeof id !== "string") {
-    content = <></>;
-  } else if (status === "unauthenticated") content = <p>Access denied</p>;
-  else if (status === "loading") content = <></>;
-  else content = <FriendsProfileContent id={id}></FriendsProfileContent>;
+    return <></>;
+  }
 
   return (
     <>
       <Head>
         <title>Profile</title>
       </Head>
-      <LayoutBase>{content}</LayoutBase>;
+      <LayoutBase session={data.session}>
+        <FriendsProfileContent id={id}></FriendsProfileContent>
+      </LayoutBase>
+      ;
     </>
   );
 };
+
+export const getServerSideProps = protectedServersideProps;
 
 export default FriendsProfilePage;

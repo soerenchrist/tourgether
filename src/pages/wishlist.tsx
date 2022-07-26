@@ -1,11 +1,11 @@
 import CardTitle from "@/components/common/cardTitle";
 import ConfirmationModal from "@/components/common/confirmationDialog";
 import LayoutBase from "@/components/layout/layoutBase";
+import { PageProps, protectedServersideProps } from "@/server/common/protectedServersideProps";
 import { trpc } from "@/utils/trpc";
 import { Peak, WishlistItem } from "@prisma/client";
 import { Card, Checkbox, Spinner, Table } from "flowbite-react";
 import { NextPage } from "next";
-import { useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -49,7 +49,7 @@ const WishlistLine: React.FC<{
   );
 };
 
-const WishlistContent = () => {
+const WishlistPageContent = () => {
   const [showModalItem, setShowModalItem] = useState<string>();
   const { data: wishlist, isLoading } = trpc.useQuery([
     "wishlist.get-wishlist",
@@ -180,21 +180,17 @@ const WishlistContent = () => {
   );
 };
 
-const WishlistPage: NextPage = () => {
-  const { status } = useSession();
-
-  let content = <WishlistContent></WishlistContent>;
-  if (status === "unauthenticated") content = <p>Access denied</p>;
-  else if (status === "loading") content = <></>;
-
+const WishlistPage: NextPage<PageProps> = ({ data }) => {
   return (
     <>
       <Head>
         <title>My Wishlist</title>
       </Head>
-      <LayoutBase>{content}</LayoutBase>
+      <LayoutBase session={data.session}><WishlistPageContent></WishlistPageContent></LayoutBase>
     </>
   );
 };
+
+export const getServerSideProps = protectedServersideProps;
 
 export default WishlistPage;

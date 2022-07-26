@@ -8,7 +8,7 @@ import { s3Client } from "@/lib/s3Lib";
 
 export const imagesRouter = createRouter()
   .middleware(async ({ ctx, next }) => {
-    const userId = ctx.session?.userId;
+    const userId = ctx?.session?.user?.id;
     if (!userId) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }

@@ -1,6 +1,10 @@
 import CardTitle from "@/components/common/cardTitle";
 import ConfirmationModal from "@/components/common/confirmationDialog";
 import LayoutBase from "@/components/layout/layoutBase";
+import {
+  PageProps,
+  protectedServersideProps,
+} from "@/server/common/protectedServersideProps";
 import { trpc } from "@/utils/trpc";
 import { Card, Spinner, Table } from "flowbite-react";
 import { NextPage } from "next";
@@ -37,7 +41,9 @@ const FriendsPageContent = () => {
       <Table>
         <Table.Head>
           <Table.HeadCell>Name</Table.HeadCell>
-          <Table.HeadCell className="hidden md:table-cell">Email</Table.HeadCell>
+          <Table.HeadCell className="hidden md:table-cell">
+            Email
+          </Table.HeadCell>
           <Table.HeadCell></Table.HeadCell>
         </Table.Head>
         <Table.Body>
@@ -57,7 +63,9 @@ const FriendsPageContent = () => {
                   </span>
                 </Link>
               </Table.Cell>
-              <Table.Cell className="hidden md:table-cell">{f.email}</Table.Cell>
+              <Table.Cell className="hidden md:table-cell">
+                {f.email}
+              </Table.Cell>
               <Table.Cell className="flex justify-end">
                 <span
                   className="text-blue-500 hover:underline font-medium cursor-pointer"
@@ -82,21 +90,19 @@ const FriendsPageContent = () => {
   );
 };
 
-const FriendsPage: NextPage = () => {
-  const { status } = useSession();
-
-  let content = <FriendsPageContent></FriendsPageContent>;
-  if (status === "unauthenticated") content = <p>Access denied</p>;
-  else if (status === "loading") content = <></>;
-
+const FriendsPage: NextPage<PageProps> = ({ data }) => {
   return (
     <>
       <Head>
         <title>My Friends</title>
       </Head>
-      <LayoutBase>{content}</LayoutBase>
+      <LayoutBase session={data.session}>
+        <FriendsPageContent></FriendsPageContent>
+      </LayoutBase>
     </>
   );
 };
+
+export const getServerSideProps = protectedServersideProps;
 
 export default FriendsPage;

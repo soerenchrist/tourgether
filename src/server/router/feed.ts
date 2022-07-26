@@ -5,7 +5,7 @@ import { getFriends } from "./friends";
 
 export const feedRouter = createRouter()
   .middleware(async ({ ctx, next }) => {
-    const userId = ctx.session?.userId;
+    const userId = ctx?.session?.user?.id;
     if (!userId) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }

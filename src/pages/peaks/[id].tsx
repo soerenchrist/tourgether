@@ -6,7 +6,6 @@ import ToursTable from "@/components/tours/toursTable";
 import { trpc } from "@/utils/trpc";
 import { Card, Dropdown, Spinner, Tooltip } from "flowbite-react";
 import { NextPage } from "next";
-import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -22,6 +21,10 @@ import {
 } from "@mdi/js";
 import { type SortState } from "@/components/common/sortableCol";
 import { type Tour } from "@prisma/client";
+import {
+  PageProps,
+  protectedServersideProps,
+} from "@/server/common/protectedServersideProps";
 
 const Map = dynamic(() => import("../../components/maps/peakMap"), {
   ssr: false,
@@ -114,7 +117,7 @@ const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
     {
       peakId: id,
       orderBy: sortState.sortKey,
-      orderDir: sortState.order
+      orderDir: sortState.order,
     },
   ]);
   const { data: wikidata, isLoading: wikidataLoading } = trpc.useQuery(
@@ -214,21 +217,21 @@ const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
   );
 };
 
-const PeakDetailsPage: NextPage = () => {
-  const { status } = useSession();
+const PeakDetailsPage: NextPage<PageProps> = ({ data }) => {
   const { query } = useRouter();
   const { id } = query;
 
-  let content: ReactNode;
   if (!id || typeof id !== "string") {
-    content = <></>;
-  } else {
-    if (status === "unauthenticated") content = <div>Access denied</div>;
-    else if (status === "loading") content = <></>;
-    else content = <PeakDetails id={id} />;
+    return <></>;
   }
 
-  return <LayoutBase>{content}</LayoutBase>;
+  return (
+    <LayoutBase session={data.session}>
+      <PeakDetails id={id} />
+    </LayoutBase>
+  );
 };
+
+export const getServerSideProps = protectedServersideProps;
 
 export default PeakDetailsPage;

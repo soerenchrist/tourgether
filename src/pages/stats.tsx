@@ -1,12 +1,14 @@
 import HistoryChart from "@/components/stats/historyChart";
 import LayoutBase from "@/components/layout/layoutBase";
 import { NextPage } from "next";
-import { useSession } from "next-auth/react";
 import Head from "next/head";
 import { TotalsContainer } from "@/components/stats/totalsDisplay";
+import {
+  PageProps,
+  protectedServersideProps,
+} from "@/server/common/protectedServersideProps";
 
-
-const DashboardContent = () => {
+const StatsPageContent = () => {
   return (
     <>
       <Head>
@@ -20,13 +22,18 @@ const DashboardContent = () => {
   );
 };
 
-const Dashboard: NextPage = () => {
-  const { status } = useSession();
-
-  let content = <DashboardContent></DashboardContent>;
-  if (status === "unauthenticated") content = <p>Access denied</p>;
-  else if (status === "loading") content = <></>;
-
-  return <LayoutBase>{content}</LayoutBase>;
+const StatsPage: NextPage<PageProps> = ({ data }) => {
+  return (
+    <>
+    <Head>
+      <title>Stats</title>
+    </Head>
+    <LayoutBase session={data.session}>
+      <StatsPageContent></StatsPageContent>
+    </LayoutBase>
+    </>
+  );
 };
-export default Dashboard;
+
+export const getServerSideProps = protectedServersideProps;
+export default StatsPage;

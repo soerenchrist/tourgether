@@ -61,7 +61,7 @@ export const isFriend = async(prisma: PrismaClient, myId: string, otherId: strin
 
 export const friendsRouter = createRouter()
   .middleware(async ({ ctx, next }) => {
-    const userId = ctx.session?.userId;
+    const userId = ctx?.session?.user?.id;
     if (!userId) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }

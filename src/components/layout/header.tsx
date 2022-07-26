@@ -63,10 +63,8 @@ const UserDropdown: React.FC<{ session: Session }> = ({ session }) => {
 
 const Header = ({
   session,
-  isLoading,
 }: {
   session: Session | null;
-  isLoading: boolean;
 }) => {
   return (
     <Navbar fluid rounded>
@@ -75,7 +73,7 @@ const Header = ({
           Tour<span className="text-blue-500">gether</span>
         </span>
       </Navbar.Brand>
-      {!session?.user && !isLoading && (
+      {!session?.user && (
         <div className="flex md:order-2">
           <Button
             onClick={() => signIn("auth0", { callbackUrl: "/onboarding" })}

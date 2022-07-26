@@ -2,6 +2,8 @@
 import * as trpc from "@trpc/server";
 import * as trpcNext from "@trpc/server/adapters/next";
 import { getCookie } from "cookies-next";
+import { unstable_getServerSession } from "next-auth";
+import { getServerSession } from "../common/getServerSession";
 import { prisma } from "../db/client";
 
 export const createContext = async (
@@ -10,17 +12,9 @@ export const createContext = async (
   const req = opts?.req;
   const res = opts?.res;
 
-  let token = getCookie("next-auth.session-token", { req, res }) as string;
-  if (!token) {
-    token = getCookie("__Secure-next-auth.session-token", {
-      req,
-      res,
-    }) as string;
-  }
-  const session = await prisma.session.findUnique({
-    where: { sessionToken: token },
-  });
+  if (!req || !res) return;
 
+  const session = await getServerSession(opts);
   return {
     req,
     res,

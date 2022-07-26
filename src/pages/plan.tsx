@@ -2,6 +2,7 @@ import CardTitle from "@/components/common/cardTitle";
 import LayoutBase from "@/components/layout/layoutBase";
 import HeightDistanceChart from "@/components/plan/heightDistanceChart";
 import { createGpx } from "@/lib/gpxLib";
+import { PageProps, protectedServersideProps } from "@/server/common/protectedServersideProps";
 import { FeatureProperties } from "@/server/router/routing";
 import { trpc } from "@/utils/trpc";
 import { mdiDownload, mdiUndo } from "@mdi/js";
@@ -9,7 +10,6 @@ import Icon from "@mdi/react";
 import { Alert, Card } from "flowbite-react";
 import { LatLng } from "leaflet";
 import { NextPage } from "next";
-import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useMemo, useState } from "react";
@@ -208,21 +208,19 @@ const PlanPageContent = () => {
   );
 };
 
-const PlanPage: NextPage = () => {
-  const { status } = useSession();
-
-  let content = <PlanPageContent></PlanPageContent>;
-  if (status === "unauthenticated") content = <p>Access denied</p>;
-  else if (status === "loading") content = <></>;
-
+const PlanPage: NextPage<PageProps> = ({ data }) => {
   return (
     <>
       <Head>
         <title>Plan your Tour</title>
       </Head>
-      <LayoutBase>{content}</LayoutBase>
+      <LayoutBase session={data.session}>
+        <PlanPageContent />
+      </LayoutBase>
     </>
   );
 };
+
+export const getServerSideProps = protectedServersideProps;
 
 export default PlanPage;

@@ -3,12 +3,17 @@ import Skeleton from "@/components/common/skeleton";
 import LayoutBase from "@/components/layout/layoutBase";
 import LikeButton from "@/components/tours/likeButton";
 import TrendingTours from "@/components/tours/trendingTours";
+import {
+  PageProps,
+  protectedServersideProps,
+} from "@/server/common/protectedServersideProps";
 import { trpc } from "@/utils/trpc";
 import { Peak, Tour, TourPeak, User } from "@prisma/client";
 import { Badge, Card, Spinner } from "flowbite-react";
 import { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
+import Head from "next/head";
 import { NextRouter, useRouter } from "next/router";
 import { useMemo } from "react";
 import InfiniteScroll from "react-infinite-scroller";
@@ -34,47 +39,46 @@ const TourCard: React.FC<{
   const peaks = useMemo(() => tour.tourPeaks.map((t) => t.peak), [tour]);
   return (
     <div className="pb-4">
-
-    <Card>
-      <div className="flex flex-col h-full gap-2 justify-start">
-        <div className="flex justify-between">
-          <CardTitle
-            className="cursor-pointer"
-            onClick={() => router.push(`/tours/${tour.id}`)}
-            title={tour.name}
-          />
-          <LikeButton
-            tour={tour}
-            onLiked={handleLikesChanged}
-            onRemovedLike={handleLikesChanged}
-          />
-        </div>
-        <span className="text-sm text-gray-600 -mt-2">
-          Created by {tour.creator.name} -{" "}
-          {countLoading ? (
-            <Skeleton className="w-12 h-4" />
-          ) : (
-            <span>{count} Likes</span>
-          )}
-        </span>
-        <div className="flex gap-2">
-          {peaks.map((peak) => (
-            <Badge key={peak.id}>{peak.name}</Badge>
-          ))}
-        </div>
-        {tour.description && <span>{tour.description}</span>}
-        {peaks.length > 0 && (
-          <div className="h-52">
-            <Map peaks={peaks} allowScrolling={false} />
+      <Card>
+        <div className="flex flex-col h-full gap-2 justify-start">
+          <div className="flex justify-between">
+            <CardTitle
+              className="cursor-pointer"
+              onClick={() => router.push(`/tours/${tour.id}`)}
+              title={tour.name}
+            />
+            <LikeButton
+              tour={tour}
+              onLiked={handleLikesChanged}
+              onRemovedLike={handleLikesChanged}
+            />
           </div>
-        )}
-      </div>
-    </Card>
+          <span className="text-sm text-gray-600 -mt-2">
+            Created by {tour.creator.name} -{" "}
+            {countLoading ? (
+              <Skeleton className="w-12 h-4" />
+            ) : (
+              <span>{count} Likes</span>
+            )}
+          </span>
+          <div className="flex gap-2">
+            {peaks.map((peak) => (
+              <Badge key={peak.id}>{peak.name}</Badge>
+            ))}
+          </div>
+          {tour.description && <span>{tour.description}</span>}
+          {peaks.length > 0 && (
+            <div className="h-52">
+              <Map peaks={peaks} allowScrolling={false} />
+            </div>
+          )}
         </div>
+      </Card>
+    </div>
   );
 };
 
-const ExplorePageContent = () => {
+const FeedPageContent = () => {
   const { data, fetchNextPage, hasNextPage, isLoading } = trpc.useInfiniteQuery(
     [
       "feed.get-feed",
@@ -119,14 +123,19 @@ const ExplorePageContent = () => {
   );
 };
 
-const ExplorePage: NextPage = () => {
-  const { status } = useSession();
-
-  let content = <ExplorePageContent></ExplorePageContent>;
-  if (status === "unauthenticated") content = <p>Access denied</p>;
-  else if (status === "loading") content = <></>;
-
-  return <LayoutBase>{content}</LayoutBase>;
+const FeedPage: NextPage<PageProps> = ({ data }) => {
+  return (
+    <>
+      <Head>
+        <title>Feed</title>
+      </Head>
+      <LayoutBase session={data.session}>
+        <FeedPageContent></FeedPageContent>
+      </LayoutBase>
+    </>
+  );
 };
 
-export default ExplorePage;
+export const getServerSideProps = protectedServersideProps;
+
+export default FeedPage;
