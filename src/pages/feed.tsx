@@ -9,7 +9,7 @@ import {
 } from "@/server/common/protectedServersideProps";
 import { trpc } from "@/utils/trpc";
 import { Peak, Tour, TourPeak, User } from "@prisma/client";
-import { Badge, Card, Spinner } from "flowbite-react";
+import { Badge, Card } from "flowbite-react";
 import { NextPage } from "next";
 import dynamic from "next/dynamic";
 import Head from "next/head";
@@ -146,6 +146,7 @@ const FeedPage: NextPage<PageProps> = ({ data }) => {
     <>
       <Head>
         <title>Feed</title>
+        <link rel="icon" href="/logo.svg" />
       </Head>
       <LayoutBase session={data.session}>
         <FeedPageContent></FeedPageContent>

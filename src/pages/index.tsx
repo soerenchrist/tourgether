@@ -1,9 +1,9 @@
-import { PageProps, protectedServersideProps, redirectToFeedProps } from "@/server/common/protectedServersideProps";
+import { redirectToFeedProps } from "@/server/common/protectedServersideProps";
 import { Card } from "flowbite-react";
 import Head from "next/head";
 import LayoutBase from "../components/layout/layoutBase";
 
-const Home = ({data}: PageProps) => {
+const Home = () => {
   return (
     <>
       <Head>
@@ -12,13 +12,16 @@ const Home = ({data}: PageProps) => {
           name="description"
           content="Plan and manage your hiking tours together"
         />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/logo.svg" />
       </Head>
       <LayoutBase session={null}>
         <main className="flex flex-col items-center justify-center h-full p-10 px-0 mx-auto md:py-10 md:p-10 md:px-0">
+          <div className="flex items-center gap-4">
+          <img className="w-32" src="logo.svg" />
           <h1 className="font-extrabold text-center lg:text-7xl text-4xl">
-            Tour<span className="text-blue-500">gether</span>
+            Tour<span className="text-brand">gether</span>
           </h1>
+          </div>
 
           <h3 className="items-center m-5 lg:text-3xl text-xl text-center">
             Plan and manage your hiking tours together

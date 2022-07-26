@@ -65,17 +65,20 @@ const Header = ({ session }: { session: Session | null }) => {
   return (
     <Navbar fluid rounded>
       <Navbar.Brand href="/">
+        <div className="flex items-center">
+        <img src="logo.svg" alt="logo" className="w-9 h-9" />
         <span className="text-xl font-bold cursor-pointer">
-          Tour<span className="text-blue-500">gether</span>
+          Tour<span className="text-brand">gether</span>
         </span>
+        </div>
       </Navbar.Brand>
       {!session?.user && (
         <div className="flex md:order-2">
-          <Button
+          <span className="text-brand font-medium cursor-pointer hover:underline mr-4"
             onClick={() => signIn("auth0", { callbackUrl: "/onboarding" })}
           >
             Sign in
-          </Button>
+          </span>
         </div>
       )}
       {session?.user && (
