@@ -181,28 +181,51 @@ export const peaksRouter = createRouter()
   .query("get-tours-by-peak", {
     input: z.object({
       peakId: z.string(),
+      onlyOwn: z.boolean().optional(),
       orderBy: z.string().optional(),
       orderDir: z.enum(["asc", "desc"]).optional(),
     }),
     async resolve({ ctx, input }) {
+      const onlyOwn = input.onlyOwn ?? false;
       const orderBy = (input.orderBy ?? "date") as keyof Tour;
       const orderDir = input.orderDir ?? "desc";
+
+      const myToursFilter = [
+        {
+          creatorId: ctx.userId,
+        },
+        {
+          companions: {
+            some: {
+              userId: ctx.userId,
+            },
+          },
+        },
+      ];
+
+      let creatorFilter = {};
+      if (onlyOwn) {
+        creatorFilter = {
+          OR: myToursFilter,
+        };
+      } else {
+        creatorFilter = {
+          OR: [
+            {
+              OR: myToursFilter,
+            },
+            {
+              visibility: "PUBLIC",
+            },
+          ],
+        };
+      }
+
       const result = await ctx.prisma.tourPeak.findMany({
         where: {
           peakId: input.peakId,
           tour: {
-            OR: [
-              {
-                creatorId: ctx.userId,
-              },
-              {
-                companions: {
-                  some: {
-                    userId: ctx.userId,
-                  },
-                },
-              },
-            ],
+            ...creatorFilter,
           },
         },
         select: {

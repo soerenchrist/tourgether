@@ -4,7 +4,7 @@ import NotFound from "@/components/common/notFound";
 import LayoutBase from "@/components/layout/layoutBase";
 import ToursTable from "@/components/tours/toursTable";
 import { trpc } from "@/utils/trpc";
-import { Card, Dropdown, Spinner, Tooltip } from "flowbite-react";
+import { Card, Checkbox, Dropdown, Label, Spinner, Tooltip } from "flowbite-react";
 import { NextPage } from "next";
 import dynamic from "next/dynamic";
 import Head from "next/head";
@@ -97,6 +97,7 @@ const WishlistButton: React.FC<{ id: string }> = ({ id }) => {
 const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
   const [showDelete, setShowDelete] = useState(false);
   const router = useRouter();
+  const [onlyOwnTours, setOnlyOwnTours] = useState(false);
   const [sortState, setSortState] = useState<SortState<Tour>>({
     order: "desc",
     sortKey: "date",
@@ -118,6 +119,7 @@ const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
       peakId: id,
       orderBy: sortState.sortKey,
       orderDir: sortState.order,
+      onlyOwn: onlyOwnTours
     },
   ]);
   const { data: wikidata, isLoading: wikidataLoading } = trpc.useQuery(
@@ -193,7 +195,16 @@ const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
           <div className="lg:col-span-2 col-span-1">
             <Card>
               <div className="flex flex-col justify-start h-full gap-4">
-                <CardTitle title={`Your Tours to ${peak.name}`} />
+                <CardTitle title={`Tours to ${peak.name}`} />
+                
+                <div className="flex gap-2 items-center">
+                  <Checkbox
+                    id="onlyOwn"
+                    checked={onlyOwnTours}
+                    onChange={(e) => setOnlyOwnTours(e.target.checked)}
+                  />
+                  <Label htmlFor="onlyOwn">Show only my tours</Label>
+                </div>
                 <ToursTable
                   sortState={sortState}
                   onChangeSortState={setSortState}
