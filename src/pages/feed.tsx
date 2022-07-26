@@ -68,7 +68,7 @@ const TourCard: React.FC<{
           {tour.description && <span>{tour.description}</span>}
           {peaks.length > 0 && (
             <div className="h-52">
-              <Map peaks={peaks} allowScrolling={false} allowDragging={false} />
+              <Map peaks={peaks} allowScrolling={false} showZoomControl={false} allowDragging={false} />
             </div>
           )}
         </div>
