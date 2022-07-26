@@ -129,7 +129,8 @@ const PlanPageContent = () => {
           setError(undefined);
         }, 2000);
         setError(error.message);
-        undo();
+        setCurrentPos(prevPos);
+        setLastPos(undefined);
       },
     }
   );
