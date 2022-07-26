@@ -11,7 +11,6 @@ import { trpc } from "@/utils/trpc";
 import { Peak, Tour, TourPeak, User } from "@prisma/client";
 import { Badge, Card, Spinner } from "flowbite-react";
 import { NextPage } from "next";
-import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { NextRouter, useRouter } from "next/router";
@@ -78,6 +77,19 @@ const TourCard: React.FC<{
   );
 };
 
+const LoadingCard = () => {
+  return (
+    <Card>
+      <div className="flex flex-col h-full gap-2 justify-start">
+        <Skeleton className="h-5 w-40" />
+        <Skeleton className="h-3 w-24" />
+
+        <Skeleton className="h-52 w-full" />
+      </div>
+    </Card>
+  );
+};
+
 const FeedPageContent = () => {
   const { data, fetchNextPage, hasNextPage, isLoading } = trpc.useInfiniteQuery(
     [
@@ -104,6 +116,12 @@ const FeedPageContent = () => {
           <div className="lg:col-span-4 col-span-2">
             <Card>Nothing to see here, yet...</Card>
           </div>
+        )}
+        {isLoading && (
+          <>
+            <LoadingCard />
+            <LoadingCard />
+          </>
         )}
         <InfiniteScroll
           pageStart={0}
