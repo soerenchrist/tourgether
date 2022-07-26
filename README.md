@@ -1,4 +1,6 @@
-# Tourgether
+![Logo](public/logo_small.png)
+
+# [Tourgether](https://tourgether.eu)
 
 ## What?
 I love hiking. And hiking is the most fun when you do it together with your friends. \
