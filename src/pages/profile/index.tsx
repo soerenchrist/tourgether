@@ -2,7 +2,6 @@ import { TotalsContainer } from "@/components/stats/totalsDisplay";
 import LayoutBase from "@/components/layout/layoutBase";
 import ProfileOverview from "@/components/profile/profileOverview";
 import { trpc } from "@/utils/trpc";
-import { Spinner } from "flowbite-react";
 import { NextPage } from "next";
 import { Session } from "next-auth";
 import Head from "next/head";
@@ -17,11 +16,13 @@ const ProfilePageContent: React.FC<{ session: Session }> = ({ session }) => {
     "profile.get-my-profile",
   ]);
 
-  if (isLoading || !profile) return <Spinner />;
-
   return (
     <div className="flex flex-col gap-4">
-      <ProfileOverview profile={profile} showEdit={true} />
+      <ProfileOverview
+        isLoading={isLoading}
+        profile={profile}
+        showEdit={true}
+      />
       <TotalsContainer />
     </div>
   );

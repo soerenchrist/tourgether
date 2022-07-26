@@ -4,6 +4,7 @@ import { Avatar, Badge, Button, Card, Spinner } from "flowbite-react";
 import { useRouter } from "next/router";
 import CardTitle from "../common/cardTitle";
 import { List, ListItem } from "../common/list";
+import Skeleton from "../common/skeleton";
 
 export type CompleteProfile = {
   id: string;
@@ -26,7 +27,7 @@ const format = (value?: string | null) => {
 const FriendshipState: React.FC<{
   id: string;
   friendship?: { state: "ACTIVE" | "PENDING" | "NO_FRIENDS" } | null;
-  isLoading: boolean;
+  isLoading?: boolean;
 }> = ({ id, friendship, isLoading }) => {
   const util = trpc.useContext();
   const { mutate: sendRequest } = trpc.useMutation(
@@ -43,26 +44,32 @@ const FriendshipState: React.FC<{
     });
   };
   if (!friendship || isLoading) return <Spinner />;
-  else if (friendship.state === "ACTIVE") return <Badge size="xl" color="success">You are friends!</Badge>
+  else if (friendship.state === "ACTIVE")
+    return (
+      <Badge size="xl" color="success">
+        You are friends!
+      </Badge>
+    );
   else if (friendship.state === "PENDING")
-    return <Badge size="xl">Request pending</Badge>
+    return <Badge size="xl">Request pending</Badge>;
   return <Button onClick={handleClick}>Send friend request</Button>;
 };
 
 const ProfileOverview: React.FC<{
-  profile: CompleteProfile;
+  profile?: CompleteProfile;
   showEdit?: boolean;
+  isLoading: boolean;
   showFriendshipOption?: boolean;
-}> = ({ profile, showEdit, showFriendshipOption }) => {
-  const { data: friendshipState, isLoading } = trpc.useQuery(
+}> = ({ profile, showEdit, isLoading, showFriendshipOption }) => {
+  const { data: friendshipState, isLoading: stateLoading } = trpc.useQuery(
     [
       "friends.check-friendship-state",
       {
-        userId: profile.id,
+        userId: profile?.id ?? "",
       },
     ],
     {
-      enabled: showFriendshipOption,
+      enabled: showFriendshipOption && profile != null,
     }
   );
 
@@ -72,44 +79,59 @@ const ProfileOverview: React.FC<{
       <div className="flex flex-col h-full justify-start">
         <div className="flex justify-between">
           <div className="flex justify-start gap-6">
-            <Avatar img={profile.image!} size="lg" />
+            {isLoading && <Skeleton className="w-16 h-16"></Skeleton>}
+            {profile && <Avatar img={profile.image!} size="lg" />}
             <div>
-              <CardTitle title={profile.username} />
-              <span className="text-sm">{profile.email}</span>
+              {isLoading && <Skeleton className="w-32 h-6"></Skeleton>}
+              {profile && <CardTitle title={profile.username} />}
+              {isLoading && <Skeleton className="mt-2 w-16 h-4"></Skeleton>}
+              {profile && <span className="text-sm">{profile.email}</span>}
             </div>
           </div>
           <div className="hidden lg:block">
-
-            {showFriendshipOption && (
+            {showFriendshipOption && profile && (
               <FriendshipState
                 id={profile.id}
-                isLoading={isLoading}
+                isLoading={stateLoading}
                 friendship={friendshipState}
               />
             )}
           </div>
         </div>
         <div className="lg:hidden flex justify-start pt-4 ">
-
-          {showFriendshipOption && (
+          {showFriendshipOption && profile && (
             <FriendshipState
               id={profile.id}
-              isLoading={isLoading}
+              isLoading={stateLoading}
               friendship={friendshipState}
             />
           )}
         </div>
         <List className="mt-4">
-          <ListItem subtitle="Name" title={format(profile.name)} />
-          <ListItem subtitle="Location" title={format(profile.location)} />
-          <ListItem subtitle="Status" title={format(profile.status)} />
           <ListItem
-            subtitle="Favorite Peak"
-            title={format(profile.favoritePeak)}
+            isLoading={isLoading}
+            subtitle="Name"
+            title={format(profile?.name)}
           />
           <ListItem
+            isLoading={isLoading}
+            subtitle="Location"
+            title={format(profile?.location)}
+          />
+          <ListItem
+            isLoading={isLoading}
+            subtitle="Status"
+            title={format(profile?.status)}
+          />
+          <ListItem
+            isLoading={isLoading}
+            subtitle="Favorite Peak"
+            title={format(profile?.favoritePeak)}
+          />
+          <ListItem
+            isLoading={isLoading}
             subtitle="Profile visibility"
-            title={profile.visibility === "PUBLIC" ? "Public" : "Private"}
+            title={profile?.visibility === "PUBLIC" ? "Public" : "Private"}
           />
         </List>
         <div className="w-full flex justify-end pt-4">

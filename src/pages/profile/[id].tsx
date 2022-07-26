@@ -40,15 +40,13 @@ const FriendsProfileContent: React.FC<{ id: string }> = ({ id }) => {
     },
   ]);
 
-  if (isLoading) return <Spinner size="xl" />;
-  else if (isError && error.data?.code === "NOT_FOUND")
+  if (isError && error.data?.code === "NOT_FOUND")
     return <NotFound message="This user does not exist!" />;
-  else if (!profile) return <></>;
   return (
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <ProfileOverview profile={profile} showFriendshipOption={true} />
-        <UsersTours userId={id} name={profile.username} />
+        <ProfileOverview isLoading={isLoading} profile={profile} showFriendshipOption={true} />
+        {profile && <UsersTours userId={id} name={profile.username} />}
       </div>
       <TotalsDisplay isLoading={totalsLoading} totals={totals} />
     </div>
