@@ -8,7 +8,7 @@ import { Spinner } from "flowbite-react";
 import { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { ReactNode, useEffect } from "react";
+import { useEffect } from "react";
 import {
   PageProps,
   protectedServersideProps,
@@ -59,7 +59,6 @@ const FriendsProfilePage: NextPage<PageProps> = ({ data }) => {
   const { query } = useRouter();
   const { id } = query;
 
-  let content: ReactNode;
   if (!id || typeof id !== "string") {
     return <></>;
   }
@@ -72,7 +71,6 @@ const FriendsProfilePage: NextPage<PageProps> = ({ data }) => {
       <LayoutBase session={data.session}>
         <FriendsProfileContent id={id}></FriendsProfileContent>
       </LayoutBase>
-      ;
     </>
   );
 };

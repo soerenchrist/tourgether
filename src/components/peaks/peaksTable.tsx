@@ -1,8 +1,10 @@
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { mdiCancel, mdiCheckCircle } from "@mdi/js";
 import Icon from "@mdi/react";
 import { type Peak } from "@prisma/client";
 import { Table, Tooltip } from "flowbite-react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import Skeleton from "../common/skeleton";
 import SortableCol, { type SortState } from "../common/sortableCol";
 
@@ -47,8 +49,16 @@ const PeaksTable: React.FC<{
   onChangeSortState: (state: SortState<Peak>) => void;
   isLoading: boolean;
 }> = ({ peaks, isLoading, sortState, onChangeSortState }) => {
+  const handleRowClick = (id: string) => {
+    if (isMobile) {
+      router.push(`/peaks/${id}`);
+    }
+  };
+
+  const router = useRouter();
+  const isMobile = useIsMobile();
   return (
-    <Table>
+    <Table hoverable={isMobile}>
       <Table.Head>
         <Table.HeadCell className="lg:w-1/2 sm:w-2/3">
           <SortableCol
@@ -71,7 +81,7 @@ const PeaksTable: React.FC<{
         <Table.HeadCell className="hidden md:table-cell">
           Climbed
         </Table.HeadCell>
-        <Table.HeadCell></Table.HeadCell>
+        <Table.HeadCell className="hidden md:table-cell"></Table.HeadCell>
       </Table.Head>
       <Table.Body>
         {isLoading && <PeaksRowLoader />}
@@ -81,7 +91,7 @@ const PeaksTable: React.FC<{
           </Table.Row>
         )}
         {peaks?.map((peak) => (
-          <Table.Row key={peak.id}>
+          <Table.Row key={peak.id} onClick={() => handleRowClick(peak.id)}>
             <Table.Cell>{peak.name}</Table.Cell>
             <Table.Cell className="hidden md:table-cell">
               {peak.height} m
@@ -100,7 +110,7 @@ const PeaksTable: React.FC<{
                 <Icon path={mdiCancel} className="ml-4 w-5 h-5 text-red-500" />
               )}
             </Table.Cell>
-            <Table.Cell className="flex justify-end">
+            <Table.Cell className="md:flex justify-end hidden">
               <Link href={`/peaks/${peak.id}`}>
                 <span className="font-medium text-blue-500 cursor-pointer dark:text-blue-500 hover:underline">
                   Show

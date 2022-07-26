@@ -5,6 +5,7 @@ import { type SortState } from "@/components/common/sortableCol";
 import LayoutBase from "@/components/layout/layoutBase";
 import PeaksTable from "@/components/peaks/peaksTable";
 import useDebounceValue from "@/hooks/useDebounce";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import {
   PageProps,
   protectedServersideProps,
@@ -57,7 +58,7 @@ const PeaksPageContent: React.FC = () => {
   ]);
   const totalPages = Math.ceil((data?.totalCount ?? 1) / count);
   const router = useRouter();
-
+  const isMobile = useIsMobile();
   useEffect(() => {
     setPage(1);
   }, [debouncedSearchTerm]);
@@ -133,7 +134,7 @@ const PeaksPageContent: React.FC = () => {
             total={data?.totalCount ?? 0}
           />
           <Pagination
-            layout="pagination"
+            layout={isMobile ? "navigation" : "pagination"}
             currentPage={page}
             totalPages={totalPages}
             onPageChange={(p) => setPage(p)}
@@ -142,7 +143,7 @@ const PeaksPageContent: React.FC = () => {
 
         <div className="mt-2">
           <Button size="sm" onClick={() => router.push("/peaks/create")}>
-            Add a new Peak
+            {isMobile ? "Add" : "Add a new Peak"}
           </Button>
         </div>
       </div>

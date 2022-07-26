@@ -12,13 +12,11 @@ const FriendRequestsMenuItem = () => {
 
   return (
     <div className="flex gap-2">
-      <span>
-        Friend Requests
-      </span>
+      <span>Friend Requests</span>
       {count && count > 0 && <Badge color="failure">{count}</Badge>}
     </div>
-  )
-}
+  );
+};
 
 const UserDropdown: React.FC<{ session: Session }> = ({ session }) => {
   const router = useRouter();
@@ -50,7 +48,9 @@ const UserDropdown: React.FC<{ session: Session }> = ({ session }) => {
         </span>
       </Dropdown.Header>
       <Dropdown.Item onClick={() => goTo("/profile")}>Profile</Dropdown.Item>
-      <Dropdown.Item onClick={() => goTo("/wishlist")}>My wish list</Dropdown.Item>
+      <Dropdown.Item onClick={() => goTo("/wishlist")}>
+        My wish list
+      </Dropdown.Item>
       <Dropdown.Item onClick={() => goTo("/friends")}>Friends</Dropdown.Item>
       <Dropdown.Item onClick={() => goTo("/my-friend-requests")}>
         <FriendRequestsMenuItem />
@@ -61,11 +61,7 @@ const UserDropdown: React.FC<{ session: Session }> = ({ session }) => {
   );
 };
 
-const Header = ({
-  session,
-}: {
-  session: Session | null;
-}) => {
+const Header = ({ session }: { session: Session | null }) => {
   return (
     <Navbar fluid rounded>
       <Navbar.Brand href="/">
@@ -74,7 +70,13 @@ const Header = ({
         </span>
       </Navbar.Brand>
       {!session?.user && (
-        <div className="flex md:order-2">
+        <div className="flex md:order-2 gap-4 items-center">
+          <span
+            onClick={() => signIn("auth0", { callbackUrl: "/onboarding" })}
+            className="text-blue-500 text-sm font-medium hover:underline"
+          >
+            Create Account
+          </span>
           <Button
             onClick={() => signIn("auth0", { callbackUrl: "/onboarding" })}
           >

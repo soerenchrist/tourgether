@@ -54,16 +54,18 @@ const TourMap: React.FC<{
   points?: Point[];
   hoverPoint?: Point;
   allowScrolling?: boolean;
-}> = ({ peaks, points, hoverPoint, allowScrolling }) => {
+  allowDragging?: boolean;
+}> = ({ peaks, points, hoverPoint, allowScrolling, allowDragging }) => {
   const startPosition = useMemo(() => points?.at(0), [points]);
   const endPosition = useMemo(() => points?.at(-1), [points]);
 
   return (
     <MapContainer
-      className="h-96 lg:h-full"
+      className="h-full"
       center={[47, 11]}
       zoom={13}
       style={{ zIndex: 0 }}
+      dragging={allowDragging === undefined ? true : allowDragging}
       scrollWheelZoom={allowScrolling === undefined ? true : allowScrolling}
     >
       <TileLayer attribution={attribution} url={layerUrl} />

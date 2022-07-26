@@ -16,6 +16,7 @@ import {
   PageProps,
   protectedServersideProps,
 } from "@/server/common/protectedServersideProps";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 const PaginatedToursTable: React.FC = () => {
   const router = useRouter();
@@ -24,6 +25,7 @@ const PaginatedToursTable: React.FC = () => {
     order: "desc",
     sortKey: "date",
   });
+  const isMobile = useIsMobile();
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounceValue(searchTerm, 500);
   const count = 10;
@@ -77,6 +79,7 @@ const PaginatedToursTable: React.FC = () => {
             total={data?.totalCount ?? 0}
           />
           <Pagination
+            layout={isMobile ? "navigation" : "pagination"}
             currentPage={page}
             totalPages={totalPages}
             onPageChange={(p) => setPage(p)}
@@ -85,7 +88,7 @@ const PaginatedToursTable: React.FC = () => {
 
         <div className="mt-2">
           <Button size="sm" onClick={handleAddClick}>
-            Add a new Tour
+            {isMobile ? "Add" : "Add a new Tour"}
           </Button>
         </div>
       </div>

@@ -83,16 +83,14 @@ const UserSearchArea: React.FC<{ router: NextRouter; searchTerm: string }> = ({
     <>
       {!isLoading && <div className="h-2"></div>}
       {isLoading && <ProgressBar />}
-      {searchTerm.length < 3 && profiles?.length === 0 && (
-        <span>Start searching for new friends or exciting tours.</span>
+      {searchTerm.length < 3 && (profiles?.length === 0 || !profiles) && (
+        <span>Start searching for new friends.</span>
       )}
       {searchTerm.length > 0 && !isLoading && profiles?.length === 0 && (
         <span>Nothing found...</span>
       )}
       <List>
-        {(!profiles || isLoading) && (
-          <ListItem image={"placeholder"} isLoading={true} />
-        )}
+        {isLoading && <ListItem image={"placeholder"} isLoading={true} />}
         {profiles?.map((profile) => (
           <ListItem
             key={profile.id}

@@ -7,7 +7,7 @@ import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { ReactNode, useMemo, useState } from "react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 import ConfirmationModal from "@/components/common/confirmationDialog";
 import NotFound from "@/components/common/notFound";
 import Link from "next/link";
@@ -109,6 +109,11 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
       },
     }
   );
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const router = useRouter();
   const [hoverPoint, setHoverPoint] = useState<Point>();
@@ -287,7 +292,9 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
             </List>
           </Card>
           <Card>
+            <div className="lg:h-full h-52">
             <Map hoverPoint={hoverPoint} peaks={peaks} points={points} />
+            </div>
           </Card>
         </div>
         {points && points.length > 0 && (
@@ -295,25 +302,29 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
         )}
         <ImagesArea tourId={id} canAddImages={!data?.viewer} />
       </div>
-      <AddFriendsModal
-        tourId={id}
-        show={addFriends}
-        companions={companions}
-        onClose={() => setAddFriends(false)}
-      />
-      <ConfirmationModal
-        text={
-          data?.viewer
-            ? "Do you really want to remove the tour? You will lose access to the data!"
-            : "Do you really want to delete the tour? All data will be lost!"
-        }
-        isLoading={isDeleting}
-        show={showDelete}
-        accept={deleteTour}
-        acceptColor="failure"
-        acceptButton={data?.viewer ? "Remove" : "Delete"}
-        decline={() => setShowDelete(false)}
-      />
+      {mounted && (
+        <AddFriendsModal
+          tourId={id}
+          show={addFriends}
+          companions={companions}
+          onClose={() => setAddFriends(false)}
+        />
+      )}
+      {mounted && (
+        <ConfirmationModal
+          text={
+            data?.viewer
+              ? "Do you really want to remove the tour? You will lose access to the data!"
+              : "Do you really want to delete the tour? All data will be lost!"
+          }
+          isLoading={isDeleting}
+          show={showDelete}
+          accept={deleteTour}
+          acceptColor="failure"
+          acceptButton={data?.viewer ? "Remove" : "Delete"}
+          decline={() => setShowDelete(false)}
+        />
+      )}
     </>
   );
 };
@@ -327,9 +338,9 @@ const TourPage: NextPage<PageProps> = ({ data }) => {
 
   return (
     <>
-    <Head>
-      <title>Display tour</title>
-    </Head>
+      <Head>
+        <title>Display tour</title>
+      </Head>
       <LayoutBase session={data.session}>
         <TourPageContent id={id} />
       </LayoutBase>
