@@ -70,13 +70,7 @@ const Header = ({ session }: { session: Session | null }) => {
         </span>
       </Navbar.Brand>
       {!session?.user && (
-        <div className="flex md:order-2 gap-4 items-center">
-          <span
-            onClick={() => signIn("auth0", { callbackUrl: "/onboarding" })}
-            className="text-blue-500 text-sm font-medium hover:underline"
-          >
-            Create Account
-          </span>
+        <div className="flex md:order-2">
           <Button
             onClick={() => signIn("auth0", { callbackUrl: "/onboarding" })}
           >

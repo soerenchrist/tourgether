@@ -10,27 +10,22 @@ import {
 
 const StatsPageContent = () => {
   return (
-    <>
-      <Head>
-        <title>Dashboard</title>
-      </Head>
-      <div className="flex flex-col gap-4">
-        <TotalsContainer />
-        <HistoryChart />
-      </div>
-    </>
+    <div className="flex flex-col gap-4">
+      <TotalsContainer />
+      <HistoryChart />
+    </div>
   );
 };
 
 const StatsPage: NextPage<PageProps> = ({ data }) => {
   return (
     <>
-    <Head>
-      <title>Stats</title>
-    </Head>
-    <LayoutBase session={data.session}>
-      <StatsPageContent></StatsPageContent>
-    </LayoutBase>
+      <Head>
+        <title>Stats</title>
+      </Head>
+      <LayoutBase session={data.session}>
+        <StatsPageContent></StatsPageContent>
+      </LayoutBase>
     </>
   );
 };
