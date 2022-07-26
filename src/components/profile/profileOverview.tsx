@@ -43,7 +43,7 @@ const FriendshipState: React.FC<{
     });
   };
   if (!friendship || isLoading) return <Spinner />;
-  else if (friendship.state === "ACTIVE") return <Badge size="xl">You are friends!</Badge>
+  else if (friendship.state === "ACTIVE") return <Badge size="xl" color="success">You are friends!</Badge>
   else if (friendship.state === "PENDING")
     return <Badge size="xl">Request pending</Badge>
   return <Button onClick={handleClick}>Send friend request</Button>;

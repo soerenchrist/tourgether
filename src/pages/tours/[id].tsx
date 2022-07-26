@@ -150,7 +150,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
       <div className="flex flex-col gap-4">
         <div className="grid lg:grid-cols-2 grid-cols-1 gap-6">
           <Card>
-            <div className="flex justify-between">
+            <div className="flex md:flex-row flex-col md:justify-between">
               {isLoading && <Skeleton className="h-8 w-72"></Skeleton>}
               {!isLoading && (
                 <CardTitle
@@ -161,7 +161,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
                 />
               )}
 
-              <div className="flex justify-end items-center gap-3">
+              <div className="flex justify-end items-center gap-3 pt-2 md:pt-0 pl-4">
                 {isLoading && <Spinner size="md" />}
                 {!isLoading && (
                   <>
