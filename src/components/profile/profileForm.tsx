@@ -128,7 +128,7 @@ const ProfileForm: React.FC<{
           onChange={setVisibility}
         />
         <div className="flex justify-end">
-          <Button disabled={isLoading} type="submit">
+          <Button disabled={isLoading || errors.username?.message != null} type="submit">
             {buttonText || "Update Profile"}
           </Button>
         </div>

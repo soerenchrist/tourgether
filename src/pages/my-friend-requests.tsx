@@ -58,7 +58,7 @@ const MyInvitationsPageContent: React.FC = () => {
         <Table.Body>
           {data.length === 0 && (
             <Table.Row>
-              <Table.Cell>You have no pending invitations</Table.Cell>
+              <Table.Cell colSpan={2}>You have no pending invitations</Table.Cell>
             </Table.Row>
           )}
           {data.map((link) => (
@@ -96,7 +96,7 @@ const MyInvitationsPage: NextPage<PageProps> = ({ data }) => {
         <title>My friend requests</title>
       </Head>
       <LayoutBase session={data.session}>
-        <MyInvitationsPageContent />;
+        <MyInvitationsPageContent />
       </LayoutBase>
     </>
   );

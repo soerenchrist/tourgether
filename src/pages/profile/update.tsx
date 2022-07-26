@@ -40,7 +40,6 @@ const UpdateProfilePage: NextPage<PageProps> = ({ data }) => {
           session={data.session}
         ></UpdateProfilePageContent>
       </LayoutBase>
-      ;
     </>
   );
 };
