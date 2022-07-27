@@ -12,6 +12,7 @@ import { trpc } from "@/utils/trpc";
 import { Peak, Tour, TourPeak, User } from "@prisma/client";
 import { Badge, Card } from "flowbite-react";
 import { NextPage } from "next";
+import { Session } from "next-auth";
 import dynamic from "next/dynamic";
 import { NextRouter, useRouter } from "next/router";
 import { useMemo } from "react";
@@ -23,8 +24,9 @@ const Map = dynamic(() => import("../components/maps/tourMap"), {
 
 const TourCard: React.FC<{
   tour: Tour & { creator: User; tourPeaks: (TourPeak & { peak: Peak })[] };
+  currentUserId: string;
   router: NextRouter;
-}> = ({ tour, router }) => {
+}> = ({ tour, router, currentUserId }) => {
   const util = trpc.useContext();
   const { data: count, isLoading: countLoading } = trpc.useQuery([
     "likes.like-count",
@@ -46,14 +48,17 @@ const TourCard: React.FC<{
               onClick={() => router.push(`/tours/${tour.id}`)}
               title={tour.name}
             />
-            <LikeButton
-              tour={tour}
-              onLiked={handleLikesChanged}
-              onRemovedLike={handleLikesChanged}
-            />
+            {currentUserId !== tour.creatorId && (
+              <LikeButton
+                tour={tour}
+                onLiked={handleLikesChanged}
+                onRemovedLike={handleLikesChanged}
+              />
+            )}
           </div>
           <span className="text-sm text-gray-600 -mt-2">
-            Created by {tour.creator.name} -{" "}
+            Created by {tour.creator.name} on{" "}
+            {tour.createdAt.toLocaleDateString()} -{" "}
             {countLoading ? (
               <Skeleton className="w-12 h-4" />
             ) : (
@@ -68,7 +73,12 @@ const TourCard: React.FC<{
           {tour.description && <span>{tour.description}</span>}
           {peaks.length > 0 && (
             <div className="h-52">
-              <Map peaks={peaks} allowScrolling={false} showZoomControl={false} allowDragging={false} />
+              <Map
+                peaks={peaks}
+                allowScrolling={false}
+                showZoomControl={false}
+                allowDragging={false}
+              />
             </div>
           )}
         </div>
@@ -90,7 +100,7 @@ const LoadingCard = () => {
   );
 };
 
-const FeedPageContent = () => {
+const FeedPageContent: React.FC<{ session: Session }> = ({ session }) => {
   const { data, fetchNextPage, hasNextPage, isLoading } = trpc.useInfiniteQuery(
     [
       "feed.get-feed",
@@ -130,7 +140,12 @@ const FeedPageContent = () => {
           loader={<LoadingCard key="loading" />}
         >
           {tours.map((tour) => (
-            <TourCard key={tour.id} tour={tour} router={router} />
+            <TourCard
+              key={tour.id}
+              tour={tour}
+              currentUserId={session.user?.id ?? ""}
+              router={router}
+            />
           ))}
         </InfiniteScroll>
       </main>
@@ -146,7 +161,7 @@ const FeedPage: NextPage<PageProps> = ({ data }) => {
     <>
       <Meta title="Feed" />
       <LayoutBase session={data.session}>
-        <FeedPageContent></FeedPageContent>
+        <FeedPageContent session={data.session}></FeedPageContent>
       </LayoutBase>
     </>
   );
