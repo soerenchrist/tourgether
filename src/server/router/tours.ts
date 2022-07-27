@@ -56,7 +56,7 @@ export const toursRouter = createRouter()
       searchTerm: z.string(),
       userId: z.string().optional(),
       orderBy: z.string().optional(),
-      orderDir: z.enum(["asc", "desc"]).optional()
+      orderDir: z.enum(["asc", "desc"]).optional(),
     }),
     async resolve({ ctx, input }) {
       const orderBy = (input.orderBy ?? "date") as keyof Tour;
@@ -85,12 +85,11 @@ export const toursRouter = createRouter()
         userId = input.userId;
         const friend = await isFriend(ctx.prisma, ctx.userId, input.userId);
         const visibilities = ["PUBLIC"];
-        if (friend)
-          visibilities.push("FRIENDS")
+        if (friend) visibilities.push("FRIENDS");
 
         visibilityFilter = {
           visibility: {
-            in: visibilities
+            in: visibilities,
           },
         };
       }
@@ -121,8 +120,8 @@ export const toursRouter = createRouter()
           ],
         },
         orderBy: {
-          [orderBy]: orderDir
-        }
+          [orderBy]: orderDir,
+        },
       });
       const totalCount = await ctx.prisma.tour.count({
         where: {
@@ -239,6 +238,43 @@ export const toursRouter = createRouter()
         },
       });
       return companions;
+    },
+  })
+  .query("count-peaks-reached", {
+    input: z
+      .object({
+        userId: z.string().optional(),
+      })
+      .optional(),
+    async resolve({ ctx, input }) {
+      let userId = ctx.userId;
+      if (input?.userId) {
+        userId = input.userId;
+      }
+
+      const results = await ctx.prisma.tourPeak.findMany({
+        where: {
+          tour: {
+            OR: [
+              {
+                creatorId: userId,
+              },
+              {
+                companions: {
+                  some: {
+                    userId: userId,
+                  },
+                },
+              },
+            ],
+          },
+        },
+        include: {
+          peak: true,
+        },
+        distinct: ["peakId"],
+      });
+      return results.length;
     },
   })
   .query("get-totals", {
@@ -462,11 +498,10 @@ export const toursRouter = createRouter()
     async resolve({ ctx, input }) {
       await ctx.prisma.tourPeak.deleteMany({
         where: {
-          tourId: input.tour.id
-        }
+          tourId: input.tour.id,
+        },
       });
 
-      
       const updatedTour = await ctx.prisma.tour.update({
         where: {
           id: input.tour.id,

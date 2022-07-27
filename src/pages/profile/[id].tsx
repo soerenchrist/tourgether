@@ -1,12 +1,12 @@
 import NotFound from "@/components/common/notFound";
-import TotalsDisplay from "@/components/stats/totalsDisplay";
+import {
+  TotalsContainer,
+} from "@/components/stats/totalsDisplay";
 import LayoutBase from "@/components/layout/layoutBase";
 import ProfileOverview from "@/components/profile/profileOverview";
 import UsersTours from "@/components/profile/usersTours";
 import { trpc } from "@/utils/trpc";
-import { Spinner } from "flowbite-react";
 import { NextPage } from "next";
-import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import {
@@ -34,22 +34,19 @@ const FriendsProfileContent: React.FC<{ id: string }> = ({ id }) => {
     }
   }, [error, router]);
 
-  const { data: totals, isLoading: totalsLoading } = trpc.useQuery([
-    "tours.get-totals",
-    {
-      userId: id,
-    },
-  ]);
-
   if (isError && error.data?.code === "NOT_FOUND")
     return <NotFound message="This user does not exist!" />;
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <ProfileOverview isLoading={isLoading} profile={profile} showFriendshipOption={true} />
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        <ProfileOverview
+          isLoading={isLoading}
+          profile={profile}
+          showFriendshipOption={true}
+        />
         {profile && <UsersTours userId={id} name={profile.username} />}
       </div>
-      <TotalsDisplay isLoading={totalsLoading} totals={totals} />
+      {profile && <TotalsContainer userId={profile.id} />}
     </div>
   );
 };

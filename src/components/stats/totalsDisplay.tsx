@@ -10,8 +10,9 @@ const TotalsDisplay: React.FC<{
     elevationDown: number | null;
     distance: number | null;
   };
+  peakCount?: number;
   isLoading: boolean;
-}> = ({ totals, isLoading }) => {
+}> = ({ totals, isLoading, peakCount }) => {
   const format = (value: number | null | undefined) => {
     if (!value) return "0 m";
     if (value < 1000) return `${value} m`;
@@ -19,7 +20,7 @@ const TotalsDisplay: React.FC<{
     return `${rounded} km`;
   };
   return (
-    <div className="grid md:grid-cols-4 sm:grid-cols-2 gap-2">
+    <div className="grid md:grid-cols-5 sm:grid-cols-2 gap-2">
       <Card>
         {isLoading ? (
           <Skeleton className="w-20 h-7" />
@@ -27,6 +28,14 @@ const TotalsDisplay: React.FC<{
           <CardTitle title={(totals?.count || 0) + ""} />
         )}
         Number of tours
+      </Card>
+      <Card>
+        {isLoading ? (
+          <Skeleton className="w-20 h-7" />
+        ) : (
+          <CardTitle title={(peakCount || 0) + ""} />
+        )}
+        Peaks reached
       </Card>
       <Card>
         {isLoading ? (
@@ -56,10 +65,23 @@ const TotalsDisplay: React.FC<{
   );
 };
 
-export const TotalsContainer = () => {
-  const { data, isLoading } = trpc.useQuery(["tours.get-totals"]);
-  
-  return <TotalsDisplay totals={data} isLoading={isLoading} />
-}
+export const TotalsContainer: React.FC<{ userId?: string }> = ({ userId }) => {
+  const { data: peakCount } = trpc.useQuery([
+    "tours.count-peaks-reached",
+    {
+      userId,
+    },
+  ]);
+  const { data, isLoading } = trpc.useQuery([
+    "tours.get-totals",
+    {
+      userId,
+    },
+  ]);
+
+  return (
+    <TotalsDisplay totals={data} peakCount={peakCount} isLoading={isLoading} />
+  );
+};
 
 export default TotalsDisplay;
