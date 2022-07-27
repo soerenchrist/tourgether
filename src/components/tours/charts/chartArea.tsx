@@ -1,4 +1,4 @@
-import { Card, Dropdown } from "flowbite-react";
+import { Card, Dropdown, Label, ToggleSwitch } from "flowbite-react";
 import { ReactNode, useMemo, useState } from "react";
 import CardTitle from "@/components/common/cardTitle";
 import HeightProfile from "./heightProfile";
@@ -13,24 +13,26 @@ const ChartArea: React.FC<{
   const [currentChart, setCurrentChart] = useState<
     "height" | "speed" | "hr" | "temp"
   >("height");
+  const [mode, setMode] = useState<"distance" | "time">("distance");
 
-  let chart: ReactNode;
-  switch (currentChart) {
-    case "height":
-      chart = <HeightProfile points={points} onHover={onHover} />;
-      break;
-    case "speed":
-      chart = <SpeedProfile points={points} onHover={onHover} />;
-      break;
-    case "hr":
-      chart = <HeartRateProfile points={points} onHover={onHover} />;
-      break;
-    case "temp":
-      chart = <TemperatureProfile points={points} onHover={onHover} />;
-      break;
-    default:
-      break;
-  }
+  const chart = useMemo(() => {
+    switch (currentChart) {
+      case "height":
+        return <HeightProfile points={points} mode={mode} onHover={onHover} />;
+      case "speed":
+        return <SpeedProfile points={points} onHover={onHover} />;
+      case "hr":
+        return (
+          <HeartRateProfile points={points} mode={mode} onHover={onHover} />
+        );
+      case "temp":
+        return (
+          <TemperatureProfile points={points} mode={mode} onHover={onHover} />
+        );
+      default:
+        return <></>;
+    }
+  }, [currentChart, points, onHover, mode]);
 
   const hasHeartRates = useMemo(() => points[0]?.heartRate != null, [points]);
 
@@ -49,10 +51,9 @@ const ChartArea: React.FC<{
     return "";
   }, [currentChart]);
 
-  if (!hasTime) return <></>;
   return (
     <Card>
-      <div className="flex justify-between">
+      <div className="flex justify-between items-center">
         <Dropdown inline label={<CardTitle title={title} />}>
           <Dropdown.Item onClick={() => setCurrentChart("height")}>
             Height profile
@@ -71,6 +72,21 @@ const ChartArea: React.FC<{
             </Dropdown.Item>
           )}
         </Dropdown>
+        {hasTime && currentChart !== "speed" && (
+          <div className="flex items-center">
+            <div className="pr-4">
+            <Label>By time</Label>
+            </div>
+            <ToggleSwitch
+              checked={mode === "distance"}
+              label=""
+              onChange={(checked) =>
+                checked ? setMode("distance") : setMode("time")
+              }
+            ></ToggleSwitch>
+            <Label>By distance</Label>
+          </div>
+        )}
       </div>
       {chart}
     </Card>

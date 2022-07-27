@@ -4,16 +4,16 @@ import GenericProfileChart from "./genericProfileChart";
 
 const HeartRateProfile: React.FC<{
   points: Point[];
+  mode: "distance" | "time"
   onHover: (point?: Point) => void;
-}> = ({ points, onHover }) => {
+}> = ({ points, onHover, mode }) => {
   return (<GenericProfileChart
     color="#e53935"
     label="Heart rates"
     onHover={onHover}
     points={points}
-    primarySelector={(point) => point.time ?? new Date()}
+    mode={mode}
     secondarySelector={(point) => point.heartRate ?? 0}
-    primaryTooltipFormatter={(value) => value?.toLocaleTimeString() ?? ""}
     secondaryTooltipFormatter={(value) => `${value ?? 0} bpm`}
     useAdaptiveMin={false} />);
 };

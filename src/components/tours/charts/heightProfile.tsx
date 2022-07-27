@@ -3,17 +3,17 @@ import GenericProfileChart from "./genericProfileChart";
 
 const HeightProfile: React.FC<{
   points: Point[];
+  mode: "distance" | "time"
   onHover: (point?: Point) => void;
-}> = ({ points, onHover }) => {
+}> = ({ points, onHover, mode }) => {
 
   return (<GenericProfileChart
     color="#66bb6a"
     label="Elevation"
     onHover={onHover}
+    mode={mode}
     points={points}
-    primarySelector={(point) => point.time ?? new Date()}
     secondarySelector={(point) => point.elevation}
-    primaryTooltipFormatter={(value) => value?.toLocaleTimeString() ?? ""}
     secondaryTooltipFormatter={(value) => `${Math.round(value ?? 0)} m`}
     useAdaptiveMin={true} />);
 };

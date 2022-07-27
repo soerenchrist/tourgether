@@ -1,15 +1,17 @@
+import { calculateDistance } from "@/lib/gpxLib";
 import { type Point } from "@/server/router/tours";
 import { useCallback, useMemo } from "react";
 import { AxisOptions, Chart } from "react-charts";
+
+type DistancePoint = Point & { distance: number };
 
 type Props = {
   points: Point[];
   onHover: (point?: Point) => void;
   label: string;
-  primarySelector: (point: Point) => Date;
+  mode: "distance" | "time";
   secondarySelector: (point: Point) => number;
   color: string;
-  primaryTooltipFormatter?: (value?: Date) => string;
   secondaryTooltipFormatter?: (value?: number) => string;
   useAdaptiveMin?: boolean;
 };
@@ -21,6 +23,30 @@ const findMin = (points: Point[]) => {
   });
   return min;
 };
+
+const calcDistances = (points: Point[]) => {
+  let currentDistance = 0.0;
+  const results: DistancePoint[] = [];
+  for (let i = 0; i < points.length - 1; i++) {
+    const current = points[i]!;
+    const next = points[i + 1]!;
+
+    const distance = calculateDistance(
+      current.latitude,
+      current.longitude,
+      next.latitude,
+      next.longitude
+    );
+    currentDistance += distance;
+
+    results.push({
+      ...current,
+      distance: currentDistance,
+    });
+  }
+  return results;
+};
+
 const filter = <T,>(points: T[], factor: number) => {
   const results: T[] = [];
   points.forEach((p, index) => {
@@ -36,20 +62,25 @@ const getFactor = (totalCount: number) => {
   return 10;
 };
 
+const distanceSelector = (datum: DistancePoint) => datum.distance;
+const dateSelector = (datum: DistancePoint) => datum.time;
+const dateFormatter = (value?: Date) => value?.toLocaleTimeString() ?? "";
+const distanceFormatter = (value?: number) => `${Math.round(value ?? 0)} m`;
+
 const GenericProfileChart: React.FC<Props> = ({
   points,
   onHover,
   label,
   color,
-  primarySelector,
+  mode,
   secondarySelector,
-  primaryTooltipFormatter,
   secondaryTooltipFormatter,
   useAdaptiveMin,
 }) => {
+  const distancePoints = useMemo(() => calcDistances(points), [points]);
   const filteredPoints = useMemo(
-    () => filter(points, getFactor(points.length)),
-    [points]
+    () => filter(distancePoints, getFactor(distancePoints.length)),
+    [distancePoints]
   );
   const data = useMemo(
     () => [
@@ -61,14 +92,23 @@ const GenericProfileChart: React.FC<Props> = ({
     [filteredPoints, label]
   );
 
+  const selector = useMemo(
+    () => (mode === "distance" ? distanceSelector : dateSelector),
+    [mode]
+  );
+  const formatter = useMemo(
+    () => (mode === "distance" ? distanceFormatter : dateFormatter),
+    [mode]
+  );
+
   const primaryAxis = useMemo(
-    (): AxisOptions<Point> => ({
-      getValue: primarySelector,
+    (): AxisOptions<DistancePoint> => ({
+      getValue: selector,
       formatters: {
-        tooltip: primaryTooltipFormatter,
+        tooltip: formatter as any,
       },
     }),
-    [primarySelector, primaryTooltipFormatter]
+    [selector, formatter]
   );
 
   const min = useMemo(
@@ -81,7 +121,7 @@ const GenericProfileChart: React.FC<Props> = ({
   }, [color]);
 
   const secondaryAxes = useMemo(
-    (): AxisOptions<Point>[] => [
+    (): AxisOptions<DistancePoint>[] => [
       {
         getValue: secondarySelector,
         formatters: {
