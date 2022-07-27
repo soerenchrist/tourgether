@@ -60,11 +60,15 @@ export const feedRouter = createRouter()
     },
   })
   .query("get-trending", {
-    async resolve({ ctx }) {
+    input: z.object({
+      count: z.number().optional()
+    }),
+    async resolve({ ctx, input }) {
+      const count = input.count ?? 8;
       const lastTwoWeeks = new Date();
       lastTwoWeeks.setDate(lastTwoWeeks.getDate() - 14);
       const tours = await ctx.prisma.tour.findMany({
-        take: 10,
+        take: count,
         where: {
           visibility: "PUBLIC",
           creatorId: {

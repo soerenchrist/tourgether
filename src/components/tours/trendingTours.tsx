@@ -4,11 +4,13 @@ import CardTitle from "../common/cardTitle";
 import { List, ListItem } from "../common/list";
 
 const TrendingTours = () => {
-  const { data: tours, isLoading } = trpc.useQuery(["feed.get-trending"]);
+  const { data: tours, isLoading } = trpc.useQuery(["feed.get-trending", {
+    count: 5
+  }]);
   return (
     <div className="h-full">
       <Card style={{ height: "100%" }}>
-        <div className="flex flex-col justify-start h-full">
+        <div className="flex flex-col justify-start gap-2 h-full">
           <CardTitle title="Trending"></CardTitle>
           <List>
             {isLoading && (

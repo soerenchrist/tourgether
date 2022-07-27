@@ -65,8 +65,8 @@ const Header = ({ session }: { session: Session | null }) => {
   return (
     <Navbar fluid rounded>
       <Navbar.Brand href="/">
-        <div className="flex items-center">
-        <img src="logo.svg" alt="logo" className="w-9 h-9" />
+        <div className="flex items-center gap-2">
+        <img src="/logo.svg" alt="logo" className="w-9 h-9" />
         <span className="text-xl font-bold cursor-pointer">
           Tour<span className="text-brand">gether</span>
         </span>

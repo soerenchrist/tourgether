@@ -134,7 +134,7 @@ const FeedPageContent = () => {
           ))}
         </InfiniteScroll>
       </main>
-      <aside className="hidden h-96 lg:block lg:col-span-2 lg:static fixed z-50 top-24">
+      <aside className="hidden lg:block h-96 lg:col-span-2">
         <TrendingTours />
       </aside>
     </div>
