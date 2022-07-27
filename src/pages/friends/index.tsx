@@ -1,5 +1,6 @@
 import CardTitle from "@/components/common/cardTitle";
 import ConfirmationModal from "@/components/common/confirmationDialog";
+import Meta from "@/components/common/meta";
 import LayoutBase from "@/components/layout/layoutBase";
 import {
   PageProps,
@@ -8,8 +9,6 @@ import {
 import { trpc } from "@/utils/trpc";
 import { Card, Spinner, Table } from "flowbite-react";
 import { NextPage } from "next";
-import { useSession } from "next-auth/react";
-import Head from "next/head";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -93,9 +92,7 @@ const FriendsPageContent = () => {
 const FriendsPage: NextPage<PageProps> = ({ data }) => {
   return (
     <>
-      <Head>
-        <title>My Friends</title>
-      </Head>
+      <Meta title="My Friends" />
       <LayoutBase session={data.session}>
         <FriendsPageContent></FriendsPageContent>
       </LayoutBase>

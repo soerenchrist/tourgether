@@ -1,3 +1,4 @@
+import Meta from "@/components/common/meta";
 import LayoutBase from "@/components/layout/layoutBase";
 import EditPeaksForm from "@/components/peaks/editPeaksForm";
 import {
@@ -6,7 +7,6 @@ import {
 } from "@/server/common/protectedServersideProps";
 import { trpc } from "@/utils/trpc";
 import { NextPage } from "next";
-import Head from "next/head";
 import { useRouter } from "next/router";
 
 const EditPeakPageContent: React.FC<{ id: string }> = ({ id }) => {
@@ -24,9 +24,7 @@ const EditPeakPage: NextPage<PageProps> = ({ data }) => {
   }
   return (
     <>
-      <Head>
-        <title>Edit peak</title>
-      </Head>
+      <Meta title="Edit Peak" />
       <LayoutBase session={data.session}>
         <EditPeakPageContent id={id} />
       </LayoutBase>

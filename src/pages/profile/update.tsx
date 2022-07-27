@@ -1,4 +1,5 @@
 import CardTitle from "@/components/common/cardTitle";
+import Meta from "@/components/common/meta";
 import LayoutBase from "@/components/layout/layoutBase";
 import ProfileForm from "@/components/profile/profileForm";
 import {
@@ -9,7 +10,6 @@ import { trpc } from "@/utils/trpc";
 import { Card, Spinner } from "flowbite-react";
 import { NextPage } from "next";
 import { Session } from "next-auth";
-import Head from "next/head";
 
 const UpdateProfilePageContent: React.FC<{ session: Session }> = ({
   session,
@@ -32,9 +32,7 @@ const UpdateProfilePageContent: React.FC<{ session: Session }> = ({
 const UpdateProfilePage: NextPage<PageProps> = ({ data }) => {
   return (
     <>
-      <Head>
-        <title>Update Profile</title>
-      </Head>
+      <Meta title="Update Profile" />
       <LayoutBase session={data.session}>
         <UpdateProfilePageContent
           session={data.session}

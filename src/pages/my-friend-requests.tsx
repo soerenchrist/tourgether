@@ -1,4 +1,5 @@
 import CardTitle from "@/components/common/cardTitle";
+import Meta from "@/components/common/meta";
 import LayoutBase from "@/components/layout/layoutBase";
 import {
   PageProps,
@@ -7,9 +8,6 @@ import {
 import { trpc } from "@/utils/trpc";
 import { Button, Card, Spinner, Table } from "flowbite-react";
 import { NextPage } from "next";
-import { useSession } from "next-auth/react";
-import Head from "next/head";
-import { ReactNode } from "react";
 
 const MyInvitationsPageContent: React.FC = () => {
   const { data, isLoading } = trpc.useQuery(["friends.get-my-friend-requests"]);
@@ -58,7 +56,9 @@ const MyInvitationsPageContent: React.FC = () => {
         <Table.Body>
           {data.length === 0 && (
             <Table.Row>
-              <Table.Cell colSpan={2}>You have no pending invitations</Table.Cell>
+              <Table.Cell colSpan={2}>
+                You have no pending invitations
+              </Table.Cell>
             </Table.Row>
           )}
           {data.map((link) => (
@@ -92,9 +92,7 @@ const MyInvitationsPageContent: React.FC = () => {
 const MyInvitationsPage: NextPage<PageProps> = ({ data }) => {
   return (
     <>
-      <Head>
-        <title>My friend requests</title>
-      </Head>
+      <Meta title="My Friend Requests"></Meta>
       <LayoutBase session={data.session}>
         <MyInvitationsPageContent />
       </LayoutBase>

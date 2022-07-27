@@ -1,18 +1,16 @@
 import CardTitle from "@/components/common/cardTitle";
 import Input from "@/components/common/input";
 import { List, ListItem } from "@/components/common/list";
+import Meta from "@/components/common/meta";
 import ProgressBar from "@/components/common/progressBar";
 import LayoutBase from "@/components/layout/layoutBase";
 import useDebounceValue from "@/hooks/useDebounce";
 import { protectedServersideProps } from "@/server/common/protectedServersideProps";
 import { trpc } from "@/utils/trpc";
 import { Card, Tabs } from "flowbite-react";
-import { InferGetServerSidePropsType, NextPage } from "next";
 import { Session } from "next-auth";
-import { useSession } from "next-auth/react";
-import Head from "next/head";
 import { NextRouter, useRouter } from "next/router";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 const TourSearchArea: React.FC<{ router: NextRouter; searchTerm: string }> = ({
   router,
@@ -155,9 +153,7 @@ const SearchPageContent = () => {
 const SearchPage = ({ data }: { data: { session: Session } }) => {
   return (
     <>
-      <Head>
-        <title>Search members and tours</title>
-      </Head>
+      <Meta title="Search"></Meta>
       <LayoutBase session={data.session}>
         <SearchPageContent></SearchPageContent>
       </LayoutBase>

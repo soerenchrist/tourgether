@@ -3,11 +3,9 @@ import { List, ListItem } from "@/components/common/list";
 import LayoutBase from "@/components/layout/layoutBase";
 import { trpc } from "@/utils/trpc";
 import { Avatar, Card, Dropdown, Spinner } from "flowbite-react";
-import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
-import Head from "next/head";
 import { useRouter } from "next/router";
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ConfirmationModal from "@/components/common/confirmationDialog";
 import NotFound from "@/components/common/notFound";
 import Link from "next/link";
@@ -28,6 +26,7 @@ import {
   protectedServersideProps,
 } from "@/server/common/protectedServersideProps";
 import { NextPage } from "next";
+import Meta from "@/components/common/meta";
 
 const Map = dynamic(() => import("../../components/maps/tourMap"), {
   ssr: false,
@@ -144,9 +143,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
 
   return (
     <>
-      <Head>
-        <title>Tour - {data?.name ?? ""}</title>
-      </Head>
+      <Meta title={`Tour - ${data?.name ?? ""}`} />
       <div className="flex flex-col gap-4">
         <div className="grid lg:grid-cols-2 grid-cols-1 gap-6">
           <Card>
@@ -293,7 +290,7 @@ const TourPageContent: React.FC<{ id: string }> = ({ id }) => {
           </Card>
           <Card>
             <div className="lg:h-full h-52">
-            <Map hoverPoint={hoverPoint} peaks={peaks} points={points} />
+              <Map hoverPoint={hoverPoint} peaks={peaks} points={points} />
             </div>
           </Card>
         </div>
@@ -337,14 +334,9 @@ const TourPage: NextPage<PageProps> = ({ data }) => {
   }
 
   return (
-    <>
-      <Head>
-        <title>Display tour</title>
-      </Head>
-      <LayoutBase session={data.session}>
-        <TourPageContent id={id} />
-      </LayoutBase>
-    </>
+    <LayoutBase session={data.session}>
+      <TourPageContent id={id} />
+    </LayoutBase>
   );
 };
 

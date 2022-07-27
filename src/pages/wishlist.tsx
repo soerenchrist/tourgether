@@ -1,12 +1,12 @@
 import CardTitle from "@/components/common/cardTitle";
 import ConfirmationModal from "@/components/common/confirmationDialog";
+import Meta from "@/components/common/meta";
 import LayoutBase from "@/components/layout/layoutBase";
 import { PageProps, protectedServersideProps } from "@/server/common/protectedServersideProps";
 import { trpc } from "@/utils/trpc";
 import { Peak, WishlistItem } from "@prisma/client";
 import { Card, Checkbox, Spinner, Table } from "flowbite-react";
 import { NextPage } from "next";
-import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
@@ -183,9 +183,7 @@ const WishlistPageContent = () => {
 const WishlistPage: NextPage<PageProps> = ({ data }) => {
   return (
     <>
-      <Head>
-        <title>My Wishlist</title>
-      </Head>
+      <Meta title="My Wishlist"></Meta>
       <LayoutBase session={data.session}><WishlistPageContent></WishlistPageContent></LayoutBase>
     </>
   );

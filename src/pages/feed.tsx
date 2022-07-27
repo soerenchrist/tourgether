@@ -1,4 +1,5 @@
 import CardTitle from "@/components/common/cardTitle";
+import Meta from "@/components/common/meta";
 import Skeleton from "@/components/common/skeleton";
 import LayoutBase from "@/components/layout/layoutBase";
 import LikeButton from "@/components/tours/likeButton";
@@ -12,7 +13,6 @@ import { Peak, Tour, TourPeak, User } from "@prisma/client";
 import { Badge, Card } from "flowbite-react";
 import { NextPage } from "next";
 import dynamic from "next/dynamic";
-import Head from "next/head";
 import { NextRouter, useRouter } from "next/router";
 import { useMemo } from "react";
 import InfiniteScroll from "react-infinite-scroller";
@@ -144,10 +144,7 @@ const FeedPageContent = () => {
 const FeedPage: NextPage<PageProps> = ({ data }) => {
   return (
     <>
-      <Head>
-        <title>Feed</title>
-        <link rel="icon" href="/logo.svg" />
-      </Head>
+      <Meta title="Feed" />
       <LayoutBase session={data.session}>
         <FeedPageContent></FeedPageContent>
       </LayoutBase>

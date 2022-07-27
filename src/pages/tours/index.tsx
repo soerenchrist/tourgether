@@ -7,7 +7,6 @@ import CardTitle from "@/components/common/cardTitle";
 import { useEffect, useState } from "react";
 import ToursTable from "@/components/tours/toursTable";
 import PaginationText from "@/components/common/paginationText";
-import Head from "next/head";
 import useDebounceValue from "@/hooks/useDebounce";
 import Input from "@/components/common/input";
 import { type SortState } from "@/components/common/sortableCol";
@@ -17,6 +16,7 @@ import {
   protectedServersideProps,
 } from "@/server/common/protectedServersideProps";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import Meta from "@/components/common/meta";
 
 const PaginatedToursTable: React.FC = () => {
   const router = useRouter();
@@ -99,9 +99,7 @@ const PaginatedToursTable: React.FC = () => {
 const ToursPage: NextPage<PageProps> = ({ data }) => {
   return (
     <>
-      <Head>
-        <title>My Tours</title>
-      </Head>
+      <Meta title="My Tours" />
       <LayoutBase session={data.session}>
         <PaginatedToursTable />
       </LayoutBase>

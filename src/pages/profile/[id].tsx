@@ -13,6 +13,7 @@ import {
   PageProps,
   protectedServersideProps,
 } from "@/server/common/protectedServersideProps";
+import Meta from "@/components/common/meta";
 
 const FriendsProfileContent: React.FC<{ id: string }> = ({ id }) => {
   const {
@@ -63,9 +64,7 @@ const FriendsProfilePage: NextPage<PageProps> = ({ data }) => {
 
   return (
     <>
-      <Head>
-        <title>Profile</title>
-      </Head>
+      <Meta title="Profile" />
       <LayoutBase session={data.session}>
         <FriendsProfileContent id={id}></FriendsProfileContent>
       </LayoutBase>

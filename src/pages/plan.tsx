@@ -1,8 +1,12 @@
 import CardTitle from "@/components/common/cardTitle";
+import Meta from "@/components/common/meta";
 import LayoutBase from "@/components/layout/layoutBase";
 import HeightDistanceChart from "@/components/plan/heightDistanceChart";
 import { createGpx } from "@/lib/gpxLib";
-import { PageProps, protectedServersideProps } from "@/server/common/protectedServersideProps";
+import {
+  PageProps,
+  protectedServersideProps,
+} from "@/server/common/protectedServersideProps";
 import { FeatureProperties } from "@/server/router/routing";
 import { trpc } from "@/utils/trpc";
 import { mdiDownload, mdiUndo } from "@mdi/js";
@@ -11,7 +15,6 @@ import { Alert, Card } from "flowbite-react";
 import { LatLng } from "leaflet";
 import { NextPage } from "next";
 import dynamic from "next/dynamic";
-import Head from "next/head";
 import { useMemo, useState } from "react";
 
 const Map = dynamic(() => import("../components/maps/planMap"), {
@@ -212,9 +215,7 @@ const PlanPageContent = () => {
 const PlanPage: NextPage<PageProps> = ({ data }) => {
   return (
     <>
-      <Head>
-        <title>Plan your Tour</title>
-      </Head>
+      <Meta title="Plan your Tour"></Meta>
       <LayoutBase session={data.session}>
         <PlanPageContent />
       </LayoutBase>

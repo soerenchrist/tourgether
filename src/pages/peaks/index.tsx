@@ -1,5 +1,6 @@
 import CardTitle from "@/components/common/cardTitle";
 import Input from "@/components/common/input";
+import Meta from "@/components/common/meta";
 import PaginationText from "@/components/common/paginationText";
 import { type SortState } from "@/components/common/sortableCol";
 import LayoutBase from "@/components/layout/layoutBase";
@@ -24,7 +25,6 @@ import {
 } from "flowbite-react";
 import { NextPage } from "next";
 import dynamic from "next/dynamic";
-import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -154,9 +154,7 @@ const PeaksPageContent: React.FC = () => {
 const PeaksPage: NextPage<PageProps> = ({ data }) => {
   return (
     <>
-      <Head>
-        <title>Peaks</title>
-      </Head>
+      <Meta title="Peaks" />
       <LayoutBase session={data.session}>
         <PeaksPageContent></PeaksPageContent>
       </LayoutBase>

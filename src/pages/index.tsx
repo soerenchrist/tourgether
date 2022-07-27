@@ -1,19 +1,12 @@
+import Meta from "@/components/common/meta";
 import { redirectToFeedProps } from "@/server/common/protectedServersideProps";
 import { Card } from "flowbite-react";
-import Head from "next/head";
 import LayoutBase from "../components/layout/layoutBase";
 
 const Home = () => {
   return (
     <>
-      <Head>
-        <title>Tourgether</title>
-        <meta
-          name="description"
-          content="Plan and manage your hiking tours together"
-        />
-        <link rel="icon" href="/logo.svg" />
-      </Head>
+      <Meta></Meta>
       <LayoutBase session={null}>
         <main className="flex flex-col items-center justify-center h-full p-10 px-0 mx-auto md:py-10 md:p-10 md:px-0">
           <div className="flex items-center gap-4">

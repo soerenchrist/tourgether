@@ -7,7 +7,6 @@ import { trpc } from "@/utils/trpc";
 import { Card, Checkbox, Dropdown, Label, Spinner, Tooltip } from "flowbite-react";
 import { NextPage } from "next";
 import dynamic from "next/dynamic";
-import Head from "next/head";
 import { useRouter } from "next/router";
 import { ReactNode, useState } from "react";
 import PeakDetailCard from "@/components/peaks/peakDetailCard";
@@ -25,6 +24,7 @@ import {
   PageProps,
   protectedServersideProps,
 } from "@/server/common/protectedServersideProps";
+import Meta from "@/components/common/meta";
 
 const Map = dynamic(() => import("../../components/maps/peakMap"), {
   ssr: false,
@@ -145,9 +145,7 @@ const PeakDetails: React.FC<{ id: string }> = ({ id }) => {
   };
   return (
     <>
-      <Head>
-        <title>Peak - {peak.name}</title>
-      </Head>
+      <Meta title={peak.name} />
       <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
         <PeakDetailCard
           peak={peak}

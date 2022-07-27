@@ -1,3 +1,4 @@
+import Meta from "@/components/common/meta";
 import LayoutBase from "@/components/layout/layoutBase";
 import EditToursForm from "@/components/tours/editToursForm";
 import {
@@ -6,9 +7,7 @@ import {
 } from "@/server/common/protectedServersideProps";
 import { trpc } from "@/utils/trpc";
 import { NextPage } from "next";
-import Head from "next/head";
 import { useRouter } from "next/router";
-import { ReactNode } from "react";
 
 const EditTourPageContent: React.FC<{ id: string }> = ({ id }) => {
   const { data } = trpc.useQuery(["tours.get-tour-by-id", { id }]);
@@ -26,9 +25,7 @@ const EditTourPage: NextPage<PageProps> = ({ data }) => {
 
   return (
     <>
-      <Head>
-        <title>Edit Tour</title>
-      </Head>
+      <Meta title="Edit Tour" />
       <LayoutBase session={data.session}>
         <EditTourPageContent id={id}></EditTourPageContent>
       </LayoutBase>

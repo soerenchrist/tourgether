@@ -4,11 +4,11 @@ import ProfileOverview from "@/components/profile/profileOverview";
 import { trpc } from "@/utils/trpc";
 import { NextPage } from "next";
 import { Session } from "next-auth";
-import Head from "next/head";
 import {
   PageProps,
   protectedServersideProps,
 } from "@/server/common/protectedServersideProps";
+import Meta from "@/components/common/meta";
 
 const ProfilePageContent: React.FC<{ session: Session }> = ({ session }) => {
   if (!session.user) return null;
@@ -31,9 +31,7 @@ const ProfilePageContent: React.FC<{ session: Session }> = ({ session }) => {
 const ProfilePage: NextPage<PageProps> = ({ data }) => {
   return (
     <>
-      <Head>
-        <title>Profile</title>
-      </Head>
+      <Meta title="Your Profile" />
       <LayoutBase session={data.session}>
         <ProfilePageContent session={data.session}></ProfilePageContent>
       </LayoutBase>

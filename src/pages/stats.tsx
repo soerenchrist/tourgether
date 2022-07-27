@@ -1,12 +1,12 @@
 import HistoryChart from "@/components/stats/historyChart";
 import LayoutBase from "@/components/layout/layoutBase";
 import { NextPage } from "next";
-import Head from "next/head";
 import { TotalsContainer } from "@/components/stats/totalsDisplay";
 import {
   PageProps,
   protectedServersideProps,
 } from "@/server/common/protectedServersideProps";
+import Meta from "@/components/common/meta";
 
 const StatsPageContent = () => {
   return (
@@ -20,9 +20,7 @@ const StatsPageContent = () => {
 const StatsPage: NextPage<PageProps> = ({ data }) => {
   return (
     <>
-      <Head>
-        <title>Stats</title>
-      </Head>
+    <Meta title="Stats"></Meta>
       <LayoutBase session={data.session}>
         <StatsPageContent></StatsPageContent>
       </LayoutBase>
