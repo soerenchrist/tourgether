@@ -1,12 +1,24 @@
 import { trpc } from "@/utils/trpc";
+import { Tour, User } from "@prisma/client";
 import { Card } from "flowbite-react";
+import { useRouter } from "next/router";
 import CardTitle from "../common/cardTitle";
 import { List, ListItem } from "../common/list";
 
 const TrendingTours = () => {
-  const { data: tours, isLoading } = trpc.useQuery(["feed.get-trending", {
-    count: 5
-  }]);
+  const { data: tours, isLoading } = trpc.useQuery([
+    "feed.get-trending",
+    {
+      count: 5,
+    },
+  ]);
+  const router = useRouter();
+  const handleClick = (tour: Tour) => {
+    router.push(`/tours/${tour.id}`);
+  };
+  const handleUserClick = (user: User) => {
+    router.push(`/profile/${user.id}`);
+  };
   return (
     <div className="h-full">
       <Card style={{ height: "100%" }}>
@@ -28,7 +40,11 @@ const TrendingTours = () => {
               <ListItem
                 key={tour.id}
                 title={tour.name}
-                subtitle={`${tour.creator.name} - ${tour._count?.likes ?? 0} Likes`}
+                onTitleClick={() => handleClick(tour)}
+                onImageClick={() => handleUserClick(tour.creator)}
+                subtitle={`${tour.creator.name} - ${
+                  tour._count?.likes ?? 0
+                } Likes`}
                 image={tour.creator.image}
               />
             ))}

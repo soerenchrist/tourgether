@@ -2,6 +2,10 @@
 
 # [Tourgether](https://tourgether.eu)
 
+
+## About
+I participated in the [hackathon](https://townhall.hashnode.com/planetscale-hackathon) by [Hashnode](https://hashnode.com) and [PlanetScale](https://planetscale.com).
+
 ## What?
 I love hiking. And hiking is the most fun when you do it together with your friends. \
 For this reason, Tourgether is supposed to be the social network for people who love hiking and mountaineering. Some of the features include:
